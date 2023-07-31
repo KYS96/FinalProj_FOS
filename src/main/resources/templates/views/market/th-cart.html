@@ -1,0 +1,29 @@
+<tr class="cartList" style="height: 100px;" th:each="c:${cartProductList}">
+    <input type="hidden" th:value="${c.productPrice}" th:if="${c.eventCode == 0}">
+    <input type="hidden" th:value="${c.productPrice-c.eventCode}" th:if="${c.eventCode >= 1000}">
+    <input type="hidden" th:value="${c.productPrice-c.productPrice*(c.eventCode/100)}" th:if="${c.eventCode > 0 && c.eventCode <= 100}">
+    <td class="align-middle justify-content-left" style="width: 5%;"></td>
+    <!-- <td class="align-middle justify-content-left" style="width: 5%;"><input type="checkbox"/></td> -->
+    <td class="align-middle justify-content-left">
+        <img class="ml-4 mr-4" th:src="${c.productImage}" alt="" style="width: 75px; height: 75px; border-radius: 100%;">
+    </td>
+    <td style="height: 100px; display: flex; justify-content: center; align-items: center;">
+        <span class="mt-auto mb-auto productName" th:text="${c.productName}" th:if="${c.eventTitle == null}"/>
+        <span class="mt-auto mb-auto" th:text="|[${c.eventTitle}]|" th:if="${c.eventTitle != null}" style="color: #f5683c;"/>&nbsp;
+        <span class="mt-auto mb-auto productName" th:text="${c.productName}" th:if="${c.eventTitle != null}"/>
+    </td>
+    <td class="align-middle productPrice" th:text="${#numbers.formatInteger(c.productPrice, 3, 'COMMA') + '원'}" th:if="${c.eventCode == 0}"></td>
+    <td class="align-middle productPrice" th:text="${#numbers.formatInteger(c.productPrice-c.eventCode, 3, 'COMMA') + '원'}" th:if="${c.eventCode >= 1000}"></td>
+    <td class="align-middle productPrice" th:text="${#numbers.formatInteger(c.productPrice-c.productPrice*(c.eventCode/100), 3, 'COMMA') + '원'}" th:if="${c.eventCode > 0 && c.eventCode <= 100}"></td>
+    <td class="align-middle">
+        <button class="upBtn" onclick="upbtn(this)" style="border:none; background-color: white; outline:none;"><i class="bi bi-caret-up-fill"></i></button>
+        <div class="amount" style="color:black;">[[${c.amount}]]</div>
+        <button class="downBtn" onclick="downbtn(this)" style="border:none; background-color: white; outline:none;"><i class="bi bi-caret-down-fill"></i></button>
+    </td>
+    <td class="align-middle">
+        <button onclick="deleteCart(this)" style="outline:none; background-color:white; font-size:18px; border:none;">
+            <i class="bi bi-x-lg"></i>
+            <input type="hidden" th:value="${c.productNo}">
+        </button>
+    </td>
+</tr>

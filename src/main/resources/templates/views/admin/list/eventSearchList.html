@@ -1,0 +1,70 @@
+<div class="au-card-title">
+    <div class="bg-overlay bg-overlay--blue"></div>
+    <h3><i class="bi bi-pencil-square"></i>이벤트 빠른 수정</h3>
+</div>
+<div class="au-task js-list-load cardInnerText" th:if="${list == null || list.size == 0}">
+    <h3>검색된 이벤트가 없습니다.</h3>
+</div>
+<div class="au-task js-list-load cardInnerText" th:if="${!(list == null || list.size == 0)}">
+    <div style="text-align: center; overflow-x: scroll;">
+        <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto;">
+            <thead>
+                <tr>
+                    <th>이벤트 번호</th>
+                    <th>이미지</th>
+                    <th>이름</th>
+                    <th>시작일</th>
+                    <th>종료일</th>
+                    <th>활성 여부</th>
+                    <th>상세 수정</th>
+                </tr>
+            </thead>
+            <tbody>
+                <th:block th:each="e : ${list}">
+                    <tr>
+                        <td style="min-width: 100px;">[[${e.eventNo}]]</td>
+                        <td style="min-width: 150px;"><img th:src="${e.frontImage}" width="150px" height="150px"></td>
+                        <td style="min-width: 300px; max-width: 300px;">
+                            <input th:value="${e.eventTitle}" onblur="changeEvent(this)" th:data-type="event_title" style="width: 280px;"></input>
+                            <input type="hidden" th:value="${e.eventTitle}">
+                        </td>
+                        <td>
+                            <input type="date" th:value="${e.eventStartDate}" onblur="changeEvent(this)" th:data-type="event_start_date" style="max-width: 250px;"></input>
+                            <input type="hidden" th:value="${e.eventStartDate}">
+                        </td>
+                        <td>
+                            <input type="date" th:value="${e.eventEndDate}" onblur="changeEvent(this)" th:data-type="event_end_date" style="max-width: 250px;"></input>
+                            <input type="hidden" th:value="${e.eventEndDate}">
+                        </td>
+                        <td style="min-width: 70px;">
+                            <button class="btn btn-primary btn-sm" type="button" onclick="changeEvent(this)" th:data-type="event_activity" th:text="${e.eventActivity} == 'Y' ? '활성' : '비활성'"></button>
+                        </td>
+                        <td>
+                            <form method="post" action="eventUpdateDetail.admin">
+                                <button class="btn btn-warning btn-sm">수정 페이지</button>
+                                <input type="hidden" name="eventNo" th:value="${e.eventNo}">
+                            </form>
+                        </td>
+                    </tr>
+                </th:block>
+            </tbody>
+        </table>
+    </div>
+    <div class="mx-auto bg-white" th:if="${pi != null}">
+        <ul class="pagination mx-auto justify-content-center p-3">
+            <li class="page-item" th:if="${pi.currentPage > 1}">
+                <a class="page-link" href="javascript:void(0);" th:data-page="${pi.currentPage - 1}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}">
+                <a class="page-link" href="javascript:void(0);" th:data-page="${p}" th:text="${p}"></a>
+            </li>
+            <li class="page-item" th:if="${pi.currentPage &lt pi.maxPage}">
+                <a class="page-link" href="javascript:void(0);" th:data-page="${pi.currentPage + 1}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </div> 
+</div>

@@ -1,0 +1,75 @@
+<th:block th:if="${list == null}">
+    <h3>검색 결과가 없습니다.</h3>
+</th:block>
+<th:block th:if="${list != null}">
+    <table class="table">
+        <thead class="bg-light">
+            <tr>
+                <th style="min-width: 110px; max-width: 110px;">카테고리</th>
+                <th style="min-width: 200px; max-width: 200px;">제목</th>
+                <th style="min-width: 110px; max-width: 110px;">추천수</th>
+                <th style="min-width: 110px; max-width: 110px;">반대수</th>
+                <th style="min-width: 110px; max-width: 110px;">신고회수</th>
+                <th style="min-width: 120px; max-width: 120px;">작성자</th>
+                <th style="min-width: 130px; max-width: 130px;">작성일/수정일</th>
+                <th style="min-width: 110px; max-width: 110px;">상태</th>
+            </tr>
+        </thead>
+        <tbody th:each="b : ${list}">
+            <tr>
+                <input type="hidden" th:value="${b.boardNo}">
+                <input type="hidden" th:value="${b.memberNo}">
+                <td>
+                    <br>
+                    <select th:data-type="board_type" onchange="changeBoard(this)">
+                        <option value="tips_and_info" th:selected="${b.boardType == 'tips_and_info'}">꿀팁, 정보</option>
+                        <option value="free_and_humor" th:selected="${b.boardType == 'free_and_humor'}">자유, 유머</option>
+                        <!-- <option value="admin_announcement" th:selected="${b.boardType == 'admin_announcement'}">공지사항</option>
+                        <option value="user_question" th:selected="${b.boardType == 'user_question'}">건의사항</option> -->
+                    </select>
+                </td>
+                <td th:onclick="|location.href='@{post.comm(no=${b.boardNo})}'|" style="cursor: pointer;">
+                    <br>
+                    <span th:text="${#strings.abbreviate(b.boardTitle, 25)}"></span>
+                </td>
+                <td><br>[[${b.boardLikes}]]</td>
+                <td><br>[[${b.boardDislikes}]]</td>
+                <td><br>[[${b.boardReports}]]</td>
+                <td>
+                    [[${b.memberNickname}]]<hr>
+                    <button th:data-type="member_is_blacklist" onclick="changeMember(this)" class="btn btn-primary btn-sm" th:text="${b.memberIsBlacklist == 'N' ? '정지하기' : '정지해제'}"></button>
+                </td>
+                <td>
+                    [[${b.boardEnrollDate}]]
+                    <hr>
+                    <th:block  th:text="${b.boardModifyDate == null ? '-' : b.boardModifyDate}"></th:block>
+                </td>
+                <td>
+                    <br>
+                    <select th:data-type="boardStatus" onchange="changeBoard(this)">
+                        <option value="active" th:selected="${b.boardIshidden == 'N' && b.boardIsdeleted == 'N'}">활성화</option>
+                        <option value="hidden" th:selected="${b.boardIshidden == 'Y'}">숨김</option>
+                        <option value="delete" th:selected="${b.boardIsdeleted == 'Y'}">삭제</option>
+                    </select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="mx-auto bg-white" th:if="${pi != null}">
+        <ul class="pagination mx-auto justify-content-center p-3">
+            <li class="page-item" th:if="${pi.currentPage > 1}">
+                <span class="page-link boardPage" th:data-page="${pi.currentPage - 1}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </span>
+            </li>
+            <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}">
+                <span class="page-link boardPage" th:data-page="${p}" th:text="${p}"></span>
+            </li>
+            <li class="page-item" th:if="${pi.currentPage &lt pi.maxPage}">
+                <span class="page-link boardPage" th:data-page="${pi.currentPage + 1}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </span>
+            </li>
+        </ul>
+    </div> 
+</th:block>

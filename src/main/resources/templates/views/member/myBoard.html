@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+</head>
+
+<body>
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+    <div th:replace="~{ views/member/common/myPageNavbar :: myPageNavbar }"></div>
+
+    <div class="container-fluid bg-secondary mb-5">
+        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
+            <h1 class="font-weight-semi-bold text-uppercase mb-3">작성 글 / 댓글</h1>
+            <div th:replace="~{ views/member/common/myPageInfo :: myPageInfo }"></div>
+        </div>
+    </div>
+
+    <div class="container pt-5">
+        <div class="row px-xl-5 mb-5">
+        <h4 class="font-weight-semi-bold mb-3 pl-4">작성 글</h4>
+            <div class="col-lg-12 table-responsive mb-2">
+                <table class="table table-bordered text-center mb-0">
+                    <thead class="bg-teamcolor3 text-white">
+                        <tr>
+                            <th style="width: 50px;"><input id="boardCheckAll" type="checkbox"></th>
+                            <th style="width: 150px;">분류</th>
+                            <th style="width: 400px;">제목</th>
+                            <th style="width: 150px;">등록일</th>
+                            <th style="width: 100px;">조회수</th>
+                            <th style="width: 100px;">추천수</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle" name="list"></tbody>
+                </table>
+                <button id="boardDeleteBtn" class="btn btn-primary font-weight-bold my-3 float-right">선택 삭제</button>
+            </div>
+            
+            <div class="col-12 pb-1" name="paging"></div>
+
+            <h4 class="font-weight-semi-bold mb-3 mt-5 pl-4">작성 댓글</h4>
+            <div class="col-lg-12 table-responsive mb-2">
+                <table class="table table-bordered text-center mb-0">
+                    <thead class="bg-teamcolor3 text-white">
+                        <tr>
+                            <th style="width: 50px;"><input id="replyCheckAll" type="checkbox"></th>
+                            <th style="width: 150px;">분류</th>
+                            <th style="width: 250px;">게시글 제목</th>
+                            <th style="width: 400px;">내용</th>
+                            <th style="width: 150px;">등록일</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle" name="list"></tbody>
+                </table>
+                <button id="replyDeleteBtn" class="btn btn-primary font-weight-bold my-3 float-right">선택 삭제</button>
+            </div>
+
+            <div class="col-12 pb-1" name="paging"></div>
+            
+        </div>
+    </div>
+
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+    <script>
+        const boardCheckAll = document.getElementById("boardCheckAll");
+        const replyCheckAll = document.getElementById("replyCheckAll");
+        const boardCheck = document.getElementsByName("boardCheck");
+        const replyCheck = document.getElementsByName("replyCheck");
+        const boardDeleteBtn = document.getElementById("boardDeleteBtn");
+        const replyDeleteBtn = document.getElementById("replyDeleteBtn");
+        const list = document.getElementsByName("list");
+        const paging = document.getElementsByName("paging");
+
+        const memberBoardList = (page) => {
+            $.ajax({
+                url: "memberBoardList.me",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    list[0].innerHTML = html;
+                    memberPaging(page, "memberBoardList", "board", 10, 0);
+                }
+            });            
+        }
+
+        const memberReplyList = (page) => {
+            $.ajax({
+                url: "memberReplyList.me",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    list[1].innerHTML = html;
+                    memberPaging(page, "memberReplyList", "reply", 10, 1);
+                }
+            });            
+        }
+
+        const memberPaging = (page, func, type, boardLimit, num) => {
+            $.ajax({
+                url: "memberPaging.me",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page,
+                    "func": func,
+                    "type": type,
+                    "boardLimit": boardLimit
+                },
+                success: (html) => {
+                    paging[num].innerHTML = html;
+                }
+            });
+        }
+
+        const deleteBoard = (boardNo) => {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    method: "POST",
+                    url: "deleteBoard.me",
+                    data: {
+                        "boardNo": boardNo
+                    },
+                    success: (result) => {
+                        let currentPage = 1;
+
+                        for(let page of paging[0].querySelectorAll('li')) {
+                            if(page.classList.contains('active')) {
+                                currentPage = page.children[0].innerText
+                            }
+                        }
+
+                        resolve(currentPage);
+                    },
+                    error: (result) => {
+                        reject(result);
+                    }
+                });
+            });
+        }
+
+        const deleteReply = (replyNo) => {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    method: "POST",
+                    url: "deleteReply.me",
+                    data: {
+                        "replyNo": replyNo
+                    },
+                    success: (result) => {
+                        let currentPage = 1;
+
+                        for(let page of paging[1].querySelectorAll('li')) {
+                            if(page.classList.contains('active')) {
+                                currentPage = page.children[0].innerText
+                            }
+                        }
+
+                        resolve(currentPage);
+                    },
+                    error: (result) => {
+                        reject(result);
+                    }
+                });
+            });
+        }
+
+        window.onload = () => {
+            memberBoardList(1);
+
+            memberReplyList(1);
+
+            boardCheckAll.addEventListener('change', () => {
+                if(boardCheckAll.checked) {
+                    for(let check of boardCheck) {
+                        check.checked = true;
+                    }
+                } else {
+                    for(let check of boardCheck) {
+                        check.checked = false;
+                    }
+                }
+            });
+
+            replyCheckAll.addEventListener('change', () => {
+                if(replyCheckAll.checked) {
+                    for(let check of replyCheck) {
+                        check.checked = true;
+                    }
+                } else {
+                    for(let check of replyCheck) {
+                        check.checked = false;
+                    }
+                }
+            });
+
+            boardDeleteBtn.addEventListener('click', async () => {
+                let currentPage = 1;
+                let result = 1;
+                let status = 0;
+
+                for(let b of boardCheck) {
+                    if(b.checked == false) {
+                        status += 1;
+                    }
+                }
+
+                if(status == 10) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '작성 글 삭제 실패',
+                        text: '선택된 글이 없습니다.'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: '작성 글 삭제',
+                        text: '정말 삭제하시겠습니까?',
+                        showDenyButton: true,
+                        confirmButtonText: '예',
+                        denyButtonText: '아니오'
+                    }).then(async (result) => {
+                        if(result.isConfirmed) {
+                            await deleteSelectedBoards();
+                        }
+                    })
+                }
+            });
+
+            replyDeleteBtn.addEventListener('click', async () => {
+                let currentPage = 1;
+                let result = 1;
+                let status = 0;
+
+                for(let r of replyCheck) {
+                    if(r.checked == false) {
+                        status += 1;
+                    }
+                }
+
+                if(status == 10) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '작성 댓글 삭제 실패',
+                        text: '선택된 댓글이 없습니다.'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: '작성 댓글 삭제',
+                        text: '정말 삭제하시겠습니까?',
+                        showDenyButton: true,
+                        confirmButtonText: '예',
+                        denyButtonText: '아니오'
+                    }).then(async (result) => {
+                        if(result.isConfirmed) {
+                            await deleteSelectedReplys();
+                            return "success";
+                        }
+                    })
+                }
+            });
+        }
+
+        const deleteSelectedBoards = async () => {
+            let currentPage = 1;
+            let result = 1;
+
+            for(let b of boardCheck) {
+                if(b.checked == true) {
+                    try {
+                        let result = await deleteBoard(b.parentElement.parentElement.querySelectorAll('input')[1].value);
+                        if(result != 1) {
+                            currentPage = result;
+                        }
+                    } catch (error) {
+                        console.log("error : " + error);
+                    }
+                }
+            }
+
+            memberBoardList(currentPage);
+        }
+
+        const deleteSelectedReplys = async () => {
+            let currentPage = 1;
+            let result = 1;
+
+            for(let r of replyCheck) {
+                if(r.checked == true) {
+                    try {
+                        let result = await deleteReply(r.parentElement.parentElement.querySelectorAll('input')[1].value);
+                        if(result != 1) {
+                            currentPage = result;
+                        }
+                    } catch (error) {
+                        console.log("error : " + error);
+                    }
+                }
+            }
+
+            memberReplyList(currentPage);
+        }
+    </script>
+</body>
+
+</html>

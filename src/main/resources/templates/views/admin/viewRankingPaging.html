@@ -1,0 +1,26 @@
+<ul class="pagination">
+    <li class="page-item" th:classappend="${currentPage &lt;= 1} ? 'disabled' : ''">
+        <a class="page-link" th:onclick="loadViewRanking(1)">
+            ☜처음으로</a>
+    </li>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <li class="page-item" th:classappend="${ currentPage &lt;= 1} ? 'disabled' : ''">
+        <a class="page-link" th:onclick="loadViewRanking([[${currentPage - 1}]])" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+    </li>
+    <li class="page-item" th:each="p : ${#numbers.sequence(startPage, endPage)}"
+        th:classappend="${currentPage == p} ? active : ''">
+        <a class="page-link" th:onclick="loadViewRanking([[${p}]])" th:text="${p}"></a>
+    </li>
+    <li class="page-item" th:classappend="${currentPage &gt;= maxPage} ? 'disabled' : ''">
+        <a class="page-link" th:onclick="loadViewRanking([[${currentPage + 1}]])" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+    </li>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <li class="page-item" th:classappend="${currentPage == maxPage} ? 'disabled' : ''">
+        <a class="page-link" th:onclick="loadViewRanking([[${maxPage}]])">
+            끝으로☞</a>
+    </li>
+</ul>

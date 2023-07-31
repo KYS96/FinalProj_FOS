@@ -1,0 +1,22 @@
+<tr th:each="s : ${ list }">
+    <td class="align-middle" th:text="${ s.memberNo }"></td>
+    <td class="align-middle">
+        <div class="table-data__info" data-toggle="modal" data-target="#memberModal" style="cursor: pointer;" th:onclick="memberDetail([[${ s.memberNo }]])">
+            <h6 th:text="${ s.memberId }"></h6>
+            <span>
+                <a style="color: rgb(150, 150, 150);" th:text="${ s.memberNickname }"></a>
+            </span>
+        </div>
+    </td>
+    <td class="align-middle">
+        <span class="role admin" name="blacklistBtn" th:if="${ s.memberIsBlacklist == 'Y' }" th:onclick="updateBlacklist([[${ s.memberNo }]], [[${ s.memberIsBlacklist }]], [[${ type }]], [[${ keyword }]], [[${ currentPage }]])">정지</span>
+        <span class="role member" name="blacklistBtn" th:if="${ s.memberIsBlacklist == 'N' }" th:onclick="updateBlacklist([[${ s.memberNo }]], [[${ s.memberIsBlacklist }]], [[${ type }]], [[${ keyword }]], [[${ currentPage }]])">정상</span>
+    </td>
+    <td class="align-middle">
+        <span class="role member" th:if="${ s.memberStatus == 'Y' }" th:onclick="updateStatus([[${ s.memberNo }]], [[${ s.memberStatus }]], [[${ type }]], [[${ keyword }]], [[${ currentPage }]])">활동중</span>
+        <span class="role admin" th:if="${ s.memberStatus == 'N' }" th:onclick="updateStatus([[${ s.memberNo }]], [[${ s.memberStatus }]], [[${ type }]], [[${ keyword }]], [[${ currentPage }]])">탈퇴</span>
+    </td>
+</tr>
+<tr th:if="${ #lists.isEmpty(list) }">
+    <td class="align-middle text-center" colspan="4">검색 결과가 없습니다.</td>
+</tr>

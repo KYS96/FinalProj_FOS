@@ -1,0 +1,106 @@
+<input type="hidden" id="th-review-pi" th:value="${pi}">
+<!-- 리뷰 START -->
+<div>
+    <div th:each="r:${reviewList}">
+        <div class="row">
+            <div class="col-1 w-center">
+                <i class="bi bi-person-circle" style="font-size:50px;"></i>
+            </div>
+            <div class="col-8 w-grid">
+                <div>
+                    <span>
+                        <span th:each="i : ${#numbers.sequence(1, r.reviewPoint)}" style="color:#ff4d47;" th:if="${r.reviewPoint != 0}">★</span
+                        ><span th:if="${r.reviewPoint != 5}" th:each="i : ${#numbers.sequence(1, 5 - r.reviewPoint)}" style="color:rgb(190, 190, 190);">★</span>
+                    </span>
+                </div>
+                <div>
+                    <span id="nickName" th:text="${r.memberNickName}"></span>&nbsp;&nbsp;
+                    <span th:text="${r.reviewUpdateDate}"></span>&nbsp;&nbsp;
+                    <span>신고</span>
+                </div>
+                <div>아이템</div>
+                <div>아이템</div>
+            </div>
+            <div class="col-3 w-fend">
+                <img th:src="${r.firstImg}" alt="ERROR" class="w-rimg" onclick="moreImg(this)" style="cursor: pointer;" th:if="${r.firstImg != ''}">
+                <input type="hidden" th:value="${r.reviewNo}">
+            </div>
+            <div class="col-12">
+                <textarea class="w-custom21" disabled>[[${r.reviewContent}]]</textarea>
+            </div>
+        </div>
+        <hr>
+    </div>
+</div>
+
+
+<!-- 모달 START -->
+<div class="modal fade" tabindex="-1" role="dialog" id="modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content rounded-3 shadow" style="height: auto;">
+            <div class="modal-body" style="padding: 0;">
+                <div class="w-custom22">포토리뷰</div>
+                <div class="w-center w-mh600">
+                    <image class="w-ming" id="LSizeImg"></image>
+                </div>
+                <!-- <div id="restImgs" class="row w-center2">
+                </div> -->
+                <div id="restImgs" style="max-height: 124.5px; overflow: hidden;">
+                </div>
+                <button id="seeMoreBtn" onclick="seeMore()" class="w-btn5" style="outline: none; display: none; margin-top: 10px; font-weight: bold;"><i class="bi bi-chevron-down"></i> 더 보기</button>
+            </div>
+            <div class="modal-footer flex-nowrap p-0">
+                <button class="btn btn-lg btn-link fs-6 text-decoration-none col-12 m-0 rounded-0 w-btn4"
+                    data-bs-dismiss="modal" onclick="closeModal()">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 모달 END -->
+
+<script>
+    function moreImg(element){
+        let reviewNo = element.parentElement.children[1].value;
+        document.getElementById('LSizeImg').src = element.src;
+        $.ajax({
+            method: "GET",
+            url: "getRestImgs",
+            data: {reviewNo:reviewNo},
+            success: function(data){
+                const restImgs = document.getElementById('restImgs');
+                restImgs.innerHTML = '';
+                let restImgsText = '';
+                for(const img of data){
+                    restImgsText += '<image src="'+img.productAttmURL+'" class="w-ming2" onclick="showLSize()"></image>';
+                }
+                const seeMoreBtn = document.getElementById('seeMoreBtn');
+                if(data.length > 4){
+                    seeMoreBtn.style.display = 'block';
+                }else if(data.length <= 4){
+                    seeMoreBtn.style.display = 'none';
+                }
+                restImgs.innerHTML = restImgsText;
+            },
+            error: function(error){
+                console.error(error);
+            }
+        })
+        document.getElementById('restImgs').style.maxHeight='124.5px';
+        $('#modal').modal('show');
+    }
+
+    function closeModal(){
+        $('#modal').modal('hide');
+    }
+
+    function showLSize(){
+        const LSizeImg = document.getElementById('LSizeImg')
+        LSizeImg.src = event.target.src;
+    }
+
+    function seeMore(){
+        const restImgArea = document.getElementById('restImgs');
+        const currentHeight = parseInt(restImgArea.style.maxHeight);
+        restImgArea.style.maxHeight = (currentHeight + 124.5) + 'px';
+    }
+</script>

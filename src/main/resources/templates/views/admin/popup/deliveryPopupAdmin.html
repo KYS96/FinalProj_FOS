@@ -1,0 +1,100 @@
+<div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+<script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+<style>
+    th {padding: 10px;}
+</style>
+<div class="au-card-title">
+    <div class="bg-overlay bg-overlay--blue"></div>
+    <h3><i class="bi bi-basket3"></i>주문목록 상세보기</h3>
+</div>
+<div class="au-task js-list-load cardInnerText">
+    <div style="text-align: center; overflow-x: scroll;">
+        <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto;">
+            <tr>
+                <th>구매자</th>
+                <th th:text="${list[0].memberName}"></th>
+            </tr>
+            <tr>
+                <th>연락처</th>
+                <th th:text="${list[0].memberPhone}"></th>
+            </tr>
+            <tr>
+                <th>구매일자</th>
+                <th th:text="${list[0].orderDate}"></th>
+            </tr>
+            <tr>
+                <th>주소</th>
+                <th th:text="${list[0].orderAddr} + ' ' + ${list[0].orderDetailAddr}"></th>
+            </tr>
+            <th:block th:each="a : ${list}">
+                <tr>
+                    <th>상품명<hr>상품수량<hr>상품가격</th>
+                    <th>[[${{a.productName}}]]
+                        <hr>
+                        <span th:text="${#numbers.formatInteger(a.orderAmount, 1, 'COMMA') + '개'}"></span>
+                        <hr>
+                        <span th:text="${#numbers.formatInteger(a.orderPrice, 1, 'COMMA') + '원'}"></span>
+                    </th>
+                </tr>
+            </th:block>
+            <tr>
+                <th>총합</th>
+                <th th:text="${#numbers.formatInteger(total, 1, 'COMMA') + '원'}"></th>
+            </tr>
+        </table>
+    </div>
+    <div class="user-data__footer">
+        <input type="hidden" name="cartNo" th:value="${list[0].cartNo}">
+        <select name="orderDeliveryCourier">
+            <option value="kr.hanjin" th:selected="${list[0].orderDeliveryCourier == 'kr.hanjin'}">한진택배</option>
+            <option value="kr.logen" th:selected="${list[0].orderDeliveryCourier == 'kr.logen'}">로젠택배</option>
+            <option value="kr.lotte" th:selected="${list[0].orderDeliveryCourier == 'kr.lotte'}">롯데택배</option>
+            <option value="kr.epost" th:selected="${list[0].orderDeliveryCourier == 'kr.epost'}">우체국택배</option>
+            <option value="kr.kdexp" th:selected="${list[0].orderDeliveryCourier == 'kr.kdexp'}">경동택배</option>
+            <option value="kr.cjlogistics" th:selected="${list[0].orderDeliveryCourier == 'kr.cjlogistics'}">CJ대한통운 택배</option>
+            <option value="kr.cupost" th:selected="${list[0].orderDeliveryCourier == 'kr.cupost'}">CU 편의점택배</option>
+            <option value="kr.cvsnet" th:selected="${list[0].orderDeliveryCourier == 'kr.cvsnet'}">GS Postbox 택배</option>
+            <option value="kr.daesin" th:selected="${list[0].orderDeliveryCourier == 'kr.daesin'}">대신택배</option>
+            <option value="kr.ilyanglogis" th:selected="${list[0].orderDeliveryCourier == 'kr.ilyanglogis'}">일양로지스</option>
+            <option value="kr.chunilps" th:selected="${list[0].orderDeliveryCourier == 'kr.chunilps'}">천일택배</option>
+            <option value="kr.slx" th:selected="${list[0].orderDeliveryCourier == 'kr.slx'}">SLX</option>
+            <option value="kr.hdexp" th:selected="${list[0].orderDeliveryCourier == 'kr.hdexp'}">합동택배</option>
+            <option value="kr.kunyoung" th:selected="${list[0].orderDeliveryCourier == 'kr.kunyoung'}">건영택배</option>
+            <option value="kr.homepick" th:selected="${list[0].orderDeliveryCourier == 'kr.homepick'}">홈픽</option>
+        </select>
+        <input type="text" name="orderDeliveryNo" th:value="${list[0].orderDeliveryNo == null ? '' :  list[0].orderDeliveryNo}" placeholder="운송장 번호를 입력하세요">
+        <button class="btn btn-primary btn-sm" onclick="updateProductOrder(this)">출고하기</button>
+    </div>
+</div>
+<script>
+    const updateProductOrder = (element) =>{
+            var cartNo = element.parentElement.children[0].value;
+            var orderDeliveryCourier = element.parentElement.children[1].value;
+            var orderDeliveryNo = element.parentElement.children[2].value;
+
+            $.ajax({
+                type: 'post',
+                url: 'updateProductOrder.admin',
+                dataType: 'json',
+                data: {
+                    "cartNo" : cartNo,
+                    "orderDeliveryNo" : orderDeliveryNo,
+                    "orderDeliveryCourier" : orderDeliveryCourier
+                },
+                success: data =>{
+                    if(data.error != null && error == 'error'){
+                        Swal.fire({
+                            icon: 'error',
+                            title: '운송정보 입력 실패'
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: 'success',
+                            title: '운송정보 입력 성공'
+                        });
+                    }
+                }
+            });
+        }
+</script>
+<div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>

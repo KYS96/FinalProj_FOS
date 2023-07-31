@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <style>
+        #searchProductInnerText{
+            padding: 60px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+            <form action="searchCoupon.admin" method="get">
+                <div class="main-content">
+                    <div class="section__content section__content--p30">
+                        <div class="container-fluid" id="mainContentAdmin">
+                            <div class="row">
+                                <div class="col-1"></div>
+                                <div class="col-9">
+                                    <div class="au-card au-card--no-shadow au-card--no-pad m-b-40" style="min-width: 700px;">
+                                        <div class="au-card-title">
+                                            <div class="bg-overlay bg-overlay--blue"></div>
+                                            <h3><i class="bi bi-plus-square"></i>쿠폰 관리</h3>
+                                        </div>
+                                        <div class="au-task js-list-load cardInnerText" style="text-align: center;">
+                                            <table class="table bg-light table-bordered" style="margin-left: auto; margin-right: auto;">
+                                                <tbody>
+                                                    <tr>
+                                                        <th style="min-width: 140px;">검색분류</th>
+                                                        <td>
+                                                            <span>
+                                                                <select name="category">
+                                                                    <option value="all" th:selected="${category == null || category == 'all'}">전체</option>
+                                                                    <option value="coupon_name" th:selected="${category != null && category == 'coupon_name'}">쿠폰명</option>
+                                                                    <option value="coupon_content" th:selected="${category != null && category == 'coupon_content'}">쿠폰설명</option>
+                                                                </select>
+                                                            </span>
+                                                            <span>
+                                                                <input type="text" name="query" th:value="${query}">
+                                                            </span>    
+                                                            <button class="btn btn-primary btn-sm" onclick="return check()"><i class="bi bi-search"></i>검색</button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>현재진행여부</th>
+                                                        <td>
+                                                            <label><input type="radio" name="eventOngoing" value="all" th:checked="${eventOngoing == null || eventOngoing == 'all'}"> 전체</label>
+                                                            <label><input type="radio" name="eventOngoing" value="open" th:checked="${eventOngoing != null && eventOngoing == 'open'}"> 이벤트 진행중</label>
+                                                            <label><input type="radio" name="eventOngoing" value="close" th:checked="${eventOngoing != null && eventOngoing == 'close'}"> 이벤트 종료됨</label>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>발급방식</th>
+                                                        <td>
+                                                            <div>
+                                                                <label>
+                                                                    <input type="checkbox" name="couponConditionList" value="all"  onchange="couponConditionListAllCheck()" th:checked="${couponConditionList == null}"> 전체
+                                                                </label>
+                                                                <label>
+                                                                    <input type="checkbox" name="couponConditionList" value="download"  onchange="couponConditionListCheck()" th:checked="${couponConditionList != null && couponConditionList.contains('download')}"> 다운로드
+                                                                </label>
+                                                                <label>
+                                                                    <input type="checkbox" name="couponConditionList" value="signup"  onchange="couponConditionListCheck()" th:checked="${couponConditionList != null && couponConditionList.contains('signup')}"> 회원가입
+                                                                </label>
+                                                                <label>
+                                                                    <input type="checkbox" name="couponConditionList" value="survey"  onchange="couponConditionListCheck()" th:checked="${couponConditionList != null && couponConditionList.contains('survey')}"> 수면조사완료
+                                                                </label>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>정렬순서</th>
+                                                        <td>
+                                                            <div>
+                                                                <select name="order"> 
+                                                                    <option value="coupon_no asc" th:selected="${order == null || order == 'coupon_no asc'}">쿠폰생성일 빠른순</option> 
+                                                                    <option value="coupon_no desc" th:selected="${order != null && order == 'coupon_no desc'}">쿠폰생성일 느린순</option> 
+                                                                    <option value="coupon_open_date asc" th:selected="${order != null && order == 'coupon_open_date asc'}">배포시작일 빠른순</option> 
+                                                                    <option value="coupon_open_date desc" th:selected="${order != null && order == 'coupon_open_date desc'}">배포시작일 느린순</option> 
+                                                                    <option value="coupon_close_date asc" th:selected="${order != null && order == 'coupon_close_date asc'}">배포종료일 빠른순</option> 
+                                                                    <option value="coupon_close_date desc" th:selected="${order != null && order == 'coupon_close_date desc'}">배포종료일 느린순</option> 
+                                                                </select> 
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-2"></div> 
+                            </div>
+                            <div class="row" >
+                                <div class="col-12">
+                                    <div class="au-card au-card--no-shadow au-card--no-pad m-b-40" style="min-width: 990px;">
+                                        <div class="au-card-title">
+                                            <div class="bg-overlay bg-overlay--blue"></div>
+                                            <h3><i class="bi bi-pencil-square"></i>쿠폰 빠른 수정</h3>
+                                        </div>
+                                        <div class="au-task js-list-load cardInnerText" th:if="${list == null || list.size == 0}">
+                                            <h3>검색된 쿠폰이 없습니다.</h3>
+                                        </div>
+                                        <div class="au-task js-list-load cardInnerText" th:if="${!(list == null || list.size == 0)}">
+                                            <div style="text-align: center; overflow-x: scroll; text-align: center;">
+                                                <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>쿠폰명</th>
+                                                            <th>쿠폰설명</th>
+                                                            <th>할인금액<hr>최소주문금액</th>
+                                                            <th>발급 구분</th>
+                                                            <th>배포 기간</th>
+                                                            <th>사용 기간</th>
+                                                            <th>활성화여부</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <th:block th:each="c, cStat : ${list}">
+                                                            <tr>
+                                                                <input type="hidden" th:value="${c.couponNo}">
+                                                                <td>
+                                                                    <input th:value="${c.couponName}" onblur="changeCouponName(this)" style="width: 200px;">
+                                                                    <input type="hidden" th:value="${c.couponName}"> 
+                                                                </td>
+                                                                <td>
+                                                                    <textarea th:text="${c.couponContent}" onblur="changeCouponContent(this)" style="width: 250px; height: 100px;"></textarea>
+                                                                    <input type="hidden" th:value="${c.couponContent}"> 
+                                                                </td>
+                                                                <td>
+                                                                    <div>
+                                                                        <input type='number' name="couponDiscountRate"  onchange="changePriceToString(this);" onblur="changeCouponDiscountRate(this);" th:value="${c.couponDiscountRate}" placeholder='할인금액을 입력하세요' style='width:100px' min='100'>
+                                                                    </div>
+                                                                    <span th:id="'changedPriceToString' + ${cStat.count}" th:text="${#numbers.formatInteger(c.couponDiscountRate, 1, 'COMMA') + '원'}"></span>
+                                                                    <input type="hidden" th:value="${c.couponDiscountRate}"> 
+                                                                    <hr>
+                                                                    <div>
+                                                                        <input type='number' name="couponUseCondition"  onchange="changePriceToString(this);" onblur="changeCouponUseCondition(this);" th:value="${c.couponUseCondition}" placeholder='최소주문금액을 입력하세요' style='width:100px' min='100'>
+                                                                    </div>
+                                                                    <span th:id="'changedPriceToString' + ${cStat.count}" th:text="${#numbers.formatInteger(c.couponUseCondition, 1, 'COMMA') + '원'}"></span>
+                                                                    <input type="hidden" th:value="${c.couponUseCondition}"> 
+                                                                </td>
+                                                                <td>
+                                                                    <div>
+                                                                        <select class="js-select2" name="couponCondition" onchange="changeCouponCondition(this)">
+                                                                            <option value="download" th:selected="${c.couponCondition == 'download'}">다운로드발급</option>
+                                                                            <option value="signup" th:selected="${c.couponCondition == 'signup'}">회원가입</option>
+                                                                            <option value="survey" th:selected="${c.couponCondition == 'survey'}">수면조사완료</option>
+                                                                        </select>
+                                                                        <div class="dropDownSelect2"></div>
+                                                                        <input type="hidden" th:value="${c.couponCondition}">
+                                                                        <br>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div>
+                                                                        <div th:if="${c.couponCondition == 'download'}" style="width: 170px;">
+                                                                            <input type="date" name="couponOpenDate" th:value="${c.couponOpenDate}" onchange="changeCouponOpenClose(this)">부터
+                                                                            <input type="hidden" th:value="${c.couponOpenDate}">
+                                                                            <br><br>
+                                                                            <input type="date" name="couponCloseDate" th:value="${c.couponCloseDate}" onchange="changeCouponOpenClose(this)">까지
+                                                                            <input type="hidden" th:value="${c.couponCloseDate}">
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div>
+                                                                        <select class="js-select2" id="couponPeriodType" name="couponPeriodType" onchange="changeCouponPeriodType(this)">
+                                                                            <option value='close' th:if="${c.couponCondition == 'download'}" th:selected="${c.couponPeriodType == 'close'}">배포종료일기준</option>
+                                                                            <option value='same' th:if="${c.couponCondition == 'download'}" th:selected="${c.couponPeriodType == 'same'}">배포 기간과 동일</option>
+                                                                            <option value='obtain' th:selected="${c.couponPeriodType == 'obtain'}">쿠폰획득일기준</option>
+                                                                        </select>
+                                                                        <div class="dropDownSelect2"></div>
+                                                                    </div>
+                                                                    <br>
+                                                                    <div>
+                                                                        <input type="number" name="couponPeriod" onchange="changeDayToString(this)" onblur="changeCouponPeriod(this)" th:value="${c.couponPeriod}" style='width:150px' min="0">
+                                                                    </div>
+                                                                    <span th:text="${'+' + c.couponPeriod + '일'}"></span>
+                                                                    <input type="hidden" th:value="${c.couponPeriod}"> 
+                                                                </td>
+                                                                <td>
+                                                                    <div style="width: 66px;">
+                                                                        <button type="button" class="btn btn-primary btn-sm" th:text="${c.couponStatus == 'Y' ? '활성' : '비활성'}" onclick="changeCouponStatus(this)"></button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </th:block>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="mx-auto bg-white" th:if="${pi != null}">
+                                                <ul class="pagination mx-auto justify-content-center p-3">
+                                                    <li class="page-item" th:if="${pi.currentPage > 1}">
+                                                        <a class="page-link" th:href="@{${loc}(page=${pi.currentPage - 1}, category=${category}, query=${query}, order=${order},
+                                                                                        eventOngoing=${eventOngoing}, couponConditionList=${couponConditionList})}" aria-label="Previous">
+                                                            <span aria-hidden="true">&laquo;</span>
+                                                        </a>
+                                                    </li>
+    
+                                                    <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}">
+                                                        <a class="page-link" th:href="@{${loc}(page=${p}, category=${category}, query=${query}, order=${order},
+                                                                                        eventOngoing=${eventOngoing}, couponConditionList=${couponConditionList})}" th:text="${p}"></a>
+                                                    </li>
+    
+                                                    <li class="page-item" th:if="${pi.currentPage &lt pi.maxPage}">
+                                                        <a class="page-link" th:href="@{${loc}(page=${pi.currentPage + 1}, category=${category}, query=${query}, order=${order},
+                                                                                        eventOngoing=${eventOngoing}, couponConditionList=${couponConditionList})}" aria-label="Next">
+                                                            <span aria-hidden="true">&raquo;</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div> 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+        
+    <script>
+
+        const changeCouponCondition = (element) =>{
+            var couponNo = element.parentElement.parentElement.parentElement.children[0].value;
+            var couponOpenClose = element.parentElement.parentElement.nextElementSibling.children[0];
+            var couponCondition = element.value;
+            var couponPeriodType = element.parentElement.parentElement.nextElementSibling.nextElementSibling.children[0].children[0]
+            if(couponCondition != 'download'){
+                couponOpenClose.innerHTML = '';
+                couponPeriodType.innerHTML = "<option value='obtain'>쿠폰획득일기준</option>";
+            }else{
+                couponOpenClose.innerHTML = '<div>\
+                                                <input type="date" name="couponOpenDate" onchange="changeCouponOpenClose(this)">부터<br><br>\
+                                                <input type="date" name="couponCloseDate" onchange="changeCouponOpenClose(this)">까지\
+                                            </div>';
+                couponPeriodType.innerHTML = "<option value='close'>배포종료일기준</option>\
+                                                <option value='same'>배포 기간과 동일</option>\
+                                                <option value='obtain'>쿠폰획득일기준</option>";
+            }
+            $.ajax({
+                    type: "GET",
+                    url: 'changeCouponCondition.admin',
+                    data: {couponCondition: couponCondition, couponNo: couponNo},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '발급구분 변경 실패'
+                            });
+                        }else{
+                            Swal.fire({
+                                icon: 'success',
+                                title: '발급구분 변경 완료'
+                            });
+                        }
+                    }
+                });
+        }
+
+        const changeCouponOpenClose = (element) =>{
+            var couponNo = element.parentElement.parentElement.parentElement.parentElement.children[0].value;
+            var couponOpenDate = element.parentElement.children[0].value;
+            var couponCloseDate = element.parentElement.children[4].value;
+            if(couponOpenDate != null && couponCloseDate != null && couponOpenDate != '' && couponCloseDate != ''){
+                if(couponOpenDate > couponCloseDate){
+                    couponOpenDate = '';
+                    couponCloseDate = '';
+                    Swal.fire({
+                        icon: 'error',
+                        title: '배포 종료일이 배포 시작일보다 이전입니다.'
+                    });
+                }else{
+                    $.ajax({
+                    type: "GET",
+                    url: 'changeCouponOpenClose.admin',
+                    data: {couponOpenDate: couponOpenDate, couponCloseDate: couponCloseDate, couponNo: couponNo},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '배포기간 변경 실패'
+                            });
+                        }else{
+                            Swal.fire({
+                                icon: 'success',
+                                title: '배포기간 변경 완료'
+                            });
+                        }
+                    }
+                });
+                }
+            }
+        }
+
+        const changeCouponPeriodType = (element) =>{
+            var couponNo = element.parentElement.parentElement.parentElement.children[0].value;
+            var couponPeriodType = element.value;
+            $.ajax({
+                type: "GET",
+                url: 'changeCouponPeriodType.admin',
+                data: {couponPeriodType: couponPeriodType, couponNo: couponNo},
+                dataType: 'json',
+                success: data =>{
+                    if(data.error != null && data.error == 'error'){
+                        Swal.fire({
+                            icon: 'error',
+                            title: '사용기간 분류 변경 실패'
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: 'success',
+                            title: '사용기간 분류 변경 완료'
+                        });
+                    }
+                }
+            });
+            
+        }
+
+        const changeCouponStatus = (element) =>{
+            var couponNo = element.parentElement.parentElement.parentElement.children[0].value;
+            var couponStatus = element.innerText;
+            $.ajax({
+                type: "GET",
+                url: 'changeCouponStatus.admin',
+                data: {couponStatus: couponStatus, couponNo: couponNo},
+                dataType: 'json',
+                success: data =>{
+                    if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '발급구분 변경 실패'
+                            });
+                        }else{
+                            element.innerText = data.changedCouponStatus;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '활성화 여부 변경 완료'
+                            });
+                        }
+                }
+            });
+        }
+
+        var couponConditionList = document.getElementsByName("couponConditionList");
+        const couponConditionListCheck = () =>{
+            var checkAll = 0;
+            for(let i = 1; i < couponConditionList.length; i++){
+                if(couponConditionList[i].checked){
+                    couponConditionList[0].checked = false;
+                    checkAll++;
+                }
+            }
+            if(checkAll == 6){
+                couponConditionList[0].checked = true;
+                for(let i = 1; i < couponConditionList.length; i++){
+                    couponConditionList[i].checked = false;
+                }
+            }
+        }
+
+        const couponConditionListAllCheck = () =>{
+            if(couponConditionList[0].checked){
+                for(let i = 1; i < couponConditionList.length; i++){
+                    couponConditionList[i].checked = false;
+                }
+            }
+        }
+
+        const check = () =>{
+            var checkAll1 = 0;
+            for(let i = 0; i < couponConditionList.length; i++){
+                if(couponConditionList[i].checked){
+                    checkAll1++;
+                }
+            }
+            if(checkAll1 <= 0){
+                Swal.fire({
+                    icon: 'error',
+                    title: '선택된 발급 방식이 없습니다.',
+                    text: '최소 한 개의 발급 방식을 선택해주세요'
+                });
+                return false;
+            }else{
+                return true;
+            }
+        }
+
+        const checkPrice = (element) =>{
+            if(element.value < 100){
+                element.value = '';
+                Swal.fire({
+                    icon: 'error',
+                    title: '100이상의 값을 입력해주세요'
+                });
+            }
+        }
+
+        const changePriceToString = (element) =>{
+            if(element.value != ''){
+                element.parentElement.nextElementSibling.innerText = element.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
+            }
+        }
+
+        const changeDayToString = (element) =>{
+            if(element.value != ''){
+                element.parentElement.nextElementSibling.innerText = '+' + element.value.toString() + '일';
+            }
+        }
+
+        const changeCouponName = (element) =>{
+            var couponNo = element.parentElement.parentElement.children[0].value;
+            var couponName = element.value;
+            if(couponName != '' && couponName != element.nextElementSibling.value){
+                $.ajax({
+                    type: "GET",
+                    url: 'changeCouponName.admin',
+                    data: {couponName: couponName, couponNo: couponNo},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '쿠폰명 변경 실패'
+                            });
+                        }else{
+                            couponName  = data.changedCouponName;
+                            element.nextElementSibling.value = data.changedCouponName;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '쿠폰명 변경 완료'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        const changeCouponContent = (element) =>{
+            var couponNo = element.parentElement.parentElement.children[0].value;
+            var couponContent = element.value;
+            if(couponContent != '' && couponContent != element.nextElementSibling.value){
+                $.ajax({
+                    type: "GET",
+                    url: 'changeCouponContent.admin',
+                    data: {couponContent: couponContent, couponNo: couponNo},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '쿠폰설명 변경 실패'
+                            });
+                        }else{
+                            couponContent  = data.changedCouponContent;
+                            element.nextElementSibling.value = data.changedCouponContent;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '쿠폰설명 변경 완료'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        const changeCouponDiscountRate = (element) =>{
+            var selectedCouponDiscountRate = element.value;
+            var hiddenCouponDiscountRate = element.parentElement.nextElementSibling.nextElementSibling;
+            var couponNo = element.parentElement.parentElement.parentElement.children[0].value;
+            if(selectedCouponDiscountRate != "" && selectedCouponDiscountRate != hiddenCouponDiscountRate.value && Number(selectedCouponDiscountRate) >= 0){
+                $.ajax({
+                    type: "GET",
+                    url: 'changeCouponDiscountRate.admin',
+                    data: {couponNo: couponNo, selectedCouponDiscountRate: selectedCouponDiscountRate},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '할인금액 변경 실패'
+                            });
+                        }else{
+                            selectedCouponDiscountRate  = data.changedCouponDiscountRate;
+                            hiddenCouponDiscountRate.value = data.changedCouponDiscountRate;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '할인금액 변경 완료'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        const changeCouponUseCondition = (element) =>{
+            var couponNo = element.parentElement.parentElement.parentElement.children[0].value;
+            var selectedCouponUseCondition = element.value;
+            var hiddenCouponUseCondition = element.parentElement.nextElementSibling.nextElementSibling;
+            if(hiddenCouponUseCondition.value != selectedCouponUseCondition && selectedCouponUseCondition != "" && Number(selectedCouponUseCondition) >= 0){
+                $.ajax({
+                    type: "GET",
+                    url: 'changeCouponUseCondition.admin',
+                    data: {selectedCouponUseCondition: selectedCouponUseCondition, couponNo: couponNo},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '최소주문금액 변경 실패'
+                            });
+                        }else{
+                            selectedCouponUseCondition = data.changedCouponUseCondition;
+                            hiddenCouponUseCondition.value = data.changedCouponUseCondition;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '최소주문금액 변경 완료'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        const changeCouponPeriod = (element) =>{
+            var couponNo = element.parentElement.parentElement.parentElement.children[0].value;
+            var couponPeriod = element.value;
+            var hiddenCouponPeriod = element.parentElement.nextElementSibling.nextElementSibling;
+            if(hiddenCouponPeriod.value != couponPeriod && couponPeriod != "" && Number(couponPeriod) >= 0){
+                $.ajax({
+                    type: "GET",
+                    url: 'changeCouponPeriod.admin',
+                    data: {couponPeriod: couponPeriod, couponNo: couponNo},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '발급구분 변경 실패'
+                            });
+                        }else{
+                            couponPeriod = data.changedCouponPeriod;
+                            hiddenCouponPeriod.value = data.changedCouponPeriod;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '사용기간 변경 완료'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+    </script>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    
+</body>
+
+</html>
+<!-- end document-->

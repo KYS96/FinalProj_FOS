@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="kor" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <style>
+        td {text-align: center;}
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid" id="mainContentAdmin">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-card-text"></i>게시글 관리</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div style="min-width: 600px;">
+                                            <span>
+                                                <select id="boardCategory">
+                                                    <option value="all">전체</option>
+                                                    <option value="board_title">제목</option>
+                                                    <option value="board_content">내용</option>
+                                                    <option value="member_nickname">닉네임</option>
+                                                </select>
+                                            </span>
+                                            <select id="boardOrder"> 
+                                                <option value="board_reports desc">신고많은순</option> 
+                                                <option value="board_dislikes desc">반대많은순</option> 
+                                                <option value="board_likes desc">추천많은순</option> 
+                                                <option value="board_enroll_date desc">최근등록순</option> 
+                                                <option value="board_modify_date desc">최근수정순</option> 
+                                            </select>
+                                            <select id="boardStatus"> 
+                                                <option value="Y">활성화됨</option> 
+                                                <option value="N">비활성화됨</option> 
+                                                <option value="all">전체</option> 
+                                            </select>
+                                            <span>
+                                                <input type="text" id="boardQuery">
+                                            </span>    
+                                            <button class="btn btn-primary btn-sm" onclick="getSearchBoardList();"><i class="bi bi-search"></i>검색</button> 
+                                        </div>
+                                        <br><br>
+                                        <div style="text-align: center;" id="searchedBoardList">
+                                            <h3>검색 결과가 없습니다.</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-card-text"></i>댓글 관리</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div style="min-width: 600px;">
+                                            <span>
+                                                <select id="replyCategory">
+                                                    <option value="all">전체</option>
+                                                    <option value="reply_content">내용</option>
+                                                    <option value="member_nickname">닉네임</option>
+                                                </select>
+                                            </span>
+                                            <select id="replyOrder"> 
+                                                <option value="reply_reports desc">신고많은순</option> 
+                                                <option value="reply_dislikes desc">반대많은순</option> 
+                                                <option value="reply_likes desc">추천많은순</option> 
+                                                <option value="reply_enroll_date desc">최근등록순</option> 
+                                                <option value="reply_modify_date desc">최근수정순</option> 
+                                            </select>
+                                            <select id="replyStatus"> 
+                                                <option value="Y">활성화됨</option> 
+                                                <option value="N">비활성화됨</option> 
+                                                <option value="all">전체</option> 
+                                            </select>
+                                            <span>
+                                                <input type="text" id="replyQuery">
+                                            </span>    
+                                            <button class="btn btn-primary btn-sm" onclick="getSearchReplyList();"><i class="bi bi-search"></i>검색</button> 
+                                        </div>
+                                        <br><br>
+                                        <div style="text-align: center;" id="searchedReplyList">
+                                            <h3>검색 결과가 없습니다.</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+
+        var boardPage = 1;
+        const getSearchBoardList = () =>{
+            var searchedBoardList = document.getElementById("searchedBoardList");
+            var boardCategory = document.getElementById("boardCategory").value;
+            var boardQuery = document.getElementById("boardQuery").value
+            var boardStatus = document.getElementById("boardStatus").value
+            var boardOrder = document.getElementById("boardOrder").value
+            $.ajax({
+                type: 'get',
+                url: 'getSearchBoardList.admin',
+                dataType: 'html',
+                data: {
+                    "page" : boardPage,
+                    "category" : boardCategory,
+                    "query" : boardQuery,
+                    "status" : boardStatus,
+                    "order" : boardOrder
+                },
+                success: data =>{
+                    searchedBoardList.innerHTML = data;
+                }
+            });
+        }
+        $(document).on('click', '.boardPage', function () {
+            boardPage = $(this).attr('data-page');
+            getSearchBoardList(); 
+        });
+
+        var replyPage = 1;
+        const getSearchReplyList = () =>{
+            var searchedReplyList = document.getElementById("searchedReplyList");
+            var replyCategory = document.getElementById("replyCategory").value;
+            var replyQuery = document.getElementById("replyQuery").value
+            var replyStatus = document.getElementById("replyStatus").value
+            var replyOrder = document.getElementById("replyOrder").value
+            $.ajax({
+                type: 'get',
+                url: 'getSearchReplyList.admin',
+                dataType: 'html',
+                data: {
+                    "page" : replyPage,
+                    "category" : replyCategory,
+                    "query" : replyQuery,
+                    "status" : replyStatus,
+                    "order" : replyOrder
+                },
+                success: data =>{
+                    searchedReplyList.innerHTML = data;
+                }
+            });
+        }
+        $(document).on('click', '.replyPage', function () {
+            replyPage = $(this).attr('data-page');
+            getSearchReplyList(); 
+        });
+
+
+
+        const changeBoard = (element) =>{
+            var boardNo = element.parentElement.parentElement.children[0].value;
+            var boardType = element.getAttribute('data-type');
+
+            $.ajax({
+                type: 'get',
+                url: 'changeBoard.admin',
+                dataType: 'json',
+                data: {
+                    "boardNo" : boardNo,
+                    "boardType" : boardType,
+                    "selectedValue" : element.value
+                },
+                success: data =>{
+                    if(data.error != null && data.error == 'error'){
+                        Swal.fire({
+                            icon: 'error',
+                            title: '게시글 수정 실패'
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: 'success',
+                            title: '게시글 수정 성공'
+                        });
+                    }
+                }
+            });
+        }
+
+        const changeMember = (element) =>{
+            var memberNo = element.parentElement.parentElement.children[1].value;
+            var memberType = element.getAttribute('data-type');
+
+            $.ajax({
+                type: 'get',
+                url: 'changeMember.admin',
+                dataType: 'json',
+                data: {
+                    "memberNo" : memberNo,
+                    "memberType" : memberType,
+                    "selectedValue" : element.innerText
+                },
+                success: data =>{
+                    if(data.error != null && data.error == 'error'){
+                        Swal.fire({
+                            icon: 'error',
+                            title: '멤버 수정 실패'
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: 'success',
+                            title: '멤버 수정 성공'
+                        });
+                        element.innerText = data.changedValue;
+                    }
+                }
+            });
+        }
+
+        const changeReply = (element) =>{
+            var replyNo = element.parentElement.parentElement.children[0].value;
+            var replyType = element.getAttribute('data-type');
+
+            $.ajax({
+                type: 'get',
+                url: 'changeReply.admin',
+                dataType: 'json',
+                data: {
+                    "replyNo" : replyNo,
+                    "replyType" : replyType,
+                    "selectedValue" : element.value
+                },
+                success: data =>{
+                    if(data.error != null && data.error == 'error'){
+                        Swal.fire({
+                            icon: 'error',
+                            title: '댓글 수정 실패'
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: 'success',
+                            title: '댓글 수정 성공'
+                        });
+                    }
+                }
+            });
+        }
+
+    </script>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    
+</body>
+
+</html>
+<!-- end document-->

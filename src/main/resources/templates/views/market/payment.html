@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+    <link href="market_assets/css/hwayi.css" rel="stylesheet">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</head>
+
+<body style="background-color: #eeeeee; min-width: 1920px;">
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+        <div style="display: flex; justify-content: space-between; margin-top: 4rem;">
+            <div style="font-size: 24px; font-weight: bolder; color: black;">주문/결제</div>
+            <div><span>장바구니&nbsp;&nbsp;>&nbsp;&nbsp;</span><span style="font-weight: bold; font-size: 18px; color: black;">주문결제</span><span>&nbsp;&nbsp;>&nbsp;&nbsp;완료</span></div>
+        </div>
+        <hr>
+        <!--상품 정보 START-->
+        <div class="row" style="margin: 0;">
+            <div class="col-12" style="padding: 0;">
+                <div class="row" style="height: 58px; background-color: #1C3761; margin: 0;">
+                    <div class="col-2" style="height: 100%;"></div>
+                    <div class="col-4" style="display: flex; justify-content: center; align-items: center; color: white;">상품정보</div>
+                    <div class="col-1" style="display: flex; justify-content: center; align-items: center; color: white;">판매자</div>
+                    <div class="col-1" style="display: flex; justify-content: center; align-items: center; color: white;">배송비</div>
+                    <div class="col-1" style="display: flex; justify-content: center; align-items: center; color: white;">수량</div>
+                    <div class="col-1" style="display: flex; justify-content: center; align-items: center; color: white;">할인</div>
+                    <div class="col-2" style="display: flex; justify-content: center; align-items: center; color: white;">결제금액(할인포함)</div>
+                </div>
+                <!--상품 정보 END-->
+                <div class="row" style="height: 163px; margin: 0; background-color: white; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+                    <div class="col-2" style="height: 100%;">
+                        <div style="height: 100%; display: flex; justify-content: center; align-items: center;">
+                            <image th:src="${productImage}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 70%;"></image>
+                        </div>
+                    </div>
+                    <div class="col-4" style="display: flex; align-items: center;">
+                        <div style="margin-left: 10px;">
+                            <div th:text="|[상품번호 : ${productNo}]|"></div>
+                            <div th:if="${eventTitle != null}">[[${eventTitle}]]</div>
+                            <div><a href="#" style="font-weight: bold; font-size:18px; color:black; text-decoration: none;" th:text="${productName}"></a></div>
+                        </div>
+                    </div>
+                    <div class="col-1" style="display: grid; align-items: center; justify-content: center;">
+                        <div>수면의 숲</div>
+                    </div>
+                    <div class="col-1" style="display: grid; align-items: center; justify-content: center;">
+                        <div th:if="${totalPrice >= 50000}">무료</div>
+                        <div th:if="${totalPrice < 50000}">3,000원</div>
+                    </div>
+                    <div class="col-1" style="display: grid; align-items: center; justify-content: center;">
+                        <div th:text="|${purchaseQuantity}|"></div>
+                    </div>
+                    <div class="col-1" style="display: grid; align-items: center; justify-content: center;">
+                        <!-- <div th:if="${eventCode != null}" th:text="${#numbers.formatInteger(eventCode, 3, 'COMMA') + '원'}"></div> -->
+                        <div th:if="${eventCode > 0}" th:text="${#numbers.formatInteger(discount, 3, 'COMMA') + '원'}"></div>
+                        <div th:if="${eventCode == 0}">없음</div>
+                    </div>
+                    <div class="col-2" style="display: grid; align-items: center; justify-content: center;">
+                        <div style="font-weight: bold; font-size:18px; color:black;" th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA') + '원'}" th:if="${totalPrice >= 50000}"></div>
+                        <div style="font-weight: bold; font-size:18px; color:black;" th:text="${#numbers.formatInteger(totalPrice+3000, 3, 'COMMA') + '원'}" th:if="${totalPrice < 50000}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr style="margin-top: 1px; margin-bottom: 1px; border: 1px dashed lightgray; width: 98%;">
+        <div class="row" style="height: auto; margin: 0; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+            <!--배송지 정보 및 결제 수단 START-->
+            <div class="col-9" style="padding: 0;">
+                <div style="padding-top: 4rem; padding-left: 4rem;">
+                    <div style="font-weight: bold; font-size: 20px; color: rgb(24, 24, 24); margin-bottom: 1.5rem;">배송지 정보</div>
+                    <hr>
+                    <div style="color:black; margin-bottom: 0.5rem; font-weight: bold;" th:text="${session.loginUser.memberName}"></div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <span style="color:black; margin-bottom: 0.5rem; margin-left: 3px;" th:text="${session.loginUser.memberPhone}"></span>
+                    </div>
+                    <br>
+                    <span style="font-weight: bold; font-size: 14px; color: black; margin-right: 2rem;">배송지 선택</span>
+                    <span>
+                        <input type="radio" name="adressRadioBtn" id="radio1" checked>
+                        <label style="font-size:14px;" for="radio1">기본배송지</label>
+                        <input type="radio" name="adressRadioBtn" id="radio2">
+                        <label style="font-size:14px;" for="radio2">신규배송지</label>
+                    </span>
+                    <div style=" max-width: 600px;">
+                        <span id="mainAddr" style="color:black; margin-bottom: 0.5rem;" th:text="${session.loginUser.memberAddr}"></span>
+                        <button onclick="editAddr()" style="background-color: #fafafa; outline: none; border: 1px solid #a0a0a0; font-size: 14px; margin-left:0.5rem; margin-top: 0.5rem;">수정</button>
+                        <div style="margin-top: 0.5rem;">
+                            <input type="text" placeholder="상세 주소를 입력해주세요" id="detailAddr" class="w-daddr" th:value="${session.loginUser.memberDetailAddr}">
+                        </div>
+                    </div>
+                    <br>
+                    <div style="color:black; font-weight: bold; margin-bottom: 0.5rem;">상품명 : [[${productName}]]</div>
+                    <div style="width: 450px; display: flex;">
+                        <input type="text" id="requestMemo" placeholder="요청사항을 입력해주세요" style="width: 100%; text-indent: 5px; outline: none;">
+                    </div>
+                    <div style="color:black; font-size:12px; margin-top:0.5rem;">도서산간 지역의 경우 추후 수령 시 추가 배송비가 과금될 수 있습니다.</div>    
+                    <hr style="margin-bottom: 1.5rem;;">
+                    <div style="font-weight: bold; font-size: 20px; color: rgb(24, 24, 24); margin-bottom: 1.5rem;">적용된 할인</div>
+                    <div style="margin-left: 4rem;">
+                        <div style="margin-bottom: 1rem;">
+                            <span style="font-weight: bold; color: black;">행사 할인</span>&nbsp;&nbsp;&nbsp;
+                            <span>
+                                <input type="text" th:value="${#numbers.formatInteger(discount, 3, 'COMMA') + '원'}" th:if="${eventCode > 0}" style="text-align: right; border: none; border-bottom: 1px solid black; outline: none;" disabled>
+                                <input type="text" value="" th:if="${eventCode == 0}" style="text-align: right; border: none; border-bottom: 1px solid black; outline: none;" disabled>
+                            </span>
+                        </div>
+                        <div style="margin-bottom: 2rem;">
+                            <span style="font-weight: bold; color: black;">쿠폰 할인</span>&nbsp;&nbsp;&nbsp;
+                            <span>
+                                <input type="text" id="couponDiscountInput" value="" style="text-align: right; border: none; border-bottom: 1px solid black; outline: none;" disabled>
+                            </span>&nbsp;&nbsp;&nbsp;
+                            <button style="background-color: #fafafa; outline: none; border: 1px solid #a0a0a0; font-size: 14px; margin-bottom: 0.5rem;" onclick="useCoupon();">쿠폰사용</button>&nbsp;&nbsp;
+                        </div>
+                    </div>
+                    <hr>    
+                    <div style="font-weight: bold; font-size: 20px; color: rgb(24, 24, 24); margin-bottom: 1.5rem;">결제 수단</div>
+                        <div style="margin-bottom: 1rem;">
+                            <input type="radio" name="orderType" value="kakaopay">&nbsp;&nbsp;
+                            <button class="orderTypeBtn w-btn" style="outline: none;" id="kakaopay">
+                                <img src="market_assets/img/sample/payment_icon_yellow_small.png" width="60px">
+                            </button>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <input type="radio" name="orderType" value="tosspay">&nbsp;&nbsp;
+                            <button class="orderTypeBtn w-btn" style="outline: none;" id="tosspay">
+                                <img src="market_assets/img/sample/logo-toss-pay.png" width="80px">
+                            </button>
+                        </div>    
+                        <div style="margin-bottom: 1rem;">
+                            <input type="radio" name="orderType" value="danal">&nbsp;&nbsp;
+                            <button class="orderTypeBtn w-btn" style="outline: none;" id="danal">휴대폰결제</button>
+                        </div>    
+                    <!-- </div>     -->
+                    <hr style="margin-top:1.5rem; margin-bottom: 1.5rem;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <div>
+                            <input type="checkbox" class="agreeOption" id="check1">
+                            <label for="check1"><strong style="color: black;">구매/교환/반품/환불 제한 동의</strong></label>
+                            <hr style="margin: 0;">
+                            <input type="checkbox" class="agreeOption" id="check2">
+                            <label for="check2" style="margin-top: 0.5rem;"><strong style="color: black;">주문 내용을 확인하였으며, 정보 제공의 동의합니다.</strong></label>
+                        </div>    
+                    </div>
+                </div>
+            </div>
+            <!--배송지 정보 및 결제 수단 END-->
+            <div class="col-3" style="padding: 0; background-color: #1C3761; color: white; position: relative; border-radius: 15px;">
+                <div style="margin-left: 2rem; margin-top:3rem;">
+                    <div style="margin-bottom: 1.5rem;">주문자 정보</div>
+                    <div th:text=${session.loginUser.memberName}></div>
+                    <div style="margin-top: 0.5rem;">
+                        <span th:text="${session.loginUser.memberPhone}"></span>&nbsp;
+                    </div>
+                    <hr style="border-color:white; width: 80%; margin-left:0;">
+                    <div style="width: 80%; color:#ffc303; font-size:12px;">주문자 정보로 결제관련 정보가 제공됩니다.
+                        정확한 정보로 등록되어있는지 확인해주세요.</div>
+                </div>
+                <input type="hidden" id="totalPriceA" th:value="${totalPrice}">
+                <div style="margin-left: 2rem; position: absolute; bottom: 0; margin-bottom: 2rem;">
+                    <div style="margin-bottom: 1rem;">결제상세</div>
+                    <div style="display: flex; justify-content: space-between; width: 170px; font-size: 18px; font-weight: bold; margin-bottom: 0.5rem;">
+                        <div>주문금액</div>
+                        <div id="finalPrice" th:if="${totalPrice >= 50000}">[[${#numbers.formatInteger(totalPrice, 3, 'COMMA') + '원'}]]</div>
+                        <div id="finalPrice" th:if="${totalPrice < 50000}">[[${#numbers.formatInteger(totalPrice+3000, 3, 'COMMA') + '원'}]]</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 170px; font-size: 14px; color: rgba(211, 211, 211, 0.7);">
+                        <div>상품금액</div>
+                        <div id="priceTotal" th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA') + '원'}"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 170px; font-size: 14px; color: rgba(211, 211, 211, 0.7);">
+                        <div>배송비</div>
+                        <div th:if="${totalPrice >= 50000}">0원</div>
+                        <div th:if="${totalPrice < 50000}">3,000원</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 170px; font-size: 14px; color: rgba(211, 211, 211, 0.7);">
+                        <div>쿠폰할인</div>
+                        <div id="couponDc"></div>
+                    </div>
+                </div>    
+            </div>     
+        </div>
+        <hr style="margin-top: 1px; margin-bottom: 1px; border: 1px dashed lightgray; width: 98%;">
+        <form action="paying" method="POST" id="payForm">
+            <div class="col-12" style="height: 140px; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                <div style="display: flex; height: 100%; justify-content: center; align-items: center;">
+                    <button type="button" id="payBtn" style="background-color: #1C3761; color: white; border: none; border-radius: 5px; height: 40%; width: 20%; font-weight: bold; font-size: 24px; outline: none;">결제하기</button>
+                    <input type="hidden" name="productNo" th:value="${productNo}">
+                    <input type="hidden" name="productName" th:value="${productName}">
+                    <input type="hidden" name="productImage" th:value="${productImage}">
+                    <input type="hidden" name="usedCoupon" value="" id="couponParam">
+                    <input type="hidden" name="purchaseQuantity" th:value="${purchaseQuantity}">
+                    <input type="hidden" name="eventCode" th:value="${eventCode}">
+                    <input type="hidden" name="memo" id="memo">
+                    <input type="hidden" name="finalPrice" value="" id="finalPriceSubmit">
+                    <input type="hidden" name="mainAddr" id="mainAddrSubmit">
+                    <input type="hidden" name="detailAddr" id="detailAddrSubmit">
+                    <input type="hidden" name="orderType" id="orderTypeSubmit">
+                </div>
+            </div>
+        </form>
+    </div>
+    </div>
+    <div class="col-3"></div>
+</div>
+
+    <!-- Footer Start -->
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script th:inline="javascript">
+        // window.onload=()=>{
+            // getCartNums();
+        // }
+
+        function useCoupon(){
+            window.name="payment";
+            openWin = window.open("couponPopup","couponPopup","width=800, height=400, resizable=no, location=no, titlebar=no");
+        }
+
+        /* *** */
+        function generateRandomString() {
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var randomString = '';
+        var length = 10;
+        
+        for (var i = 0; i < length; i++) {
+            var randomIndex = Math.floor(Math.random() * characters.length);
+            randomString += characters.charAt(randomIndex);
+        }
+        
+        return randomString;
+        }
+
+        /* *** */
+
+        let orderType;
+        const  orderTypeBtns = document.getElementsByClassName('orderTypeBtn');
+        for(const orderTypeBtn of orderTypeBtns){
+            orderTypeBtn.addEventListener('click',function(){
+                this.parentElement.children[0].checked = true;
+                if(this.id === 'kakaopay'){
+                    orderType = 'kakaopay';
+                    console.log(orderType);
+                }else if(this.id == 'tosspay'){
+                    orderType = 'tosspay';
+                    console.log(orderType);
+                }else if(this.id == 'danal'){
+                    orderType = 'danal';
+                    console.log(orderType);
+                }
+            })
+        }
+        const orderTypeRadioBtn = document.getElementsByName('orderType');
+        for(const o of orderTypeRadioBtn){
+            o.addEventListener('change',function(){
+                if(this.value == 'kakaopay'){
+                    orderType = 'kakaopay';
+                }else if(this.value == 'tosspay'){
+                    orderType = 'tosspay';
+                }else if(this.value == 'danal'){
+                    orderType = 'danal';
+                }
+            })
+        }
+
+        /*<![CDATA[*/
+        const productName = /*[[${productName}]]*/hwayi;
+        const buyerName = /*[[${session.loginUser.memberName}]]*/hwayi;
+        const buyerTel = /*[[${session.loginUser.memberPhone}]]*/hwayi;
+        // let buyerAddr = /*[[${session.loginUser.memberAddr}]]*/hwayi;
+        // buyerAddr += ' ' + /*[[${session.loginUser.memberDetailAddr}]]*/hwayi;
+        /*]]>*/
+        var mainAddress = document.getElementById('mainAddr').innerText;
+        var detailAddress = document.getElementById('detailAddr').value;
+        console.log(mainAddress);
+        console.log(detailAddress);
+
+        const payBtn = document.getElementById('payBtn');
+        const payForm = document.getElementById('payForm');
+        const finalPriceSubmit = document.getElementById('finalPriceSubmit');
+
+        payBtn.addEventListener('click',()=>{
+
+            var randomValue = generateRandomString();
+            let agreeCount = 0;
+            let orderTypeCount = 0;
+
+            const agreeOption = document.getElementsByClassName('agreeOption');
+            for(const agree of agreeOption){
+                if(agree.checked){
+                    agreeCount ++;
+                }
+            }
+            if(document.getElementById('mainAddr').innerText != '' && document.getElementById('detailAddr').value != ''){
+                var buyerAddr = document.getElementById('mainAddr').innerText + ' ' + document.getElementById('detailAddr').value;
+
+                if(agreeCount == 2){
+                    const orderTypeBtns = document.getElementsByName('orderType');
+                    for(const orderTypeBtn of orderTypeBtns){
+                        if(orderTypeBtn.checked){
+                            orderTypeCount++;
+                        }
+                    }
+                    if(orderTypeCount == 1){
+                        document.getElementById('memo').value = document.getElementById('requestMemo').value;
+                        document.getElementById('mainAddrSubmit').value = document.getElementById('mainAddr').innerText;
+                        document.getElementById('detailAddrSubmit').value = document.getElementById('detailAddr').value;
+                        document.getElementById('orderTypeSubmit').value = orderType;
+    
+                        let finalPrice = document.getElementById('finalPrice').innerText;
+                        finalPrice = finalPrice.slice(0,-1).replace(",","");
+                        if(finalPrice.includes(",")){
+                            finalPrice = finalPrice.replace(",","");
+                        }
+                        finalPriceSubmit.value=finalPrice;
+    
+                        var IMP = window.IMP;
+                        IMP.init("imp86855745");
+                        console.log(orderType);
+                        IMP.request_pay({
+                            pg : orderType,
+                            merchant_uid: randomValue,
+                            name : productName,
+                            amount : finalPrice,
+                            buyer_name : buyerName,
+                            buyer_tel : buyerTel,
+                            buyer_addr : buyerAddr
+                        }, function (rsp) {
+                            if(rsp.success == true){
+                                payForm.submit();
+                                console.log(payForm);
+                            }else if(rsp.success == false){
+                                console.error("결제 실패");
+                            }
+                        });
+    
+                    }else if(orderTypeCount != 1){
+                        swal("결제 수단을 선택 후 결제해주세요");
+                    }
+                }else if(agreeCount < 2){
+                    swal("약관 동의 후 결제해주세요")
+                }
+            }else{
+                swal("주소를 입력해주세요");
+            }
+
+        })
+
+        const adressRadioBtns = document.getElementsByName('adressRadioBtn');
+        const mainAddr = document.getElementById('mainAddr');
+        const detailAddr = document.getElementById('detailAddr');
+        /*<![CDATA[*/
+        const savedMainAddr = /*[[${session.loginUser.memberAddr}]]*/hwayi;
+        const savedDetailAddr = /*[[${session.loginUser.memberDetailAddr}]]*/hwayi;
+        /*]]>*/
+        const editAddr = () => {
+            newAddr();
+        }
+
+        function newAddr(){
+            adressRadioBtns[1].checked = true;
+            new daum.Postcode({
+                oncomplete: (data) => {
+                    mainAddr.innerText = data.roadAddress;
+                }
+            }).open();
+        }
+
+        for(const btn of adressRadioBtns){
+            btn.addEventListener('change',function(){
+                if(this.nextElementSibling.innerText == '기본배송지'){
+                    mainAddr.innerText = savedMainAddr;
+                    detailAddr.value = savedDetailAddr;
+                }else if(this.nextElementSibling.innerText == '신규배송지'){
+                    newAddr();
+                    console.log(savedDetailAddr);
+                    detailAddr.value='';
+                    detailAddr.focus();
+                }
+            })
+        }
+
+    </script>
+</body>
+
+</html>

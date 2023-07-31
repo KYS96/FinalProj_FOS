@@ -1,0 +1,19 @@
+<tr>
+  <td class="text-center">
+    <a th:href="@{productDetail(productNo=${productNo})}" th:text="${productNo}" th:if="${productStatus eq 'Y'}"></a>
+    <a th:text="${productNo}" th:unless="${productStatus eq 'Y'}"></a>
+  </td>
+  <td>
+    <img th:src="${productImage}" alt="이미지 불러오기 실패" width="150px" height="150px" class="text-center" />
+  </td>
+  <td class="text-center" th:text="${productCategoryName}"></td>
+  <td class="text-center" th:text="${productName}"></td>
+  <td class="text-center" th:text="${productPrice}"></td>
+  <td class="text-center" th:text="${productStock}"></td>
+  <td class="text-center" th:text="${productSales}"></td>
+  <td class="text-center" th:text="${productStatus eq 'Y'} ? '진열 중' : '미진열'"></td>
+  <td class="text-center">
+    <button class="btn btn-primary btn-sm" th:if="${productStatus eq 'Y'}" th:onclick="goToUpdatePage([[${productNo}]], [[${page}]])">수정하기</button>
+    <button class="btn btn-danger btn-sm" th:unless="${productStatus eq 'Y'}" th:onclick="goToUpdatePage([[${productNo}]], [[${page}]])">수정주의</button>
+  </td>
+</tr>

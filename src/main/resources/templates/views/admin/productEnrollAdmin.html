@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="kor" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <!-- css -->
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <!-- aws sdk script-->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1407.0.min.js"></script>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <!-- 써머노트 -->
+    <script src="admin_assets/js/summernote/summernote-lite.js"></script>
+    <script src="admin_assets/js/summernote/lang/summernote-ko-KR.js"></script>
+    <link rel="stylesheet" href="admin_assets/css/summernote/summernote-lite.css">
+
+    
+
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+            <form action="enrollProduct.admin" method="post">
+                <div class="main-content">
+                    <div class="row">
+                        <div class="col-1"></div>
+                        <div class="col-9">
+                            <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                <div class="au-card-title">
+                                    <div class="bg-overlay bg-overlay--blue"></div>
+                                    <h3><i class="bi bi-box-seam"></i>상품 등록</h3>
+                                </div>
+                                <div class="au-task js-list-load cardInnerText" style="text-align: center;">
+                                    <table class="table bg-light table-bordered" style="margin-left: auto; margin-right: auto;">
+                                        <colgroup>
+                                            <col width="120px">
+                                        </colgroup>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    진열여부
+                                                </td>
+                                                <td>
+                                                    <span class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="productStatus" value="Y" checked="checked">
+                                                        <label class="form-check-label">진열하기</label>
+                                                    </span>
+                                                    <span class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="productStatus" value="N">
+                                                        <label class="form-check-label">진열하지 않기</label>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    상품분류
+                                                </td>
+                                                <td>
+                                                    <div class="rs-select2--dark rs-select2--md m-r-10 rs-select2--border">
+                                                        <select class="js-select2" name="productCategoryNo">
+                                                            <option value="P01" selected="selected">침대</option>
+                                                            <option value="P02">베개</option>
+                                                            <option value="P03">이불</option>
+                                                            <option value="P04">의류</option>
+                                                            <option value="P05">건강</option>
+                                                            <option value="P06">굿즈</option>
+                                                        </select>
+                                                        <div class="dropDownSelect2"></div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    상품명
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="productName" placeholder="상품명을 입력하세요" required>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    대표이미지
+                                                </td>
+                                                <td>
+                                                    <input type="file" id="frontImage" name="frontImage" accept="image/*" onchange="checkImage(event)" required>
+                                                    <div id="savedFrontImage"></div>
+                                                    <input type="hidden" id="frontImageUrl" name="productImage">
+                                                    <br>
+                                                    <button type="button" class="btn btn-secondary btn-sm" id="addFrontImage" onclick="uploadFrontImage()">저장하기</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    서브이미지
+                                                </td>
+                                                <td>
+                                                    <div id="subImagesDiv">
+                                                        <input type="file" name="subImages" accept="image/*" onchange="checkImage(event); addInputSubImagesFile(this)">
+                                                    </div>
+                                                    <div id="savedSubImages"></div>
+                                                    <div id="subImagesUrl"></div>
+                                                    <br>
+                                                    <button type="button" class="btn btn-secondary btn-sm" id="addSubImages" onclick="uploadSubImages()">저장하기</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    판매가
+                                                </td>
+                                                <td>
+                                                    <input type="text" placeholder="판매가를 입력하세요" onkeyup="inputProductPrice(this); inputPriceToString(this);" min="100" required>
+                                                    <input type="hidden" name="productPrice">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    상품재고
+                                                </td>
+                                                <td>
+                                                    <input name="productStockComma" type="text" placeholder="상품재고를 입력하세요" onkeyup="inputProductStock(this); inputPriceToString(this);" required>
+                                                    <input name="productStock" type="hidden">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-1"></div>
+                        <div class="col-9">
+                            <div style="background-color: white; margin: 0%;">
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<b>*상품 설명 및 이미지 입력</b>
+                                <br><br>
+                                <textarea id="summernote" name="productExplain"></textarea>
+                                <div id="total-size">업로드 용량 : 0MB / 25MB</div>
+                                <div id="quantity">업로드 수 : 0 / 5</div>
+                                <div id="content-length">입력 길이 : 0/10000</div>
+                                <div class="user-data__footer" th:if="${session.loginUser.memberNo != null}">
+                                    <input type="hidden" name="employeeNo" th:value="${session.loginUser.memberNo}">
+                                    <button class="btn btn-primary btn-sm" onclick="return check()">제출하기</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2"></div>
+                    </div>
+                </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var msg = /*[[${msg}]]*/ null;
+
+        //AWS
+        // Initialize the Amazon Cognito credentials provider
+        AWS.config.region = "ap-northeast-2"; // Region
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: "ap-northeast-2:d70b0ade-b06e-49bc-b9cd-9f0eb59df8c7",
+        });
+        var bucketName = "finalsof";
+        var s3 = new AWS.S3({
+            apiVersion: "2006-03-01",
+            params: { Bucket: bucketName },
+        });
+
+        //서머노트 세팅
+        var allowedExtensions = ["jpg", "jpeg", "webp", "png", "gif"];
+        var quantity = 0; 
+        var quantityLimit = 5; 
+        let size = 0; 
+        var sizeLimit = 25 * 1024 * 1024; 
+        let savedImageCount = 0; 
+        let savedImagesSet = new Set(); 
+        let imagesToDeleteSet = new Set(); 
+        let imagesAndSizes = new Map(); 
+
+        //서머노트
+        $("#summernote").summernote({
+            toolbar: [
+                ["fontname", ["fontname"]],
+                ["fontsize", ["fontsize"]],
+                ["style", ["bold", "italic", "underline", "strikethrough", "clear"]],
+                ["color", ["forecolor", "color"]],
+                ["table", ["table"]],
+                ["para", ["ul", "ol", "paragraph"]],
+                ["height", ["height"]],
+                ["insert", ["picture", "link"]],
+                ["view", ["help"]],
+            ],
+            fontNames: [
+                "Arial",
+                "Arial Black",
+                "Comic Sans MS",
+                "Courier New",
+                "궁서",
+                "굴림체",
+                "굴림",
+                "돋움체",
+                "바탕체",
+            ],
+            fontSizes: [
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "14",
+                "16",
+                "18",
+                "20",
+                "22",
+                "24",
+                "28",
+                "30",
+                "36",
+                "50",
+                "72",
+            ],
+            placeholder: "상품 설명 및 이미지를 입력하세요. 최대 10000바이트까지만 입력 가능합니다.",
+            height: 600,
+            lang: "ko-KR",
+            disableDragAndDrop: true,
+            callbacks: {
+                onKeydown: function (e) {
+                    var contentLength = $(this).summernote("code").length;
+                    if (contentLength >= 10000) {
+                        e.preventDefault();
+                    }
+                },
+                onPaste: function (e) {
+                    var pastedData = e.originalEvent.clipboardData.getData("text");
+                    if (pastedData.length + $(this).summernote("code").length > 10000) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'error',
+                            title: '입력 길이 초과',
+                            text: '입력 길이는 10000바이트를 초과할 수 없습니다.'
+                        });
+                    }
+                },
+                onKeyup: function (e) {
+                    var content = $(this).summernote("code");
+                    $("#content-length").text("입력 길이 : " + content.length + "/10000");
+                    if (content.length > 10000) {
+                        $(this).summernote("code", content.substring(0, 10000));
+                    }
+                },
+                onImageUpload: function (files) {
+                    if (quantity >= quantityLimit) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '파일 개수 초과',
+                            text: '파일은 최대 5개까지 업로드할 수 있습니다.'
+                        });
+                        return;
+                    }
+                    var file = files[0];
+                    var uuid = uuidv4();
+                    var originalFileName = file.name;
+                    var fileSize = file.size;
+                    var extension = originalFileName.split(".").pop().toLowerCase();
+                    var fileName = uuid + "." + extension;
+                    var encodedOriginalFileName = encodeURIComponent(originalFileName);
+                    if (allowedExtensions.indexOf(extension) === -1) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '잘못된 확장자',
+                            text: '확장자는 .jpg, .jpeg, .png, ,webp, .gif 중 하나여야 합니다.'
+                        });
+                        return;
+                    }
+                    if (fileSize > 10 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '용량 초과',
+                            text: '1개의 파일은 10MB를 넘을 수 없습니다.'
+                        });
+                        return;
+                    }
+                    if (size + fileSize > sizeLimit) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '용량 초과',
+                            text: '총 용량은 25MB를 넘을 수 없습니다.'
+                        });
+                        return;
+                    }
+
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        var fileContent = new Uint8Array(reader.result);
+                        var params = {
+                            Bucket: bucketName,
+                            Key: fileName,
+                            Body: fileContent,
+                            ContentType: file.type,
+                            Metadata: { 
+                                originalFileName : encodedOriginalFileName, 
+                            },
+                        };
+                        s3.upload(params, function (err, data) {
+                            if (err) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '이미지 등록에 실패했습니다.',
+                                });
+                                return;
+                            } else {
+                                var imgNode = document.createElement("img");
+                                imgNode.src = data.Location;
+                                imgNode.classList.add('imgtag');
+                                $("#summernote").summernote("insertNode", imgNode);
+                                imagesAndSizes.set(data.Location, fileSize);
+                                size += fileSize;
+                                $("#total-size").text(
+                                    "업로드 용량 : " +
+                                    (size / 1024 / 1024).toFixed(2) +
+                                    "MB / " +
+                                    sizeLimit / 1024 / 1024 +
+                                    "MB"
+                                );
+                            }
+                        });
+                    };
+                reader.readAsArrayBuffer(file);
+                },
+                onChange: function (contents, $editable) {
+                    let currentImages = $($editable[0]).find("img");
+                    let currentImageCount = $($editable[0]).find("img").length;
+                    let currentImageSources = new Set();
+                    currentImages.each(function () {
+                        currentImageSources.add($(this).attr("src"));
+                    });
+                    if (currentImageCount < savedImageCount) {
+                        savedImagesSet.forEach((src) => {
+                            if (!currentImageSources.has(src)) {
+                                imagesToDeleteSet.add(src);
+                            }
+                        });
+                        quantity = currentImageCount;
+                        $("#quantity").text("파일 개수 : " + quantity + "/" + quantityLimit);
+                        var tempImagesToDeleteSet = new Set();
+                        tempImagesToDeleteSet = imagesToDeleteSet;
+
+                        tempImagesToDeleteSet.forEach((src) => {
+                            size -= imagesAndSizes.get(src);
+                            imagesAndSizes.delete(src);
+                            tempImagesToDeleteSet.delete(src);
+                        });
+
+                        quantity = currentImageCount;
+                        $("#quantity").text("파일 개수 : " + quantity + "/" + quantityLimit);
+                        $("#total-size").text(
+                        "업로드 용량 : " +
+                            (size / 1024 / 1024).toFixed(2) +
+                            "MB / " +
+                            sizeLimit / 1024 / 1024 +
+                            "MB"
+                        );
+                    } else if (currentImageCount > savedImageCount) {
+
+                        currentImageSources.forEach((src) => {
+                            if (!savedImagesSet.has(src)) {
+                                savedImagesSet.add(src);
+                            }
+                        });
+
+                        quantity = currentImageCount;
+                        $("#quantity").text("파일 개수 : " + quantity + "/" + quantityLimit);
+                    }
+                    savedImageCount = currentImageCount;
+                    savedImagesSet = currentImageSources;
+                },
+            },
+        });
+
+        const frontImage = document.getElementById('frontImage');
+        const frontImageUrl = document.getElementById('frontImageUrl');
+        const savedFrontImage = document.getElementById('savedFrontImage');
+        
+        function uploadFrontImage(){
+            var formData = new FormData();
+            if(frontImage.files[0] != null && frontImage.files[0] != ""){
+                formData.append('multipartFileList', frontImage.files[0]);
+                $.ajax({
+                    type: "POST",
+                    url: 'upload',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: data =>{
+                        frontImageUrl.value = data[0];
+                        savedFrontImage.innerHTML = "<img style='width:300px;' alt='이미지를 저장해주세요' src='" + data[0] + "'>";
+                    },
+                    error: data =>{
+                    }
+                });
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: '선택된 파일이 없습니다.',
+                    text: '이미지파일을 선택해주세요'
+                });
+            }
+        }
+        
+        const subImagesUrl = document.getElementById('subImagesUrl');
+        const savedSubImages = document.getElementById('savedSubImages');
+        const subImagesDiv = document.getElementById('subImagesDiv');
+
+        function uploadSubImages(){
+            var subImages = document.getElementsByName('subImages');
+            var formData = new FormData();
+            var formDataCount = 0;
+            for (let i = 0; i < subImages.length; i++) {
+                if(subImages[i].files[0] != null && subImages[i].files[0] != ""){
+                    formDataCount++;
+                    formData.append('multipartFileList', subImages[i].files[0]);
+                }
+            }
+            for (const entry of formData.entries()) {
+            }
+            if(formDataCount > 0){
+                $.ajax({
+                    type: "POST",
+                    url: 'upload',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: data =>{
+                        savedSubImages.innerHTML = "";
+                        subImagesUrl.innerHTML = "";
+                        for(let i = 0; i< data.length; i++){
+                            savedSubImages.innerHTML += "<br><div><img style='width:300px;' alt='이미지를 저장해주세요' src='" + data[i] + "'></div>";
+                            subImagesUrl.innerHTML += "<input type='hidden' name='subImagesUrl' value='" + data[i] + "'>";
+                        }
+                    },
+                    error: data =>{
+                    }
+                });
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: '선택된 파일이 없습니다.',
+                    text: '이미지파일을 선택해주세요'
+                });
+            }
+        }
+        
+
+        const check = () => {
+			if(frontImageUrl.value == null || frontImageUrl.value == ""){
+                Swal.fire({
+                    icon: 'error',
+                    title: '대표 이미지가 없습니다.',
+                    text: '대표 이미지를 저장해주세요'
+                });
+                return false;
+			}else{
+                return true;
+			}
+	  	}	
+
+        function addInputSubImagesFile (element){
+            if(element.value != null && element.value != ""){
+                element.removeAttribute("onchange");
+                element.setAttribute("onchange", "checkImage(event);");
+                var newSubDiv = document.createElement("div");
+                newSubDiv.innerHTML = '<br><input type="file" name="subImages" onchange="checkImage(event); addInputSubImagesFile(this);" accept="image/*">';
+                subImagesDiv.append(newSubDiv);
+            }
+        }
+
+        function checkImage(event){
+            var fileCheck = event.target.files[0];
+            if(fileCheck.type.startsWith('image/')){
+            } else{
+                event.target.value = '';
+                Swal.fire({
+                    icon: 'error',
+                    title: '잘못된 파일 형식입니다.',
+                    text: '이미지파일을 선택해주세요'
+                });
+            }
+            
+        }
+
+        $(document).ready(function(){
+            if(msg == 'success'){
+                Swal.fire({
+                    icon: 'success',
+                    title: '상품 등록에 성공했습니다.'
+                })
+            }
+        });
+        /*]]>*/
+    </script>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+</body>
+
+</html>
+<!-- end document-->

@@ -1,0 +1,17 @@
+<tr th:each="a : ${ list }">
+    <td class="align-middle">
+        <a class="text-truncate list-inline-item m-0 cursor" style="width: 120px;" th:href="@{ productDetail(productNo=${ a.productNo }) }" th:text="${ a.productName }"></a>
+    </td>
+    <td class="align-middle" th:onclick="contactDetail([[${ a.questionNo }]])" data-toggle="modal" data-target="#exampleModal">
+        <p class="align-middle text-truncate list-inline-item m-0 cursor" th:text="${ a.questionTitle }" style="width: 300px;"></p>
+    </td>
+    <td class="align-middle">
+        <p class="align-middle text-truncate list-inline-item m-0" th:text="${ a.questionAnswer }" style="width: 300px;"></p>
+    </td>
+    <td class="align-middle">
+        <p class="align-middle text-truncate list-inline-item m-0"  th:text="${ a.questionUpdateDate }" style="width: 120px;"></p>
+    </td>
+</tr>
+<tr th:if="${ #lists.isEmpty(list) }">
+    <td class="align-middle" colspan="4">등록된 답변이 없습니다.</td>
+</tr>

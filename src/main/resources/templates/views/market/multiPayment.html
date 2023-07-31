@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+    <link href="market_assets/css/hwayi.css" rel="stylesheet">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+</head>
+
+<body style="background-color: #eeeeee; min-width: 1920px;">
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <div style="display: flex; justify-content: space-between; margin-top: 4rem;">
+                <div style="font-size: 24px; font-weight: bolder; color: black;">주문/결제</div>
+                <div>
+                    <span>장바구니&nbsp;&nbsp;>&nbsp;&nbsp;</span><span style="font-weight: bold; font-size: 18px; color: black;">주문결제</span>
+                    <span>&nbsp;&nbsp;>&nbsp;&nbsp;완료</span>
+                </div>
+            </div>
+            <hr>
+            <!--상품 정보 START-->
+            <div class="row" style="margin: 0;">
+                <div class="col-12" style="padding: 0;">
+                    <div class="row w-mp3">
+                        <div class="col-2" style="height: 100%;"></div>
+                        <div class="col-5 .w-mp1" style="text-align: left;">상품정보</div>
+                        <div class="col-1 .w-mp1">판매자</div>
+                        <div class="col-2 .w-mp1">수량</div>
+                        <div class="col-2 .w-mp1">결제금액(할인포함)</div>
+                    </div>
+                    <!--상품 정보 END-->
+                    <div class="row w-mp2" th:each="c:${cartList}">
+                        <div class="col-2" style="height: 100%;">
+                            <div style="height: 100%; display: flex; justify-content: center; align-items: center;">
+                                <image th:src="${c.productImage}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 70%;"></image>
+                            </div>
+                        </div>
+                        <div class="col-5" style="display: flex; align-items: center;">
+                            <div style="margin-left: 10px;">
+                                <div th:text="|[상품번호 : ${c.productNo}]|"></div>
+                                <div><a style="font-weight: bold; font-size:18px; color:black; text-decoration: none;" th:text="${c.productName}"></a></div>
+                            </div>
+                        </div>
+                        <div class="col-1" style="display: grid; align-items: center; justify-content: center;">
+                            <div>수면의 숲</div>
+                        </div>
+                        <div class="col-2" style="display: grid; align-items: center; justify-content: center;">
+                            <div th:text="|${c.amount}|"></div>
+                        </div>
+                        <div class="col-2" style="display: grid; align-items: center; justify-content: center;">
+                            <div style="font-weight: bold; font-size:18px; color:black;" th:text="${#numbers.formatInteger(c.total, 3, 'COMMA') + '원'}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr style="margin-top: 1px; margin-bottom: 1px; border: 1px dashed lightgray; width: 98%;">
+            <div class="row" style="height: auto; margin: 0; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+                <!--배송지 정보 및 결제 수단 START-->
+                <div class="col-9" style="padding: 0;">
+                    <div style="padding-top: 4rem; padding-left: 4rem;">
+                        <div style="font-weight: bold; font-size: 20px; color: rgb(24, 24, 24); margin-bottom: 1.5rem;">배송지 정보</div>
+                        <hr>
+                        <div style="color:black; margin-bottom: 0.5rem; font-weight: bold;" th:text="${session.loginUser.memberName}"></div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <span style="color:black; margin-bottom: 0.5rem; margin-left: 3px;" th:text="${session.loginUser.memberPhone}"></span>
+                        </div>
+                        <br>
+                        <span style="font-weight: bold; font-size: 14px; color: black; margin-right: 2rem;">배송지 선택</span>
+                        <span>
+                            <input type="radio" name="adressRadioBtn" id="radio1" checked>
+                            <label style="font-size:14px;" for="radio1">기본배송지</label>
+                            <input type="radio" name="adressRadioBtn" id="radio2">
+                            <label style="font-size:14px;" for="radio2">신규배송지</label>
+                        </span>
+                        <div style=" max-width: 600px;">
+                            <span id="mainAddr" style="color:black; margin-bottom: 0.5rem;" th:text="${session.loginUser.memberAddr}"></span>
+                            <button onclick="editAddr()" style="background-color: #fafafa; outline: none; border: 1px solid #a0a0a0; font-size: 14px; margin-left:0.5rem; margin-top: 0.5rem;">수정</button>
+                            <div style="margin-top: 0.5rem;">
+                                <input type="text" placeholder="상세 주소를 입력해주세요" id="detailAddr" class="w-daddr" th:value="${session.loginUser.memberDetailAddr}">
+                            </div>
+                        </div>
+                        <br>
+                        <div id="pName1" style="color:black; font-weight: bold; margin-bottom: 0.5rem;">상품명 : </div>
+                        <div style="width: 450px; display: flex;">
+                            <input type="text" id="requestMemo" placeholder="요청사항을 입력해주세요" style="width: 100%; text-indent: 5px; outline: none;">
+                        </div>
+                        <div style="color:black; font-size:12px; margin-top:0.5rem;">도서산간 지역의 경우 추후 수령 시 추가 배송비가 과금될 수 있습니다.</div>    
+                        <hr style="margin-bottom: 1.5rem;;">
+                        <div style="font-weight: bold; font-size: 20px; color: rgb(24, 24, 24); margin-bottom: 1.5rem;">적용된 할인</div>
+                        <div style="margin-left: 1rem;">
+                            <div style="margin-bottom: 1rem;">
+                            </div>
+                            <div style="margin-bottom: 2rem;">
+                                <span style="font-weight: bold; color: black;">쿠폰 할인</span>&nbsp;&nbsp;&nbsp;
+                                <span>
+                                    <input type="text" id="couponDiscountInput" value="" style="text-align: right; border: none; border-bottom: 1px solid black; outline: none;" disabled>
+                                </span>&nbsp;&nbsp;&nbsp;
+                                <button style="background-color: #fafafa; outline: none; border: 1px solid #a0a0a0; font-size: 14px; margin-bottom: 0.5rem;" onclick="useCoupon();">쿠폰사용</button>&nbsp;&nbsp;
+                            </div>
+                        </div>
+                        <hr>    
+                        <div style="font-weight: bold; font-size: 20px; color: rgb(24, 24, 24); margin-bottom: 1.5rem;">결제 수단</div>
+                        <!-- <div style="margin-left: 4rem; border: 1px solid lightgray;"> -->
+                            <div style="margin-bottom: 1rem;">
+                                <input type="radio" name="orderType" value="kakaopay">&nbsp;&nbsp;
+                                <button class="orderTypeBtn w-btn" style="outline: none;" id="kakaopay">
+                                    <img src="market_assets/img/sample/payment_icon_yellow_small.png" width="60px">
+                                </button>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <input type="radio" name="orderType" value="tosspay">&nbsp;&nbsp;
+                                <button class="orderTypeBtn w-btn" style="outline: none;" id="tosspay">
+                                    <img src="market_assets/img/sample/logo-toss-pay.png" width="80px">
+                                </button>
+                            </div>    
+                            <div style="margin-bottom: 1rem;">
+                                <input type="radio" name="orderType" value="danal">&nbsp;&nbsp;
+                                <button class="orderTypeBtn w-btn" style="outline: none;" id="danal">휴대폰결제</button>
+                            </div>    
+                        <!-- </div>     -->
+                        <hr style="margin-top:1.5rem; margin-bottom: 1.5rem;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <div>
+                                <input type="checkbox" class="agreeOption" id="check1">
+                                <label for="check1"><strong style="color: black;">구매/교환/반품/환불 제한 동의</strong></label>
+                                <hr style="margin: 0;">
+                                <input type="checkbox" class="agreeOption" id="check2">
+                                <label for="check2" style="margin-top: 0.5rem;"><strong style="color: black;">주문 내용을 확인하였으며, 정보 제공의 동의합니다.</strong></label>
+                            </div>    
+                        </div>
+                    </div>
+                </div>
+                <!--배송지 정보 및 결제 수단 END-->
+                <div class="col-3" style="padding: 0; background-color: #1C3761; color: white; position: relative; border-radius: 15px;">
+                    <div style="margin-left: 2rem; margin-top:3rem;">
+                        <div style="margin-bottom: 1.5rem;">주문자 정보</div>
+                        <div th:text=${session.loginUser.memberName}></div>
+                        <div style="margin-top: 0.5rem;">
+                            <span th:text="${session.loginUser.memberPhone}"></span>&nbsp;
+                            <!-- <button style="background-color: #fafafa; outline: none; border: 1px solid #a0a0a0; font-size: 14px; margin-bottom: 0.5rem;">수정</button> -->
+                        </div>
+                        <hr style="border-color:white; width: 80%; margin-left:0;">
+                        <div style="width: 80%; color:#ffc303; font-size:12px;">주문자 정보로 결제관련 정보가 제공됩니다.
+                            정확한 정보로 등록되어있는지 확인해주세요.</div>
+                    </div>
+                    <input type="hidden" id="totalPriceA" th:value="${totalPrice}">
+                    <div style="margin-left: 2rem; position: absolute; bottom: 0; margin-bottom: 2rem;">
+                        <div style="margin-bottom: 1rem;">결제상세</div>
+                        <div style="display: flex; justify-content: space-between; width: 170px; font-size: 18px; font-weight: bold; margin-bottom: 0.5rem;">
+                            <div>주문금액</div>
+                            <div id="finalPrice"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; width: 170px; font-size: 14px; color: rgba(211, 211, 211, 0.7);">
+                            <div>상품금액</div>
+                            <div id="priceTotal"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; width: 170px; font-size: 14px; color: rgba(211, 211, 211, 0.7);">
+                            <div>배송비</div>
+                            <div id="shippingPrice">3,000원</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; width: 170px; font-size: 14px; color: rgba(211, 211, 211, 0.7);">
+                            <div>쿠폰할인</div>
+                            <div id="couponDc"></div>
+                        </div>
+                    </div>    
+                </div>     
+            </div>
+            <hr style="margin-top: 1px; margin-bottom: 1px; border: 1px dashed lightgray; width: 98%;">
+            <form action="multiPaying" method="POST" id="payForm">
+                <div class="col-12" style="height: 140px; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                    <div style="display: flex; height: 100%; justify-content: center; align-items: center;">
+                        <button type="button" id="payBtn" style="background-color: #1C3761; color: white; border: none; border-radius: 5px; height: 40%; width: 20%; font-weight: bold; font-size: 24px; outline: none;">결제하기</button>
+                        <input type="hidden" name="cartData" id="cartData">
+                        <input type="hidden" name="orderType" id="orderTypeSubmit">
+                        <input type="hidden" name="mainAddr" id="mainAddrSubmit">
+                        <input type="hidden" name="detailAddr" id="detailAddrSubmit">
+                        <input type="hidden" name="usedCoupon" value="" id="couponParam">
+                        <input type="hidden" name="memo" id="memo">
+                        <input type="hidden" name="finalPrice" value="" id="finalPriceSubmit">
+                        <input type="hidden" name="cartName" value="" id="cartNameSubmit">
+                        <input type="hidden" name="image" value="" id="cartMainImageSubmit">
+                        <input type="hidden" name="discount" value="" id="discountSubmit">
+                    </div>
+                </div>
+            </form>
+        </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const cartList = /*[[${cartList}]]*/hawyi;
+        const buyerName = /*[[${session.loginUser.memberName}]]*/hwayi;
+        const buyerTel = /*[[${session.loginUser.memberPhone}]]*/hwayi;
+        // let buyerAddr = /*[[${session.loginUser.memberAddr}]]*/hwayi;
+        // buyerAddr += ' ' + /*[[${session.loginUser.memberDetailAddr}]]*/hwayi;
+        /*]]>*/
+        let totalPrice = 0;
+        const payBtn = document.getElementById('payBtn');
+        const payForm = document.getElementById('payForm');
+        const finalPriceSubmit = document.getElementById('finalPriceSubmit');
+        let orderType;
+
+        window.onload=()=>{
+            document.getElementById('pName1').innerText = cartList[0].productName + ' 외' + Number(cartList.length-1) + '개 상품';
+            for(const p of cartList){
+                totalPrice += Number(p.total);
+            }
+            document.getElementById('priceTotal').innerText = priceToString(totalPrice) + '원';
+            if(totalPrice >= 50000){
+                document.getElementById('finalPrice').innerText = priceToString(totalPrice) + '원';
+                document.getElementById('shippingPrice').innerText = '무료';
+            }else{
+                document.getElementById('finalPrice').innerText = priceToString(totalPrice+3000) + '원';
+            }
+            document.getElementById('totalPriceA').value = totalPrice;
+        }
+
+        function useCoupon(){
+            window.name="payment";
+            openWin = window.open("couponPopup","couponPopup","width=800, height=400, resizable=no, location=no, titlebar=no");
+        }
+
+        function generateRandomString() {
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var randomString = '';
+            var length = 10;
+            
+            for (var i = 0; i < length; i++) {
+                var randomIndex = Math.floor(Math.random() * characters.length);
+                randomString += characters.charAt(randomIndex);
+            }
+
+            return randomString;
+        }
+
+        const  orderTypeBtns = document.getElementsByClassName('orderTypeBtn');
+        for(const orderTypeBtn of orderTypeBtns){
+            orderTypeBtn.addEventListener('click',function(){
+                this.parentElement.children[0].checked = true;
+                if(this.id === 'kakaopay'){
+                    orderType = 'kakaopay';
+                }else if(this.id == 'tosspay'){
+                    orderType = 'tosspay';
+                }else if(this.id == 'danal'){
+                    orderType = 'danal';
+                }
+            })
+        }
+        const orderTypeRadioBtn = document.getElementsByName('orderType');
+        for(const o of orderTypeRadioBtn){
+            o.addEventListener('change',function(){
+                if(this.value == 'kakaopay'){
+                    orderType = 'kakaopay';
+                }else if(this.value == 'tosspay'){
+                    orderType = 'tosspay';
+                }else if(this.value == 'danal'){
+                    orderType = 'danal';
+                }
+            })
+        }
+
+        payBtn.addEventListener('click',()=>{
+            var randomValue = generateRandomString();
+            let agreeCount = 0;
+            let orderTypeCount = 0;
+
+            const agreeOption = document.getElementsByClassName('agreeOption');
+            for(const agree of agreeOption){
+                if(agree.checked){
+                    agreeCount ++;
+                }
+            }
+            if(document.getElementById('mainAddr').innerText != '' && document.getElementById('detailAddr').value != ''){
+                var buyerAddr = document.getElementById('mainAddr').innerText + ' ' + document.getElementById('detailAddr').value;
+
+                if(agreeCount == 2){
+                    const orderTypeBtns = document.getElementsByName('orderType');
+                    for(const orderTypeBtn of orderTypeBtns){
+                        if(orderTypeBtn.checked){
+                            orderTypeCount++;
+                        }
+                    }
+                    if(orderTypeCount == 1){
+                        document.getElementById('orderTypeSubmit').value = orderType;
+                        document.getElementById('memo').value = document.getElementById('requestMemo').value;
+                        document.getElementById('mainAddrSubmit').value = document.getElementById('mainAddr').innerText;
+                        document.getElementById('detailAddrSubmit').value = document.getElementById('detailAddr').value;
+                        document.getElementById('cartNameSubmit').value = cartList[0].productName;
+                        document.getElementById('cartMainImageSubmit').value = cartList[0].productImage;
+                        var dataArr = [];
+                        for(const c of cartList){
+                            const productNo = c.productNo;
+                            const productName = c.productName;
+                            const amount = c.amount;
+                            const total = c.total;
+    
+                            dataArr.push({productNo:productNo,productName:productName,amount:amount,total:total});
+                        }
+                        const cartData = JSON.stringify(dataArr);
+                        document.getElementById('cartData').value = cartData;
+    
+                        let finalPrice = document.getElementById('finalPrice').innerText;
+                        finalPrice = finalPrice.slice(0,-1).replace(",","");
+                        while(finalPrice.includes(",")){
+                            finalPrice = finalPrice.replace(",","");
+                        }
+                        var productsName = document.getElementById('pName1').innerText;
+                        finalPriceSubmit.value=finalPrice;
+    
+                        var IMP = window.IMP;
+                        IMP.init("imp86855745");
+    
+                        IMP.request_pay({
+                            pg : orderType,
+                            merchant_uid: randomValue, 
+                            name : productsName,
+                            amount : finalPrice,
+                            buyer_name : buyerName,
+                            buyer_tel : buyerTel,
+                            buyer_addr : buyerAddr
+                        }, function (rsp) {
+                            if(rsp.success == true){
+                                payForm.submit();
+                            }else if(rsp.success == false){
+                                console.error('결제실패');
+                            }
+                        });
+    
+                    }else if(orderTypeCount != 1){
+                        swal("결제 수단을 선택 후 결제해주세요");
+                    }
+                }else if(agreeCount < 2){
+                    swal("약관 동의 후 결제해주세요")
+                }
+            }else{
+                swal("주소를 입력해주세요");
+            }
+
+        })
+
+        const adressRadioBtns = document.getElementsByName('adressRadioBtn');
+        const mainAddr = document.getElementById('mainAddr');
+        const detailAddr = document.getElementById('detailAddr');
+        /*<![CDATA[*/
+        const savedMainAddr = /*[[${session.loginUser.memberAddr}]]*/hwayi;
+        const savedDetailAddr = /*[[${session.loginUser.memberDetailAddr}]]*/hwayi;
+        /*]]>*/
+        const editAddr = () => {
+            newAddr();
+        }
+
+        function newAddr(){
+            adressRadioBtns[1].checked = true;
+            new daum.Postcode({
+                oncomplete: (data) => {
+                    mainAddr.innerText = data.roadAddress;
+                }
+            }).open();
+        }
+
+        for(const btn of adressRadioBtns){
+            btn.addEventListener('change',function(){
+                if(this.nextElementSibling.innerText == '기본배송지'){
+                    mainAddr.innerText = savedMainAddr;
+                    detailAddr.value = savedDetailAddr;
+                }else if(this.nextElementSibling.innerText == '신규배송지'){
+                    newAddr();
+                    console.log(savedDetailAddr);
+                    detailAddr.value='';
+                    detailAddr.focus();
+                }
+            })
+        }
+
+
+
+    </script>
+</body>
+</html>

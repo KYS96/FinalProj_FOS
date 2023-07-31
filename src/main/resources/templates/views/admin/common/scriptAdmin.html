@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div th:fragment="scriptAdmin">
+
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+        <!--숫자에 콤마 추가-->
+        <script>
+            function priceToString(price) {
+                return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            };
+        </script>
+
+        <!--input 숫자에 콤마 추가-->
+        <script>
+            function inputProductPrice(price){
+                document.getElementsByName("productPrice")[0].value = price.value.toString().replace(/[^\d]+/g, '');
+            }
+            function inputProductStock(price){
+                document.getElementsByName("productStock")[0].value = price.value.toString().replace(/[^\d]+/g, '');
+            }
+            function inputPriceToString(price) {
+                price.value = price.value.toString().replace(/[^\d]+/g, '');
+                price.value = price.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            };
+        </script>
+
+        <!-- Bootstrap JS-->
+        <script src="admin_assets/vendor/bootstrap-4.1/popper.min.js"></script>
+        <script src="admin_assets/vendor/bootstrap-4.1/bootstrap.min.js"></script>
+        <!-- Vendor JS       -->
+        <script src="admin_assets/vendor/slick/slick.min.js">
+        </script>
+        <script src="admin_assets/vendor/wow/wow.min.js"></script>
+        <script src="admin_assets/vendor/animsition/animsition.min.js"></script>
+        <script src="admin_assets/vendor/bootstrap-progressbar/bootstrap-progressbar.min.js">
+        </script>
+        <script src="admin_assets/vendor/counter-up/jquery.waypoints.min.js"></script>
+        <script src="admin_assets/vendor/counter-up/jquery.counterup.min.js">
+        </script>
+        <script src="admin_assets/vendor/circle-progress/circle-progress.min.js"></script>
+        <script src="admin_assets/vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
+        <script src="admin_assets/vendor/chartjs/Chart.bundle.min.js"></script>
+        <script src="admin_assets/vendor/select2/select2.min.js">
+        </script>
+    
+        <!-- uuid -->
+        <script>
+            function uuidv4() {
+            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+            }
+        </script>
+
+        <!-- Main JS-->
+        <script src="admin_assets/js/main.js"></script>
+
+        <script>
+            const enrollAdmin = () => {
+                window.open("enrollAdmin.admin", "", "width=800px, height=650px, top=200px, left=550px");
+            }
+
+            const changePwd = () => {
+                window.open("changePwd.admin", "", "width=800px, height=510px, top=200px, left=550px");
+            }
+
+            const findId = () => {
+                window.open("findId.admin", "", "width=800px, height=380px, top=200px, left=550px");
+            }
+        </script>
+
+    </div>
+
+</body>
+</html>

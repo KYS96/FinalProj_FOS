@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+
+<body>
+    <div class="container-fluid mb-5" th:fragment="mainNavbar">
+        <div class="row" style="justify-content: center;">
+            <div class="col-lg-12" style="padding-right: 0; padding-left: 0;">
+                <nav class="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-0">
+                    <a href="" class="text-decoration-none d-block d-lg-none">
+                        <h1 class="m-0 display-5 font-weight-semi-bold"><span
+                                class="text-primary font-weight-bold border px-3 mr-1">E</span>Shopper</h1>
+                    </a>
+                    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                        <div class="navbar-nav mr-auto py-0">
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"
+                                    style="font-size:18px; font-weight: bold;">상품 카테고리</a>
+                                <div class="dropdown-menu rounded-0 m-0">
+                                    <a href="shop?category=all" class="dropdown-item">전체 상품</a>
+                                    <a href="shop?category=bed" class="dropdown-item">침대</a>
+                                    <a href="shop?category=pillow" class="dropdown-item">베개</a>
+                                    <a href="shop?category=blanket" class="dropdown-item">이불</a>
+                                    <a href="shop?category=clothing" class="dropdown-item">잠옷·의류</a>
+                                    <a href="shop?category=goods" class="dropdown-item">수면안대·굿즈</a>
+                                    <a href="shop?category=health" class="dropdown-item">수면보조제·건강</a>
+                                </div>
+                            </div>
+                            <a href="eventNewsList.ens" class="nav-item nav-link" style="font-size:18px;">EVENT</a>
+                            <div class="nav-item dropdown">
+                                <a href="myPage.me" class="nav-link" style="font-size:18px;">마이페이지</a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

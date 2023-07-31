@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲</title>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <style>
+        .cardInnerText{
+            padding: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid" id="mainContentAdmin">
+                        <div class="row m-0">
+                            <div class="col-lg-6">
+                                <div class="user-data m-b-30">
+                                    <h3 class="title-3 m-b-30">회원 조회</h3>
+                                    <div class="filters m-b-45 pr-3 pl-3">
+                                        <div class="input-group">
+                                            <div class="rs-select2--dark rs-select2--md m-r-10 rs-select2--border ml-3">
+                                                <select class="js-select2" name="type">
+                                                    <option value="MEMBER_NO" selected="selected">번호</option>
+                                                    <option value="MEMBER_ID">아이디</option>
+                                                    <option value="MEMBER_NAME">이름</option>
+                                                    <option value="MEMBER_NICKNAME">닉네임</option>
+                                                </select>
+                                                <div class="dropDownSelect2"></div>
+                                            </div>
+                                            <input type="text" name="keyword" placeholder="검색어를 입력해주세요" class="form-control" onkeypress="if(event.keyCode == 13){searchMember();}">
+                                            <div class="input-group-btn">
+                                                <button name="search" class="btn btn-primary mr-3 ml-2">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive table-data h-auto">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td class="align-middle" style="width: 180px;">번호</td>
+                                                    <td class="align-middle" style="width: 300px;">아이디(닉네임)</td>
+                                                    <td class="align-middle" style="width: 250px;">정지</td>
+                                                    <td class="align-middle" style="width: 250px;">탈퇴</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody name="list"></tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mb-5 bg-white mt-5" name="paging"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="user-data m-b-30">
+                                    <h3 class="title-3 m-b-30">관리자 조회</h3>
+                                    <div class="filters m-b-45 pr-3 pl-3">
+                                        <div class="input-group">
+                                            <div class="rs-select2--dark rs-select2--md m-r-10 rs-select2--border ml-3">
+                                                <select class="js-select2" name="type">
+                                                    <option value="EMPLOYEE_NO" selected="selected">번호</option>
+                                                    <option value="EMPLOYEE_ID">아이디</option>
+                                                    <option value="EMPLOYEE_NAME">이름</option>
+                                                    <option value="EMPLOYEE_STATUS">상태</option>
+                                                </select>
+                                                <div class="dropDownSelect2"></div>
+                                            </div>
+                                            <input type="text" name="keyword" placeholder="검색어를 입력해주세요" class="form-control" onkeypress="if(event.keyCode == 13){searchAdmin();}">
+                                            <div class="input-group-btn">
+                                                <button name="search" class="btn btn-primary mr-3 ml-2">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive table-data h-auto">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td class="align-middle" style="width: 230px;">번호</td>
+                                                    <td class="align-middle" style="width: 450px;">이름(아이디)</td>
+                                                    <td class="align-middle" style="width: 300px;">상태</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody name="list"></tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mb-5 bg-white mt-5" name="paging"></div>
+                                </div>
+                            </div>
+                        </div>                   
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="copyright">
+                                    <p>Copyright © 2018 Colorlib. All rights reserved. Template by <a href="https://colorlib.com">Colorlib</a>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="memberModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body" id="memberDetailModal"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body" id="adminDetailModal"></div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    <script>
+        window.onload = () => {
+            searchMemberList("MEMBER_NO", "", 1);
+
+            searchAdminList("EMPLOYEE_NO", "", 1);
+        }
+
+        const searches = document.getElementsByName("search");
+        const types = document.getElementsByName("type");
+        const keywords = document.getElementsByName("keyword");
+        const lists = document.getElementsByName("list");
+        const pagings = document.getElementsByName("paging");
+
+        const memberDetailModal = document.getElementById("memberDetailModal");
+        const adminDetailModal = document.getElementById("adminDetailModal");
+
+        searches[0].addEventListener('click', () => {
+            searchMember();
+        });
+
+        searches[1].addEventListener('click', () => {
+            searchAdmin();
+        });
+
+        const searchMember = () => {
+            searchMemberList(types[0].value, keywords[0].value, 1);
+        }
+
+        const searchAdmin = () => {
+            searchAdminList(types[1].value, keywords[1].value, 1);
+        }
+
+        const searchMemberList = (type, keyword, page) => {
+            $.ajax({
+                url: "searchMemberList.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "type": type,
+                    "keyword": keyword,
+                    "page": page,
+                },
+                success: (html) => {
+                    lists[0].innerHTML = html;
+                    pagination(type, keyword, page, "searchMemberList", "member", 0);
+                }
+            });
+        }
+
+        const searchAdminList = (type, keyword, page) => {
+            $.ajax({
+                url: "searchAdminList.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "type": type,
+                    "keyword": keyword,
+                    "page": page,
+                },
+                success: (html) => {
+                    lists[1].innerHTML = html;
+                    pagination(type, keyword, page, "searchAdminList", "admin", 1);
+                }
+            });
+        }
+
+        const updateBlacklist = (memberNo, memberIsBlacklist, type, keyword, currentPage) => {
+            $.ajax({
+                url: "updateBlacklist.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "memberNo": memberNo,
+                    "memberIsBlacklist": memberIsBlacklist,
+                    "type": type,
+                    "keyword": keyword,
+                    "currentPage": currentPage
+                },
+                success: () => {
+                    searchMemberList(type, keyword, currentPage);
+                }
+            })
+        }
+
+        const updateStatus = (memberNo, memberStatus, type, keyword, currentPage) => {
+            $.ajax({
+                url: "updateStatus.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "memberNo": memberNo,
+                    "memberStatus": memberStatus,
+                    "type": type,
+                    "keyword": keyword,
+                    "currentPage": currentPage
+                },
+                success: () => {
+                    searchMemberList(type, keyword, currentPage);
+                }
+            })
+        }
+
+        const updateAdmin = (adminNo, adminStatus, type, keyword, currentPage) => {
+            $.ajax({
+                url: "updateAdmin.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "adminNo": adminNo,
+                    "adminStatus": adminStatus,
+                    "type": type,
+                    "keyword": keyword,
+                    "currentPage": currentPage
+                },
+                success: () => {
+                    searchAdminList(type, keyword, currentPage);
+                }
+            })
+        }
+
+        const pagination = (type, keyword, page, func, method, num) => {
+            $.ajax({
+                url: "pagination.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "type": type,
+                    "keyword": keyword,
+                    "page": page,
+                    "func": func,
+                    "method": method
+                },
+                success: (html) => {
+                    pagings[num].innerHTML = html;
+                }
+            });
+        }
+
+        const memberDetail = (memberNo) => {
+            $.ajax({
+                url: "memberDetail.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "memberNo": memberNo
+                },
+                success: (html) => {
+                    memberDetailModal.innerHTML = html;
+                }
+            })
+        }
+
+        const adminDetail = (adminNo) => {
+            $.ajax({
+                url: "adminDetail.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "adminNo": adminNo
+                },
+                success: (html) => {
+                    adminDetailModal.innerHTML = html;
+                }
+            })
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+    <link href="market_assets/css/hwayi.css" rel="stylesheet">
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .productDetailHeightController{max-height: 2000px; overflow: hidden;}
+        .productImageSample{cursor:pointer;}
+        .swal-button--confirm {
+            background-color: #1C3761;
+        }
+        #explainArea > p{
+            display: grid;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body style="min-width: 1920px;">
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+    <div class="row">
+        <!-- 좌측 공백 START -->
+        <div class="col-2"></div>
+        <!-- 좌측 공백 END -->
+        <!-- 컨텐츠 공간 START -->
+        <div class="col-8">
+            <div class="container-fluid py-5">
+                <!-- 상품 이미지 + 정보 START -->
+                <div class="row px-xl-5">
+                    <!-- 상품 이미지 START -->
+                    <div class="col-5 pb-5">
+                        <!-- 상품대표이미지 START -->
+                        <div id="product-carousel">
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    <img id="thumbnail" class="w-thumbnail" th:src="${productInfo.productImage}" alt="Image">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 상품대표이미지 END -->
+                        <!-- 상품서브이미지 START -->
+                        <div style="display:flex; justify-content: center;">
+                            <div class="col" style="flex-grow: 0;">
+                                <image class="productImageSample w-sampleImg" th:src="${productInfo.productImage}"></image>
+                            </div>
+                            <div class="col" style="flex-grow: 0;" th:each="subImg:${productSubImgs}">
+                                <image class="productImageSample w-sampleImg" th:src="${subImg.productAttmURL}"></image>
+                            </div>
+                        </div>
+                        <!-- 상품서브이미지 END -->
+                    </div>
+                    <!-- 상품 이미지 END -->
+                    <!-- 상품 가격 정보 및 버튼등 START -->
+                    <div class="col-6 pb-5 w-custom1">
+                        <h5 class="font-weight-semi-bold w-cw600" th:text="|[${productInfo.eventTitle}]|" th:if="${productInfo.eventTitle != null}"></h5>
+                        <h1 class="font-weight-semi-bold w-cw600" th:text="${productInfo.productName}"></h1>
+                        <!--가격표시란 START-->
+                        <!--적용중인 이벤트가 없으면 START-->
+                        <div class="d-flex w-custom2" th:if="${productInfo.eventCode == 0}">
+                            <h1 class="realPrice" th:text="${#numbers.formatInteger(productInfo.productPrice, 3, 'COMMA') + '원'}"></h1>
+                        </div>
+                        <!--적용중인 이벤트가 없으면 END-->
+                        <!--할인 이벤트가 적용중이면 START-->
+                        <div class="d-flex w-custom2">
+                            <h1 class="realPrice" th:text="${#numbers.formatInteger(productInfo.productPrice-productInfo.eventCode, 3, 'COMMA') + '원'}" style="color:#f5683c" th:if="${productInfo.eventCode >= 1000}"></h1>
+                            <h1 class="realPrice" th:text="${#numbers.formatInteger(productInfo.productPrice-(productInfo.productPrice*productInfo.eventCode/100), 3, 'COMMA') + '원'}" style="color:#f5683c" th:if="${productInfo.eventCode > 0 && productInfo.eventCode <= 100}"></h1>
+                            <h4 class="w-custom3" th:text="${#numbers.formatInteger(productInfo.productPrice, 3, 'COMMA')}" th:if="${productInfo.eventCode != 0}"></h4>
+                        </div>
+                        <!--할인 이벤트가 적용중이면 END-->
+                        <!--가격표시란 END-->
+                        <div style="border: 1px solid lightgray; padding: 0.5rem; line-height: 30px;">
+                            <div style="color: black; font-weight: bold;">수면의 숲이 주는 혜택</div>
+                            <hr>
+                            <div style="display: grid; width: auto;" th:each="c : ${coupons}">
+                                <div th:text="|${c.couponName} : ${c.couponDiscountRate}원 할인|" th:if="${c.couponDiscountRate >= 1000}" style="font-weight: bold; color:black; font-size: 18px;"></div>
+                                <!-- <div th:text="|${c.couponName} : ${c.couponDiscountRate}% 할인|" th:if="${c.couponDiscountRate <= 100 and c.couponDiscountRate > 0}" style="font-weight: bold; color:black; font-size: 18px;"></div> -->
+                                <button onclick="downloadCoupon(this)" th:if="${c.couponDiscountRate > 0}" style="margin-top: 0.5rem; margin-bottom: 0.5rem; outline: none; border: none; background: white; border: 1px solid #1C3761; width: 20%;">쿠폰받기</button>
+                                <input type="hidden" th:value="${c.couponNo}">
+                            </div>
+                        </div>
+                        <hr>
+                        <!-- 상품 구매 수량 선택 START -->
+                        <div class="d-flex mb-4 pt-2 w-custom4">
+                            <!-- 수량 조절바 START -->
+                            <div class="input-group mr-3 w-w130">
+                                <div class="input-group-btn">
+                                    <button id="downBtn" class="btn border btn-minus">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                <input id="quantity" type="text" class="form-control text-center w-custom5" value="1" disabled style="background-color: white;">
+                                <div class="input-group-btn">
+                                    <button id="upBtn" class="btn border btn-plus">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- 수량 조절바 END -->
+                            <div>
+                                <span>총 수량 </span>
+                                <span id="showQuantity">1</span>
+                                <span>개</span>
+                                <span id="finalPrice" class="w-custom6"></span>
+                                <span class="w-custom6">원</span>
+                                <button id="resetQuantity" class="w-btn w-f20" style="outline: none;" hidden><i class="bi bi-x-lg"></i></button>
+                            </div>
+                        </div>
+                        <!-- 상품 구매 수량 선택 END -->
+                        <!-- 상품 기타 정보 START-->
+                    <!-- 여기에 할부 정보 , 쿠폰 배포 등 다양한 기능 수행 -->
+                        <!-- 상품 기타 정보 END-->
+                        <!-- 버튼 모음 START -->
+                        <form id="paymentForm" action="payment" method="get">
+                            <div class="d-flex pt-2 w-mt1">
+                                <button id="purchaseBtn" class="w-custom7" type="button">구매하기</button>
+                            </div>
+                            <input type="hidden" name="productNo" th:value="${productInfo.productNo}">
+                            <input type="hidden" name="productName" th:value="${productInfo.productName}">
+                            <input type="hidden" name="productImage" th:value="${productInfo.productImage}">
+                            <input type="hidden" name="eventTitle" th:value="${productInfo.eventTitle}">
+                            <input type="hidden" name="eventCode" th:value="${productInfo.eventCode}">
+                            <input type="hidden" id="purchaseQuantitySubmit" name="purchaseQuantity" value="">
+                            <input type="hidden" id="totalPriceSubmit" name="totalPrice" value="">
+                            <input type="hidden" id="originalPrice" name="originalPrice" th:value="${productInfo.productPrice}">
+                        </form>
+                        <div class="d-flex pt-2 w-mt1">
+                            <button class="w-custom8 w-c8l" onclick="hrefQnA()">상품 문의하기</button>
+                            <button class="w-custom8 w-c8r" onclick="addCart()">장바구니 담기</button>
+                        </div> 
+                        <div class="d-flex pt-2 w-mt1" th:if="${loginUser == null}">
+                            <button class="w-custom9" onclick="hrefLogin()">지금 회원가입하고 3,000원 할인쿠폰 받기<i class="bi bi-download w-custom10"></i></button>
+                        </div> 
+                        <!-- 버튼 모음 END -->
+                    </div>
+                    <!-- 상품 가격 정보 및 버튼등 END -->
+                </div>
+                <!-- 상품 이미지 + 정보 END -->
+                <div class="row px-xl-5">
+                    <div class="col">
+                        <div class="nav nav-tabs justify-content-center border-secondary mb-4">
+                            <a class="nav-item nav-link active w-0" id="productDetailTab" href="#tab-pane-1">상품정보</a>
+                            <a class="nav-item nav-link w-0" href="#reviewAnchor" th:text="|리뷰 ${reviewSize}|">리뷰 1,000</a>
+                            <a class="nav-item nav-link w-0" id="qnaCount" href="#Q&AAnchor">Q&A 0</a>
+                            <a class="nav-item nav-link w-0" href="#caution">반품/교환정보</a>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="tab-pane-1">
+                                <h4 class="mb-3">상품 상세 정보</h4>
+                                <input type="hidden" id="productExplain" th:value="${productInfo.productExplain}">
+                                <!-- 상품 설명 START -->
+                                <div id="productExplainArea">
+                                    <div id="explainArea"></div>
+                                </div>
+                                <!-- 상품 설명 END -->
+                                <div style="width: 100%; height: auto;">
+                                    <!--상품상세정보 이미지 START-->
+                                    <div id="productDetailArea" class="productDetailHeightController">
+                                        <th:block th:each="detailImg:${productDetailImg}">
+                                            <image th:src="${detailImg.productAttmURL}" style="width: 100%;"></image>
+                                        </th:block>
+                                    </div>
+                                    <!--상품상세정보 이미지 END-->
+                                    <button id="moreProductDetailToggleBtn" onclick="moreProductDetailToggleBtn()" class="w-custom11">상세정보 펼쳐보기    ▼</button>
+                                    <div id="caution"><image src="market_assets/img/sample/customCheck.png" style="width: 100%;"></image></div>
+                                </div>
+                                <!--상품제공고시 START-->
+                                <!--상품제공고시 END-->
+                                <!--상품리뷰 START-->
+                                <h4 id="reviewAnchor" class="mb-3">상품리뷰</h4>
+                                <hr>
+                                <!--리뷰 요약 START-->
+                                <div class="w-custom12">
+                                    <!-- 평점 START -->
+                                    <div class="col-3 w-custom13">
+                                        <div class="w-custom14"><h5 class="font-weight-semi-bold">상용자 총 평점</h5></div>
+                                        <div class="w-custom14">
+                                            <div th:if="${productInfo.productPoint >= 4.5 and productInfo.productPoint <= 5}">
+                                                <span class="font-weight-semi-bold w-5">★★★★★</span>
+                                            </div>
+                                            <div th:if="${productInfo.productPoint >= 3.5 and productInfo.productPoint < 4.5}">
+                                                <span class="font-weight-semi-bold w-5">★★★★</span>
+                                                <span class="font-weight-semi-bold w-6">★</span>
+                                            </div>
+                                            <div th:if="${productInfo.productPoint >= 2.5 and productInfo.productPoint < 3.5}">
+                                                <span class="font-weight-semi-bold w-5">★★★</span>
+                                                <span class="font-weight-semi-bold w-6">★★</span>
+                                            </div>
+                                            <div th:if="${productInfo.productPoint >= 1.5 and productInfo.productPoint < 2.5}">
+                                                <span class="font-weight-semi-bold w-5">★★</span>
+                                                <span class="font-weight-semi-bold w-6">★★★</span>
+                                            </div>
+                                            <div th:if="${productInfo.productPoint >= 0.5 and productInfo.productPoint < 1.5}">
+                                                <span class="font-weight-semi-bold w-5">★</span>
+                                                <span class="font-weight-semi-bold w-6">★★★★</span>
+                                            </div>
+                                            <div th:if="${productInfo.productPoint >= 0.0 and productInfo.productPoint < 0.5}">
+                                                <span class="font-weight-semi-bold w-6">★★★★★</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-custom14"><h4 class="font-weight-semi-bold" th:text="|${productInfo.productPoint}/5.0|"></h4></div>
+                                    </div>
+                                    <!-- 평점 END -->
+                                    <!-- 리뷰 수 START -->
+                                    <div class="col-3 w-custom13">
+                                        <div class="w-custom14"><h5 class="font-weight-semi-bold">전체 리뷰 수</h5></div>
+                                        <div class="w-custom14"><i class="bi bi-chat-dots-fill" style="font-size: 50px;"></i></div>
+                                        <div class="w-custom14"><h4 class="font-weight-semi-bold" th:text="${reviewSize}"></h4></div>
+                                    </div>
+                                    <!-- 리뷰 수 END -->
+                                    <!-- 점수 별 통계 START -->
+                                    <div class="col-1 w-custom15">
+                                        <div class="w-b">5점</div>
+                                        <div class="w-b">4점</div>
+                                        <div class="w-b">3점</div>
+                                        <div class="w-b">2점</div>
+                                        <div class="w-b">1점</div>
+                                    </div>
+                                    <div class="col-5 w-custom16">
+                                        <div style="width: 90%; padding-top: 5px;">
+                                            <div class="progress w-mtb10">
+                                                <div class="progress-bar w-bcp" role="progressbar" aria-label="Basic example" th:style="|width: ${fiveStarPercent}%|" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="progress w-mtb10">
+                                                <div class="progress-bar w-bcp" role="progressbar" aria-label="Basic example" th:style="|width: ${fourStarPercent}%|" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="progress w-mtb10">
+                                                <div class="progress-bar w-bcp" role="progressbar" aria-label="Basic example" th:style="|width: ${threeStarPercent}%|" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="progress w-mtb10">
+                                                <div class="progress-bar w-bcp" role="progressbar" aria-label="Basic example" th:style="|width: ${twoStarPercent}%|" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="progress w-mtb10">
+                                                <div class="progress-bar w-bcp" role="progressbar" aria-label="Basic example" th:style="|width: ${oneStarPercent}%|" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 점수 별 통계 END -->
+                                </div>
+                                <!--리뷰 요약 END-->
+                                <!-- 본격 리뷰 START -->
+                                <!-- 전체 사진 모음 START -->
+                                <div class="row w-custom17" id="allImgsArea" style="max-height: 160px; overflow: hidden;">
+
+                                </div>
+                                <hr>
+                                <div class="w-custom18">
+                                    <h4 class="mb-3" th:text="|리뷰 ${reviewCount}건|"></h4>
+                                    <div id="reviewOrderBtnArea">
+                                        <button class="w-btn2" style="outline: none;">최신순</button>
+                                        <button class="w-btn2" style="outline: none;">높은 별점순</button>
+                                        <button class="w-btn2" style="outline: none;">낮은 별점순</button>
+                                    </div> 
+                                </div>
+                                <div id="reviewArea"></div>
+                                <div class="col-12 pb-5">
+                                    <div class="w-custom19">
+                                        <button id="reviewPopupBtn" class="w-btn3" style="outline: none;">리뷰쓰기</button>
+                                    </div>
+                                </div>
+                                <!--리뷰페이징 START-->
+                                <nav aria-label="Page navigation" id="reviewNav">
+                                    <ul class="pagination justify-content-center mb-3">
+                                        <li class="page-item">
+                                            <a class="page-link cur" id="reviewPreviousPage" aria-label="Previous">
+                                                <span aria-hidden="true" style="color: black;">«</span>
+                                            </a>
+                                        </li>
+                                        <div id="reviewNumPage" style="display: flex;">
+                                            <li class="page-item">
+                                                <a class="page-link cur" onclick="reviewPageNo(this)"></a>
+                                            </li>
+                                        </div>
+                                        <li class="page-item">
+                                            <a class="page-link cur" id="reviewNextPage" aria-label="Next">
+                                                <span aria-hidden="true" style="color: black;">»</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                <!--리뷰페이징 END-->
+                                <!-- 본격 리뷰 END -->
+                                <!--Q&A START-->
+                                <h4 id="Q&AAnchor" class="mb-3">Q&A</h4>
+                                <hr style="border-color: black;">
+                                <div class="row w-custom20">
+                                    <div class="col-1">답변상태</div>
+                                    <div class="col-9">제목</div>
+                                    <div class="col-1">작성자</div>
+                                    <div class="col-1">작성일</div>
+                                </div>
+                                <hr>
+                                <div id="QnAArea">
+
+                                </div>
+                                <!--문의게실글 START-->
+                                <!--문의게실글 END-->
+                                <hr>
+                                <div class="col-12 pb-5">
+                                    <div class="w-custom19">
+                                        <button id="QnaPopupBtn" class="w-btn3">문의하기</button>
+                                    </div>
+                                    <!--QnA 페이징 START-->
+                                    <nav aria-label="Page navigation" id="qnaNav">
+                                        <ul id="qnaPagingArea" class="pagination justify-content-center mb-3">
+                                            <li class="page-item">
+                                                <a class="page-link" id="qnaPreviousPage" aria-label="Previous" style="cursor: pointer;">
+                                                    <span aria-hidden="true" style="color: black;">«</span>
+                                                </a>
+                                            </li>
+                                            <div id="qnaNumPage" style="display: flex;">
+                                                <li class="page-item">
+                                                    <a class="page-link" onclick="qnaPageNo(this)" style="cursor: pointer;"></a>
+                                                </li>
+                                            </div>
+                                            <li class="page-item">
+                                                <a class="page-link" id="qnaNextPage" aria-label="Next" style="cursor: pointer;">
+                                                    <span aria-hidden="true" style="color: black;">»</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    <!--QnA 페이징 END-->
+                                </div>
+                                <!--Q&A END-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 컨텐츠 공간 END -->
+        <!-- 우측 공백 START -->
+        <div class="col-2"></div>
+        <!-- 우측 공백 END -->
+    </div>
+    <!-- 모달 START -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="allImgModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content rounded-3 shadow" style="height: auto;">
+                <div class="modal-body" style="padding: 0;">
+                    <div class="w-custom22">포토리뷰</div>
+                    <div class="w-center w-mh600">
+                        <image class="w-ming" id="firstShowImg"></image>
+                    </div>
+                    <div id="otherImgs" style="max-height: 124.5px; overflow: hidden;">
+                    </div>
+                    <button id="seeMoreBtn" onclick="seeMoreImg()" class="w-btn5" style="outline: none; display: block; margin-top: 10px; font-weight: bold;"><i class="bi bi-chevron-down"></i> 더 보기</button>
+                </div>
+                <div class="modal-footer flex-nowrap p-0">
+                    <button class="btn btn-lg btn-link fs-6 text-decoration-none col-12 m-0 rounded-0 w-btn4"
+                        data-bs-dismiss="modal" onclick="closeAllImgModal()">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 모달 END -->
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+    <!-- Back to Top -->
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+    <script th:inline="javascript">
+        const explainArea = document.getElementById('explainArea');
+        const productExplain = document.getElementById('productExplain');
+        window.onload = () =>{
+            explainArea.innerHTML = productExplain.value;
+            var detailimage = explainArea.querySelector('p');
+            detailimage.classList.add('productDetailHeightController');
+            // detailimage.style.maxHeight = '2000px';
+            // detailimage.style.overflow = 'hidden';  
+            // getCartNums();
+
+            const finalPrice = document.getElementById('finalPrice');
+            const realPrice = parseInt(((document.getElementsByClassName('realPrice'))[0].innerText).replace(/,/g, ''));
+
+            //실제 사용자가 결제할 단일 상품 금액 (이벤트가 있으면 할인가 없으면 원가)
+            finalPrice.innerText = priceToString(realPrice);
+
+            /*<![CDATA[*/
+            const productNo = /*[[${productInfo.productNo}]]*/hwayi;
+            /*]]>*/
+
+            //Review 리스트 불러오기 AJAX
+            let reviewPage = 1;
+            let orderRule = 'REVIEW_UPDATE_DATE desc';
+            let reviewEndPageNum;
+            loadReviewList();
+
+            function loadReviewList(){
+                $.ajax({
+                    method: "GET",
+                    url: "getReviewList",
+                    data: {productNo:productNo,page:reviewPage,orderRule:orderRule},
+                    dataType: "html",
+                    success: function(data){
+                        if(data != ''){
+                            $("#reviewArea").html(data);
+                            const reviewPi = document.getElementById('th-review-pi');
+                            const pageInfo = reviewPi.value;
+                            const pageInfoStr = pageInfo;
+                            const regex = /(\w+)=(\d+)/g;
+                            const pageInfoObj = {};
+                            let match;
+                            while ((match = regex.exec(pageInfoStr))) {
+                                const key = match[1];
+                                const value = parseInt(match[2]);
+                                pageInfoObj[key] = value;
+                            }
+                            reviewGeneratePageNumbers(pageInfoObj.startPage, pageInfoObj.endPage, pageInfoObj.maxPage);
+                            loadAllImgs(productNo);
+                        }else{
+                            document.getElementById('reviewNav').innerHTML = '';
+                            document.getElementById('reviewArea').innerHTML = '<div style="text-align: center;">작성된 리뷰가 없습니다</div><br/><br/>';
+                        }
+
+                    },
+                    error: function(error){
+                        console.error(error);
+                    }
+                }); //review ajax END
+            } //loadReviewList함수 END
+
+            function reviewGeneratePageNumbers(startPage, endPage, maxPage){
+                reviewEndPageNum = maxPage;
+                const reviewNumPage = document.getElementById('reviewNumPage');
+                reviewNumPage.innerHTML = '';
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item';
+
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.style.cursor='pointer';
+                    a.textContent = i;
+                    a.setAttribute('data-page', i);
+                    a.addEventListener('click', function () {
+                    reviewPageNo(this);
+                    });
+
+                    li.appendChild(a);
+                    reviewNumPage.appendChild(li);
+                }
+            }
+
+            function loadAllImgs(){
+                $.ajax({
+                    method: "GET",
+                    url: "getAllImgs",
+                    data: {productNo,productNo},
+                    dataType: "json",
+                    success: function(data){
+                        const allImgsArea = document.getElementById('allImgsArea');
+                        const otherImgs = document.getElementById('otherImgs');
+                        allImgsArea.innerHTML = '';
+                        otherImgs.innerHTML = '';
+                        let allImgText = '';
+                        let otherImgText = '';
+                        for(const i of data){
+                            allImgText += '<div class="col" style="flex-grow: 0;">';
+                            allImgText += '<image src="'+i.productAttmURL+'" style="width: 160px; height: 150px; object-fit: cover; cursor:pointer;" onclick="everyImgs(this)"></image>';
+                            allImgText += '</div>';
+                        }
+                        allImgsArea.innerHTML = allImgText;
+                        for(const j of data){
+                            otherImgText += '<image src="'+j.productAttmURL+'" class="w-ming2" onclick="showBigSize()"></image>';
+                        }
+
+                        const seeMoreBtn = document.getElementById('seeMoreBtn');
+                        if(data.length > 4){
+                            seeMoreBtn.style.display = 'block';
+                        }else if(data.length <= 4){
+                            seeMoreBtn.style.display = 'none';
+                        }
+                        otherImgs.innerHTML = otherImgText;
+
+                    },
+                    error: function(error){
+                        console.error(error);
+                    }
+                }); //loadAllImgs END
+            }
+
+            //리뷰 정렬순서변경
+            const changeOrderRuleBtns = document.getElementsByClassName('w-btn2');
+            for(const orderBtn of changeOrderRuleBtns){
+                orderBtn.addEventListener('click',function(){
+                    if(this.innerText == '최신순'){
+                        orderRule = 'REVIEW_UPDATE_DATE desc';
+                        reviewPage = 1;
+                    }else if(this.innerText == '높은 별점순'){
+                        orderRule = 'REVIEW_POINT DESC';
+                        reviewPage = 1;
+                    }else if(this.innerText == '낮은 별점순'){
+                        orderRule = 'REVIEW_POINT ASC';
+                        reviewPage = 1;
+                    }
+                    loadReviewList();
+                });
+            }
+
+            //review 페이징 숫자 버튼
+            function reviewPageNo(element){
+                reviewPage = element.getAttribute("data-page");
+                loadReviewList();
+            }
+
+            //review 페이징 이전 페이지 버튼
+            document.getElementById('reviewPreviousPage').addEventListener('click',()=>{
+                reviewPage -= 1;
+                if(reviewPage < 1){
+                    reviewPage = 1;
+                }
+                loadReviewList();
+            });
+
+            //review 페이징 다음 페이지 버튼
+            document.getElementById('reviewNextPage').addEventListener('click',()=>{
+                reviewPage = Number(reviewPage)+1;
+                if (reviewPage > reviewEndPageNum){
+                    reviewPage = reviewEndPageNum;
+                }
+                loadReviewList();
+            });
+
+            //Q&A 리스트 불러오기 AJAX
+            let qnaPage = 1;
+            let qnaEndPageNum;
+            loadQnaList();
+
+            function loadQnaList(){
+                $.ajax({
+                    method: "GET",
+                    url: "getQnaList",
+                    data: {productNo:productNo,page:qnaPage},
+                    dataType: "json",
+                    success: function(data){
+                        const QnAArea = document.getElementById('QnAArea');
+                        console.log(data);
+                        if(data != ''){
+                            document.getElementById('qnaCount').innerText = 'Q&A '+data[data.length-2];
+                            QnAArea.innerHTML = '';
+        
+                            if(typeof(data[0]) == 'string'){
+                                QnAArea.innerHTML = '<h1>QnA가 존재하지 않음</h1>';
+                            }
+        
+                            for(const q of data){
+                                //data에 들어있는 pi를 빼주기 위해 문의번호가 있는 q만 걸러주는 if문
+                                if(q.questionNo != null){
+    
+                                    const bigDiv = document.createElement('div');
+                                    bigDiv.className='row';
+                                    bigDiv.style.fontSize='16px';
+                                    bigDiv.style.marginTop='10px';
+                                    bigDiv.style.marginBottom='10px';
+                                    bigDiv.style.cursor='pointer';
+                                    bigDiv.addEventListener('click', function(){
+                                        showQnA(q.questionNo);
+                                    });
+            
+                                    const yesAnswer = document.createElement('div');
+                                    yesAnswer.className='col-1';
+                                    yesAnswer.style.textAlign='center';
+                                    yesAnswer.innerText='답변완료';
+            
+                                    const noAnswer = document.createElement('div');
+                                    noAnswer.className='col-1';
+                                    noAnswer.style.textAlign='center';
+                                    noAnswer.innerText='답변대기중';
+            
+                                    if(q.questionAnswer == undefined || q.questionAnswer == null){
+                                        bigDiv.append(noAnswer);
+                                    }else{
+                                        bigDiv.append(yesAnswer);
+                                    }
+            
+                                    const qnaTitle = document.createElement('div');
+                                    qnaTitle.className='col-9';
+                                    qnaTitle.style.textAlign='left';
+                                    qnaTitle.innerText=q.questionTitle;
+            
+                                    const qnaWriter = document.createElement('div');
+                                    qnaWriter.className='col-1';
+                                    qnaWriter.style.textAlign='center';
+                                    qnaWriter.innerText=q.memberNickName;
+            
+                                    const QnAUpdateDate = document.createElement('div');
+                                    QnAUpdateDate.className='col-1';
+                                    QnAUpdateDate.style.textAlign='center';
+                                    QnAUpdateDate.innerText=q.questionUpdateDate;
+            
+                                    bigDiv.append(qnaTitle);
+                                    bigDiv.append(qnaWriter);
+                                    bigDiv.append(QnAUpdateDate);
+                                    QnAArea.append(bigDiv);
+                                }
+                            }
+        
+                            //페이징 정규식
+                            const pageInfo = data[data.length -1];
+                            const pageInfoStr = pageInfo;
+                            const regex = /(\w+)=(\d+)/g;
+                            const pageInfoObj = {};
+                            let match;
+                            while ((match = regex.exec(pageInfoStr))) {
+                                const key = match[1];
+                                const value = parseInt(match[2]);
+                                pageInfoObj[key] = value;
+                            }
+                            qnaGeneratePageNumbers(pageInfoObj.startPage, pageInfoObj.endPage, pageInfoObj.maxPage);
+                        }else{
+                            document.getElementById('qnaNav').innerHTML = '';
+                            QnAArea.innerHTML = '<br/><br/><div style="text-align: center;">작성된 문의가 없습니다</div><br/><br/>';
+                        }
+                    },
+                    error: function(error){
+                        console.error(111);
+                        console.error(error);
+                    }
+                }); //qna ajax END
+            } //loadQnA함수 END
+
+            function qnaGeneratePageNumbers(startPage, endPage, maxPage){
+                qnaEndPageNum = maxPage;
+                const qnaNumPage = document.getElementById('qnaNumPage');
+                qnaNumPage.innerHTML = '';
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item';
+
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.style.cursor='pointer';
+                    a.textContent = i;
+                    a.setAttribute('data-page', i);
+                    a.addEventListener('click', function () {
+                    qnaPageNo(this);
+                    });
+
+                    li.appendChild(a);
+                    qnaNumPage.appendChild(li);
+                }
+            }
+
+            //qna 페이징 숫자 버튼
+            function qnaPageNo(element){
+                qnaPage = element.getAttribute("data-page");
+                loadQnaList();
+            }
+
+            //qna 페이징 이전 페이지 버튼
+            document.getElementById('qnaPreviousPage').addEventListener('click',()=>{
+                qnaPage -= 1;
+                if(qnaPage < 1){
+                    qnaPage = 1;
+                }
+                loadQnaList();
+            });
+
+            //qna 페이징 다음 페이지 버튼
+            document.getElementById('qnaNextPage').addEventListener('click',()=>{
+                qnaPage = Number(qnaPage)+1;
+                if (qnaPage > qnaEndPageNum){
+                    qnaPage = qnaEndPageNum;
+                }
+                loadQnaList();
+            });
+            
+            //상품 구매 수량 조절
+            const downBtn = document.getElementById('downBtn');
+            const quantity = document.getElementById('quantity');
+            const upBtn = document.getElementById('upBtn');
+            const showQuantity = document.getElementById('showQuantity');
+            const resetQuantity = document.getElementById('resetQuantity');
+
+            downBtn.addEventListener('click',()=>{
+                quantity.value -= 1;
+                if(quantity.value < 1){
+                    quantity.value = 1;
+                }
+                showQuantity.innerText = quantity.value;
+                if(quantity.value <= 1){
+                    resetQuantity.hidden = true;
+                }
+                finalPrice.innerText = priceToString(realPrice * quantity.value);
+            });
+            upBtn.addEventListener('click',()=>{
+                quantity.value = Number(quantity.value) + 1;
+                showQuantity.innerText = quantity.value;
+                if(quantity.value>=2){
+                    resetQuantity.hidden = false;
+                }
+                finalPrice.innerText = priceToString(realPrice * quantity.value);
+            });
+            resetQuantity.addEventListener('click',()=>{
+                quantity.value = 1;
+                showQuantity.innerText = 1;
+                finalPrice.innerText = priceToString(realPrice);
+                resetQuantity.hidden = true;
+            });
+
+            //QnA내용 보기
+            function showQnA(element){
+                window.open('QnAContent?questionNo='+element,"QnAContent","width=600, height=805px");
+            }
+        
+    } //window.onload END
+
+        //구매하기 submit
+        const paymentForm = document.getElementById('paymentForm');
+        const purchaseBtn = document.getElementById('purchaseBtn');
+        let totalPriceSubmit = document.getElementById('totalPriceSubmit');
+        purchaseBtn.addEventListener('click',()=>{
+            document.getElementById('purchaseQuantitySubmit').value = document.getElementById('quantity').value;
+            totalPriceSubmit.value = document.getElementById('finalPrice').innerText.replace(",","");
+            if(totalPriceSubmit.value.includes(",")){
+                totalPriceSubmit.value = totalPriceSubmit.value.replace(",","");
+            }
+            /*<![CDATA[*/
+            if(/*[[${loginUser}]]*/loginUser != null){
+                paymentForm.submit();
+            }else{
+                swal.fire({
+                    title: "요청 실패",
+                    text: "로그인 후 이용해주세요",
+                    icon: "warning",
+                    buttons: ['취소','로그인하러가기'],
+                    dangerMode: true,
+                })
+                .then((goLogin) => {
+                    if (goLogin) {
+                        location.href="loginView.me";
+                    }
+                });
+            }
+            /*]]>*/
+        });
+
+        //이미지 선택 시 썸네일 변경
+        const thumbnail = document.getElementById('thumbnail');
+        const productImageSamples = document.getElementsByClassName('productImageSample');
+        for(imgSample of productImageSamples){
+            imgSample.addEventListener('click',function(){
+                thumbnail.src = this.src;
+            })
+        }
+
+        //상품 상게보기 펼치기 & 접기
+        const pda = document.getElementById('productDetailArea');
+        const btn = document.getElementById('moreProductDetailToggleBtn');
+
+        function moreProductDetailToggleBtn(){
+            const img = explainArea.querySelector('p');
+            if(img.classList.contains('productDetailHeightController')){
+                img.classList.remove('productDetailHeightController');
+                btn.innerText='상세정보 접기    ▲';
+            }else{
+                img.classList.add('productDetailHeightController');
+                location.href='#productDetailTab'; 
+                btn.innerText='상세정보 펼쳐보기    ▼';
+            }
+        }
+
+        function everyImgs(element){
+            document.getElementById('firstShowImg').src = element.src;
+            document.getElementById('otherImgs').style.maxHeight = '124.5px';
+            $('#allImgModal').modal('show');
+        }
+
+        function closeAllImgModal(){
+            $('#allImgModal').modal('hide');
+        }
+
+        function showBigSize(){
+            const BigSize = document.getElementById('firstShowImg')
+            BigSize.src = event.target.src;
+        }
+
+        function seeMoreImg(){
+            const otherImgArea = document.getElementById('otherImgs');
+            const currentHeight = parseInt(otherImgArea.style.maxHeight);
+            otherImgArea.style.maxHeight = (currentHeight + 124.5) + 'px';
+        }
+
+        /*<![CDATA[*/
+        const orderNo = /*[[${orderNo}]]*/hwayi;
+        const productNo = /*[[${productInfo.productNo}]]*/hwayi;
+        const loginUser = /*[[${loginUser}]]*/hwayi;
+        /*]]>*/
+        const reviewPopupBtn = document.getElementById('reviewPopupBtn');
+        reviewPopupBtn.addEventListener('click',()=>{
+            console.log(loginUser);
+            if(loginUser != null){
+                if(orderNo != null){
+                    window.open('reviewPopup?orderNo='+orderNo,"reviewPopup","width=531, height=900px");
+                }else{
+                    swal.fire({
+                        title: "요청 실패",
+                        text: "주문 후 마이페이지를 통해 리뷰를 작성하실 수 있습니다",
+                        icon: "error",
+                        button: "확인",
+                    });
+                }
+            }else{
+                swal.fire({
+                    title: "요청 실패",
+                    text: "로그인 후 이용해주세요",
+                    icon: "error",
+                    button: "확인",
+                });
+            }
+        })
+
+        const QnaPopupBtn = document.getElementById('QnaPopupBtn');
+        QnaPopupBtn.addEventListener('click',()=>{
+            console.log(loginUser);
+            if(loginUser != null){
+                /*<![CDATA[*/
+                const productNo = /*[[${productInfo.productNo}]]*/hwayi;
+                /*]]>*/
+                window.open('QnAPopup?productNo='+productNo,"QnAPopup","width=600, height=805px");
+            }else{
+                swal.fire({
+                    title: "요청 실패",
+                    text: "로그인 후 이용해주세요",
+                    icon: "error",
+                    button: "확인",
+                });
+            }
+        })
+
+        function hrefQnA(){
+            QnaPopupBtn.click();
+        }
+
+        function hrefLogin(){
+            location.href="loginView.me";
+        }
+
+        function addCart(){
+            /*<![CDATA[*/
+            const productNo = /*[[${productInfo.productNo}]]*/hwayi;
+            /*]]>*/
+            const amount = document.getElementById('showQuantity').innerText;
+            var version = 1;
+
+            console.log(1);
+            var request = indexedDB.open('cartDB', 1);
+            console.log(2);
+            console.log("request : ");
+            console.log(request);
+
+            request.onupgradeneeded = function(event) {
+                console.log(3);
+                console.log(event);
+                console.log(event.target.result);
+                var db = event.target.result;
+                console.log(4);
+
+                // 객체 저장소 생성
+                var objectStore = db.createObjectStore('products', { keyPath: 'productNo' });
+                console.log(5);
+
+                // 인덱스 생성
+                objectStore.createIndex('by_productNo', 'productNo', { unique: true });
+                console.log(6);
+
+                // version ++;
+                console.log("버전 : " + version);
+            };
+
+            console.log(7);
+            request.onsuccess = function(event) {
+                console.log(8);
+                var db = event.target.result;
+                var objectStoreNames = db.objectStoreNames;
+
+                console.log(objectStoreNames);
+                console.log(objectStoreNames.length);
+
+                for (var i = 0; i < objectStoreNames.length; i++) {
+                    console.log(objectStoreNames[i]);
+                }
+
+                console.log(9);
+                // 트랜잭션 시작
+                var transaction = db.transaction(['products'], 'readwrite');
+                console.log(10);
+                var objectStore = transaction.objectStore('products');
+                console.log(11);
+
+                // 데이터 추가
+                objectStore.add({ productNo: productNo, amount: amount });
+                console.log(12);
+
+                // 트랜잭션 완료
+                transaction.oncomplete = function(event) {
+                    console.log('데이터가 성공적으로 저장되었습니다.');
+                    swal.fire({
+                        title: "요청 성공",
+                        text: "상품이 장바구니에 담겼습니다",
+                        icon: "success",
+                        button: "확인",
+                    });
+                    db.close();
+                    // getCartNums();
+                };
+
+                transaction.onerror = function(event) {
+                    console.error('데이터 저장 중 오류가 발생하였습니다.');
+                    swal.fire({
+                        title: "요청 실패",
+                        text: "상품이 이미 장바구니에 담겼습니다",
+                        icon: "error",
+                        button: "확인",
+                    });
+                    db.close();
+                };
+            };
+
+            request.onerror = function(event) {
+                console.error('IndexedDB 데이터베이스를 열 수 없습니다.');
+                swal.fire({
+                    title: "요청 실패",
+                    text: "장바구니를 불러오지 못했습니다",
+                    icon: "error",
+                    button: "확인",
+                });
+            };
+        }
+
+        function downloadCoupon(element){
+
+            /*<![CDATA[*/
+            const member = /*[[${loginUser}]]*/hwayi;
+            /*]]>*/
+            if(member != null){
+                $.ajax({
+                    method: "GET",
+                    url: "downloadCoupon",
+                    data: {couponNo : element.parentElement.children[2].value},
+                    success: function(data){
+                        console.log(data);
+                        if(data == 'success'){
+                            swal.fire({
+                                title: "요청 성공",
+                                text: "쿠폰 다운로드 성공",
+                                icon: "success",
+                                button: "확인",
+                            });
+                        }else{
+                            swal.fire({
+                                title: "요청 실패",
+                                text: "이미 다운로드 받았습니다",
+                                icon: "error",
+                                button: "확인",
+                            });
+                        }
+                    },
+                    error: function(error){
+                        console.error(error);
+                    }
+                })
+            }else{
+                swal.fire({
+                    title: "요청 실패",
+                    text: "로그인 후 다운받아주세요",
+                    icon: "error",
+                    button: "확인",
+                });
+            }
+        }
+
+        /* function deleteDB(){
+            console.log(123);
+            indexedDB.deleteDatabase('cartDB');
+            console.log(456);
+        } */
+
+        // function getCartNums(){
+        //     var request = indexedDB.open('cartDB', 1);
+
+        //     request.onsuccess = function(event) {
+        //         var db = event.target.result;
+        //         var transaction = db.transaction('products', 'readonly');
+        //         var objectStore = transaction.objectStore('products');
+        //         var getAllRequest = objectStore.getAll();
+
+        //         getAllRequest.onsuccess = function(event) {
+        //             var data = event.target.result;
+        //             document.getElementById('cartNum').innerText = data.length;
+        //         };
+
+        //         transaction.oncomplete = function(event) {
+        //             db.close();
+        //         };
+
+        //         transaction.onerror = function(event) {
+        //             console.error('데이터 조회 중 오류가 발생하였습니다.');
+        //             db.close();
+        //         };
+        //     };
+
+        //     request.onerror = function(event) {
+        //         console.error('IndexedDB 데이터베이스를 열 수 없습니다.');
+        //     };
+        // }
+
+        /* if(document.getElementById('cartNum') != null){
+            getCartNums();
+        } */
+
+    </script>
+</body>

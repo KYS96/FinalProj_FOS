@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+
+<body th:fragment="hwayi">
+    <script src="market_assets/js/hwayi.js"></script>
+    <script>
+        //숫자에 쉼표 넣어주는 함수
+        function priceToString(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        };
+    </script>
+</body>
+</html>

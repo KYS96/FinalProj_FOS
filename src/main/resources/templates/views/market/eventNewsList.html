@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <!--common mainHead-->
+  <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+
+  <!--sweet alert-->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    td:hover {
+      cursor: pointer;
+    }
+
+    .disable {
+      cursor: no-drop;
+      opacity: .3;
+      user-select: none;
+    }
+
+    li:hover {
+      cursor: pointer;
+    }
+
+    .active {
+      background-color: #D4ADFC;
+    }
+  </style>
+</head>
+
+<body style="background-color: #eeeeee;">
+
+  <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+  <!-- ====== 공지사항 start ====== -->
+  <div class="row mt-5 mb-5">
+    <div class="col-3"></div>
+    <div class="col-6">
+      <div class="p-3"
+        style="height: auto; margin: 0; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+        <h1>이벤트/새소식</h1>
+        <ul class="mt-2 mb-3 float-right" style="list-style: none; display: flex;">
+          <button class="mx-1 btn-teamcolor" onclick="location.href='eventNewsList.ens'"><i
+              class="bi bi-arrow-repeat mx-1 align-middle"></i></button>
+          <li name="sortView" class="mx-1 btn-teamcolor p-1" id="loadListByDate">날짜순</li>
+        </ul>
+        <table class="table table-hover" style="text-align: center;">
+          <thead>
+            <tr>
+              <th>이벤트 제목</th>
+              <th>행사 기간</th>
+            </tr>
+          </thead>
+          <tbody id="eventNewsProductsList">
+            <tr th:unless="${#lists.isEmpty(eList)}" th:each="e : ${eList}"
+              th:onclick="detailPage([[${e.eventNoOnly}]], [[${e.eventEndDateOnly}]])">
+              <td th:text="${#strings.abbreviate(e.eventTitleOnly, 20)}"></td>
+              <td
+                th:text="|${#dates.format(e.eventStartDateOnly, 'yyyy-MM-dd')} ~ ${#dates.format(e.eventEndDateOnly, 'yyyy-MM-dd')}|">
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(eList)}">
+              <td colspan="5">
+                <div class="mb-2">
+                  <img class="w-75" src="/market_assets/img/검색결과없음.png" />
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!--카테고리 코드 넘버 담아두는 곳-->
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation example" th:if="${pi}" id="eventNewsProductsListPaging">
+          <ul class="pagination justify-content-center mt-5" th:with="loc=${#ctx.springRequestContext.requestUri}">
+
+            <li class="page-item">
+              <a class="page-link" th:classappend="${pi.currentPage &lt;= 1} ? disable : ''"
+                th:href="${pi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(search=${search}, page=1)}">
+                처음으로</a>
+            </li>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <!--이전으로-->
+            <li class="page-item">
+              <a class="page-link"
+                th:href="${pi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(search=${search}, page=${pi.currentPage - 1})}"
+                th:classappend="${pi.currentPage &lt;= 1} ? disable : ''" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <!--숫자 버튼-->
+            <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}"
+              th:classappend="${pi.currentPage == p} ? active : ''">
+              <a class="page-link " th:href="@{${loc}(search=${search}, page=${p})}" th:text=" ${p}"></a>
+            </li>
+            <!--다음으로-->
+            <li class="page-item">
+              <a class="page-link"
+                th:href="${pi.currentPage == pi.maxPage} ? 'javascript:void()' : @{${loc}(search=${search}, page=${pi.currentPage + 1})}"
+                th:classappend="${pi.currentPage == pi.maxPage} ? 'disable' : ''">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <!--맨 끝으로 이동-->
+            <li class="page-item">
+              <a class="page-link" th:classappend="${pi.currentPage == pi.maxPage} ? disable : ''"
+                th:href="${pi.currentPage == pi.maxPage} ? 'javascript:void()' : @{${loc}(search=${search}, page=${pi.maxPage})}">끝으로
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <!-- Pagination 여기까지 -->
+
+        <!--현재페이지-->
+        <input type="hidden" th:value="${page}" id="page">
+
+        <div class="container row g-2 mt-5">
+          <div class="col-5 g-2">
+            <div class="mt-4">
+              <a href="home.do"><button type="button" class="btn-teamcolor p-1">홈으로</button></a>
+            </div>
+          </div>
+
+          <!-- 검색창 -->
+          <div class="col-7">
+            <form action="eventNewsList.ens">
+              <div class="input-group mb-3 mt-3">
+                <input type="text" name="search" class="form-control" placeholder="검색어를 입력해 주세요" id="search"
+                  style="border: 1px solid black;">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--이벤트 끝나는 날짜 데이터-->
+  <input type="hidden" th:value="${eventEndDateOnly}" id="eventEndDateOnly">
+  <div class="col-3"></div>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    const eventNewsProductsList = document.querySelector('#eventNewsProductsList');
+    const eventNewsProductsListPaging = document.querySelector('#eventNewsProductsListPaging');
+    const search = document.querySelector('#search')
+    search.value = /*[[${search}]]*/''
+    const page = document.querySelector('#page');
+    const eList = /*[[${eList}]]*/''
+    const eventNoOnly = /*[[${eventNoOnly}]]*/''
+    const loadListByDate = document.getElementById('loadListByDate');
+    const eventEndDateOnly = document.getElementById('eventEndDateOnly').value;
+
+    loadListByDate.addEventListener('click', () => {
+      loadList(1);
+    })
+
+    //리스트 가져오기
+    function loadList(page) {
+      $.ajax({
+        url: "selectEventNewsByDate.ens",
+        dataType: "html",
+        data: {
+          "search": search.value,
+          "eventNoOnly": eventNoOnly,
+          "page": page
+        },
+        success: (html) => {
+          $('#eventNewsProductsList').html(html);
+          loadPaging(page);
+        },
+        error: (data) => {
+          console.log("실패");
+        }
+      })
+
+
+      //페이징 넣기
+      function loadPaging(page) {
+        $.ajax({
+          url: "selectEventNewsByDatePaging.ens",
+          dataType: "html",
+          data: {
+            "search": search.value,
+            "eventNoOnly": eventNoOnly,
+            "page": page.value
+          },
+          success: (html) => {
+            $('#eventNewsProductsListPaging').html(html);
+          }
+        })
+      }
+    }
+
+
+
+    //입력 값 유지시키기
+    //검색란에 ' 가 들어올 때 막아주기
+    search.addEventListener('keypress', (e) => {
+      if (e.target.value.includes("'")) {
+        alert('입력 불가능한 문자가 포함되어 있습니다.');
+        search.value = search.value.split("'")[0];
+        e.preventDefault();
+      }
+    })
+
+    //날짜 검증
+    const checkEventDate = (eventEndDateOnly) => {
+      let today = new Date();
+
+      let year = today.getFullYear();
+      let month = ('0' + (today.getMonth() + 1)).slice(-2);
+      let day = ('0' + today.getDate()).slice(-2);
+
+      let sysDate = year + '-' + month + '-' + day;
+
+      const eventEndDate = eventEndDateOnly.substring(0, 10);
+
+      //현재 날짜
+      console.log(sysDate);
+      //이벤트 끝나는 날짜
+      console.log(eventEndDate);
+
+      if (sysDate < eventEndDate) {
+        return "진행중";
+      } else {
+        return "종료됨";
+      }
+    }
+
+    //디테일 페이지로 이동
+    const goToDetailPage = (eventNoOnly, eventEndDateOnly) => {
+      location.href = "eventNewsDetail.ens?" +
+        "&search=" + search.value +
+        "&page=" + page.value +
+        "&eventNo=" + eventNoOnly
+    }
+
+    //상세 페이지로 넘어가기
+    //이벤트 번호로 상품 목록 받아옴
+    const detailPage = (eventNoOnly, eventEndDateOnly) => {
+      //날짜 검증
+      const yn = checkEventDate(eventEndDateOnly);
+      if (yn === "진행중") {
+        goToDetailPage(eventNoOnly, eventEndDateOnly);
+      } else {
+        loadAlert(eventNoOnly, eventEndDateOnly);
+      }
+    }
+
+    //종료된 이벤트라면 alert띄우기
+    const loadAlert = (eventNoOnly, eventEndDateOnly) => {
+      Swal.fire({
+        icon: 'error',
+        title: '종료된 이벤트 입니다.',
+        showCancelButton: true,
+        cancelButtonText: '닫기',
+        confirmButtonText: '알겠습니다.(클릭 시 조회 페이지로 이동)'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          goToDetailPage(eventNoOnly, eventEndDateOnly);
+        }
+      })
+    }
+
+    /*]]>*/
+  </script>
+
+  <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+  <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+  <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+</body>
+
+</html>

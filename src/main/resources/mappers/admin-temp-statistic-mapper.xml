@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kh.slumber.admin.model.dao.AdminDAOTempStatistic">
+
+  <select id="getNewMemberTotal">
+    SELECT COUNT(*)
+    FROM MEMBER
+    WHERE SYSDATE - MEMBER_ENROLL_DATE &lt;= 14
+  </select>
+
+  <select id="getDisabledMemberTotal">
+    SELECT COUNT(*)
+    FROM MEMBER
+    WHERE MEMBER_STATUS = 'N'
+  </select>
+
+  <select id="getEntireMemberTotal">
+    SELECT COUNT(*)
+    FROM MEMBER
+    WHERE MEMBER_STATUS = 'Y'
+  </select>
+
+  <select id="getListCount">
+    SELECT COUNT(*)
+    FROM(SELECT '커뮤니티' "SORTION", BOARD_TYPE, BOARD_NO, BOARD_TITLE, MEMBER_ID, BOARD_ISDELETED, BOARD_VIEWS "VIEWS"
+            FROM COMMUNITY_BOARD 
+                JOIN MEMBER USING(MEMBER_NO)
+            WHERE BOARD_ISDELETED = 'N'
+              AND BOARD_ISHIDDEN = 'N'
+                    
+                        UNION ALL
+                
+        SELECT '공지사항' "SORTION", '공지사항', EMPLOYEE_BOARD_NO, EMPLOYEE_BOARD_TITLE, '관리자', EMPLOYEE_BOARD_STATUS, EMPLOYEE_BOARD_VIEWS "VIEWS"
+            FROM EMPLOYEE_BOARD
+            WHERE EMPLOYEE_BOARD_STATUS = 'Y'
+        )
+    ORDER BY VIEWS DESC
+  </select>
+
+  <select id="getMemberSpendingDatasListCount">
+    SELECT COUNT(*)
+    FROM (SELECT MEMBER_NO, MEMBER_ID, MEMBER_NAME,
+        MEMBER_PHONE, MEMBER_ADDR , SUM(ORDER_PRICE) "TOTAL_SPENDING"
+          FROM PRODUCT_ORDER
+            JOIN MEMBER USING(MEMBER_NO)
+    GROUP BY MEMBER_NO, MEMBER_ID, MEMBER_NAME, MEMBER_PHONE, MEMBER_ADDR)
+    ORDER BY TOTAL_SPENDING DESC
+  </select>
+
+  <select id="getMemberSpendingDatas" resultMap="spendingListResultSet">
+    SELECT *
+    FROM (SELECT MEMBER_NO, MEMBER_ID, MEMBER_NAME,
+        MEMBER_PHONE, MEMBER_ADDR , SUM(ORDER_PRICE) "TOTAL_SPENDING"
+          FROM PRODUCT_ORDER
+            JOIN MEMBER USING(MEMBER_NO)
+    GROUP BY MEMBER_NO, MEMBER_ID, MEMBER_NAME, MEMBER_PHONE, MEMBER_ADDR)
+    ORDER BY TOTAL_SPENDING DESC
+  </select>
+
+
+  <select id="getBoardViewRanking" resultMap="boardViewResultSet">
+    SELECT *
+    FROM(SELECT '커뮤니티' "SORTION", BOARD_TYPE, BOARD_NO, BOARD_TITLE, MEMBER_ID, BOARD_ISDELETED, BOARD_VIEWS "VIEWS"
+            FROM COMMUNITY_BOARD 
+                JOIN MEMBER USING(MEMBER_NO)
+            WHERE BOARD_ISDELETED = 'N'
+                    
+                        UNION ALL
+                
+        SELECT '공지사항' "SORTION", '공지사항', EMPLOYEE_BOARD_NO, EMPLOYEE_BOARD_TITLE, '관리자', EMPLOYEE_BOARD_STATUS, EMPLOYEE_BOARD_VIEWS "VIEWS"
+            FROM EMPLOYEE_BOARD
+            WHERE EMPLOYEE_BOARD_STATUS = 'Y'
+        )
+    ORDER BY VIEWS DESC
+  </select>
+
+  <select id="goToBoard" resultMap="boardViewResultSet">
+    SELECT *
+    FROM(SELECT '커뮤니티' "SORTION", BOARD_TYPE, BOARD_NO, BOARD_TITLE, MEMBER_ID, BOARD_ISDELETED, BOARD_VIEWS "VIEWS"
+            FROM COMMUNITY_BOARD 
+                JOIN MEMBER USING(MEMBER_NO)
+            WHERE BOARD_ISDELETED = 'N'
+                    
+                        UNION ALL
+                
+        SELECT '공지사항' "SORTION", '공지사항', EMPLOYEE_BOARD_NO, EMPLOYEE_BOARD_TITLE, '관리자', EMPLOYEE_BOARD_STATUS, EMPLOYEE_BOARD_VIEWS "VIEWS"
+            FROM EMPLOYEE_BOARD
+            WHERE EMPLOYEE_BOARD_STATUS = 'Y'
+        )
+    WHERE SORTION = #{sortion}
+        AND BOARD_NO = ${newgBoardNo}
+    ORDER BY VIEWS DESC
+  </select> 
+
+
+  <select id="getProductSalesListCount">
+    SELECT COUNT(*)
+    FROM PRODUCT 
+      LEFT JOIN PRODUCT_CATEGORY USING(PRODUCT_CATEGORY_NO)
+    WHERE PRODUCT_STATUS = 'Y'
+    ORDER BY PRODUCT_SALES DESC
+  </select>
+
+  <select id="getProductSalesList" resultMap="productResultSet">
+    SELECT *
+    FROM PRODUCT 
+      LEFT JOIN PRODUCT_CATEGORY USING(PRODUCT_CATEGORY_NO)
+    ORDER BY PRODUCT_SALES DESC
+  </select>
+
+
+  <select id="getSalesChartDatas" resultMap="salesChartDataResultSet">
+    SELECT PRODUCT_CATEGORY_NO, PRODUCT_CATEGORY_NAME, SUM(PRODUCT_SALES) "SUM_PRODUCT_SALES"
+    FROM PRODUCT
+        JOIN PRODUCT_CATEGORY USING (PRODUCT_CATEGORY_NO)
+    GROUP BY PRODUCT_CATEGORY_NO, PRODUCT_CATEGORY_NAME
+  </select>
+
+
+  <select id="getProductInfo" resultMap="productResultSet">
+    SELECT *
+    FROM PRODUCT 
+      LEFT JOIN PRODUCT_CATEGORY USING(PRODUCT_CATEGORY_NO)
+    WHERE PRODUCT_NO = ${productNo}
+  </select>
+
+  <select id="getFrontImage" resultMap="productImagesResultSet">
+		select product_image "ATTM_URL", substr(product_image, instr(product_image, '/', -1) + 38) "ATTM_NAME"
+		from product
+		where product_no = #{productNo}
+	</select>
+
+  <select id="getSearchImages" resultMap="productImagesResultSet">
+		select attm_url, attm_name
+		from board_attachment
+		where attm_ref_no = #{productNo} and attm_category = #{attm_category}
+	</select>
+
+
+  <resultMap type="AdminProduct" id="productResultSet">
+		<id column="PRODUCT_NO" property="productNo"/>
+		<result column="PRODUCT_CATEGORY_NO" property="productCategoryNo"/>
+		<result column="PRODUCT_CATEGORY_NAME" property="productCategoryName"/>
+		<result column="EMPLOYEE_NO" property="employeeNo"/>
+		<result column="PRODUCT_NAME" property="productName"/>
+		<result column="PRODUCT_PRICE" property="productPrice"/>
+		<result column="PRODUCT_RESIST_DATE" property="productResistDate"/>
+		<result column="PRODUCT_UPDATE" property="productUpdate"/>
+		<result column="PRODUCT_STOCK" property="productStock"/>
+		<result column="PRODUCT_SALES" property="productSales"/>
+		<result column="PRODUCT_IMAGE" property="productImage"/>
+		<result column="PRODUCT_STATUS" property="productStatus"/>
+		<result column="PRODUCT_EXPLAIN" property="productExplain"/>
+		<result column="PRODUCT_POINT" property="productPoint"/>
+	</resultMap>
+
+  <resultMap type="AdminStatisticSpendingInfoTemp" id="spendingListResultSet">
+    <id column="MEMBER_NO" property="memberNo"/>
+    <result column="MEMBER_ID" property="memberId"/>
+    <result column="MEMBER_NAME" property="memberName"/>
+    <result column="MEMBER_PHONE" property="memberPhone"/>
+    <result column="MEMBER_ADDR" property="memberAddr"/>
+    <result column="TOTAL_SPENDING" property="totalSpending"/>
+  </resultMap>
+
+
+  <resultMap type="AdminStatisticBoardTemp" id="boardViewResultSet">
+    <id column="SORTION" property="sortion"/>
+    <result column="BOARD_TYPE" property="boardType"/>
+    <result column="BOARD_NO" property="boardNo"/>
+    <result column="BOARD_TITLE" property="boardTitle"/>
+    <result column="MEMBER_ID" property="memberId"/>
+    <result column="BOARD_ISDELETED" property="boardIsdeleted"/>
+    <result column="VIEWS" property="views"/>
+  </resultMap>
+
+  <resultMap type="AdminProductImages" id="productImagesResultSet">
+		<id column="ATTM_URL" property="imageUrl"/>
+		<result column="ATTM_NAME" property="originalName"/>
+	</resultMap>
+
+  <resultMap type="AdminStatisticProductChartTemp" id="salesChartDataResultSet">
+    <id column="PRODUCT_CATEGORY_NO" property="productCategoryNo"/>
+    <result column="PRODUCT_CATEGORY_NAME" property="productCategoryName"/>
+    <result column="SUM_PRODUCT_SALES" property="sumProductSales"/>
+  </resultMap>
+
+
+
+</mapper>

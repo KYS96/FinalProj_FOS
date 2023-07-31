@@ -1,0 +1,22 @@
+<tr th:unless="${ #lists.isEmpty(list) }" th:each="b : ${ list }">
+    <td class="align-middle"><input name="boardCheck" type="checkbox"></td>
+    <td class="align-middle" th:if="${ b.boardType == 'free_and_humor' }">
+        <a class="text-truncate list-inline-item cursor" href="board.comm?board=free_and_humor" style="width: 100px;"><b>[자유, 유머]</b></a>
+    </td>
+    <td class="align-middle" th:if="${ b.boardType == 'tips_and_info' }">
+        <a class="text-truncate list-inline-item cursor" href="board.comm?board=tips_and_info" style="width: 100px;"><b>[꿀팁, 정보]</b></a>
+    </td>
+    <td class="align-middle">
+        <a class="text-truncate list-inline-item cursor" th:href="@{ post.comm(no=${ b.boardNo }) }" style="width: 350px;">
+            [[${ b.boardTitle }]]
+            <b th:text="${ ' [' + b.replyCount + ']'}"></b>
+        </a>
+    </td>
+    <td class="align-middle" th:text="${ b.boardEnrollDate }"></td>
+    <td class="align-middle" th:text="${ b.boardViews }"></td>
+    <td class="align-middle" th:text="${ b.boardLikes }"></td>
+    <input type="hidden" th:value="${ b.boardNo }">
+</tr>
+<tr th:if="${ #lists.isEmpty(list) }">
+    <td class="align-middle" colspan="6" >작성한 게시글이 없습니다.</td>
+</tr>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+</head>
+<body style="background-color: #eeeeee;">
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <div class="row" style="margin: 0;">
+                <div class="col-12" style="padding: 0;">
+                    <div class="row" style="margin: 0; background-color: white; border-radius: 15px;">
+                        <div class="col-12" style="margin-top: 10rem;">
+                            <div class="col-12">
+                                <div style="display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 40px; color: black;">UNAUTHORIZED</div>
+                                <div style="display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; color: black; margin-top: 2rem;">
+                                    접근 권한이 없습니다.
+                                </div>
+                                <div style="display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; color: black;">
+                                    유효한 인증 정보를 제공해주세요.
+                                </div>
+                            </div>
+                            <div class="col-12" style="display: flex; height: 70px; margin: 0 auto; width: 50%; margin-top: 2rem; margin-bottom: 10rem;">
+                                <button onclick="history.back()" class="col-6" style="display:flex; justify-content: center; align-items: center; border-bottom: 1px solid #1C3761; border-top: 1px solid #1C3761; border-left: 1px solid #1C3761; border-right: 1px solid #1C3761; outline: none; color: #1C3761; font-size: 25px; font-weight: 600; background-color: white; height: 70px;">이전 페이지로</button>
+                                <button onclick="location.href='/'" class="col-6" style="display:flex; justify-content: center; align-items: center; border-bottom: 1px solid #1C3761; border-top: 1px solid #1C3761; border-right: 1px solid #1C3761; outline: none; color: white; border-left:none; font-size: 25px; font-weight: 600; background-color: #1C3761; height: 70px;">첫 페이지로</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+</body>
+
+</html>

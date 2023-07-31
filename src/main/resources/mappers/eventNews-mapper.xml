@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kh.slumber.yongseong.eventNews.model.dao.EventNewsDAO">
+  
+<!--캐러셀에 띄울 이벤트 상품 가져오기-->
+<select id="getEventNewsMainList" resultMap="marketEventNewsOnlyResultSet"> 
+    SELECT EVENT_NO, EVENT_CODE, EVENT_TITLE, EVENT_START_DATE, EVENT_END_DATE, EVENT_ACTIVITY, EVENT_CONTENT
+    FROM EVENT
+    WHERE EVENT_NO IS NOT NULL
+        AND (TRUNC(SYSDATE) &gt;= EVENT_START_DATE 
+        AND TRUNC(SYSDATE) &lt;= EVENT_END_DATE)
+        AND EVENT_ACTIVITY = 'Y'
+    ORDER BY EVENT_NO
+</select>
+
+
+  <!--이벤트 상품의 대표이미지(썸네일 가져오기)-->
+  <select id="getFrontImagesList" resultMap="marketEventNewsAttmResultSet">
+    SELECT ATTM_REF_NO, ATTM_URL
+    FROM BOARD_ATTACHMENT
+    WHERE ATTM_REF_NO IN
+    <foreach collection="list" item="eventNo" open="(" separator="," close=")">
+      #{eventNo}
+    </foreach>
+    ORDER BY ATTM_REF_NO
+  </select>
+
+
+  <!-- 현재 이벤트 중인 상품들의 전체 개수 가져오기 -->
+  <select id="selectEventNewsListCountDetail">
+    SELECT COUNT(*)
+    FROM (SELECT * 
+          FROM PRODUCT
+              JOIN EMPLOYEE USING(EMPLOYEE_NO)
+              JOIN EVENT_PRODUCT USING(PRODUCT_NO)
+              JOIN EVENT USING(EVENT_NO)
+          WHERE PRODUCT_STOCK != 0
+              AND PRODUCT_STATUS = 'Y'
+              AND EVENT_NO IS NOT NULL
+              AND EVENT_ACTIVITY = 'Y'
+              AND (TRUNC(SYSDATE) &gt;= EVENT_START_DATE 
+              AND TRUNC(SYSDATE) &lt;= EVENT_END_DATE))
+        WHERE EVENT_NO = ${eventNo}
+  </select>
+
+
+
+  <!--ajax 값 카테고리 별로 정렬 되기-->
+  <select id="selectEventNewsListDetail" resultMap="eventNewsResultSet">
+      SELECT *
+      FROM (SELECT * 
+          FROM PRODUCT
+              JOIN EMPLOYEE USING(EMPLOYEE_NO)
+              JOIN EVENT_PRODUCT USING(PRODUCT_NO)
+              JOIN EVENT USING(EVENT_NO)
+          WHERE PRODUCT_STOCK != 0
+              AND PRODUCT_STATUS = 'Y'
+              AND EVENT_NO IS NOT NULL       
+              AND EVENT_ACTIVITY = 'Y')
+      WHERE EVENT_NO = #{eventNo}
+      <if test="num == 1">
+        ORDER BY PRODUCT_PRICE
+      </if>
+      <if test="num == 2">
+        ORDER BY PRODUCT_PRICE DESC
+      </if>
+      <if test="num == 3">
+        ORDER BY PRODUCT_RESIST_DATE DESC
+      </if>
+  </select>
+
+
+
+  <!--새소식/이벤트 검색했을 때 총 몇개의 상품이 나오는지 확인-->
+  <select id="selectSearchEventListCountDetail">
+    SELECT COUNT(*)
+    FROM (SELECT * 
+          FROM PRODUCT
+              JOIN EMPLOYEE USING(EMPLOYEE_NO)
+              JOIN EVENT_PRODUCT USING(PRODUCT_NO)
+              JOIN EVENT USING(EVENT_NO)
+          WHERE PRODUCT_STOCK != 0
+              AND PRODUCT_STATUS = 'Y'
+              AND EVENT_NO IS NOT NULL
+              AND EVENT_NO = ${eventNo})
+    WHERE LOWER(PRODUCT_NAME) LIKE LOWER('%${productNameSearch}%')
+  </select>
+
+
+  <!--검색결과 해서 나온 리스트를 페이징 처리 하고 받음 -->
+  <select id="selectSearchEventListDetail" resultMap="eventNewsResultSet">
+    SELECT *
+    FROM (SELECT * 
+          FROM PRODUCT
+              JOIN EMPLOYEE USING(EMPLOYEE_NO)
+              JOIN EVENT_PRODUCT USING(PRODUCT_NO)
+              JOIN EVENT USING(EVENT_NO)
+          WHERE PRODUCT_STOCK != 0
+              AND PRODUCT_STATUS = 'Y'
+              AND EVENT_NO IS NOT NULL       
+              AND EVENT_NO = ${eventNo})
+    WHERE LOWER(PRODUCT_NAME) LIKE LOWER('%${productNameSearch}%')
+  </select> 
+
+
+
+<!--종료된 이벤트 입니다 추가하기 고치는 중-->
+
+  <!--메인에서 EVENT 눌렀을 때 들어가는 화면-->
+  <select id="selectOnlyEventNewsSearchListCount">
+      SELECT COUNT(*)
+      FROM EVENT
+      WHERE EVENT_ACTIVITY = 'Y'
+  </select>
+
+
+  <!--이벤트 목록 보기로 가져오는 것들-->
+  <select id="selectOnlyEventNewsSearchList" resultMap="marketEventNewsOnlyResultSet">
+      SELECT *
+      FROM EVENT
+      WHERE EVENT_ACTIVITY = 'Y' 
+        AND EVENT_TITLE LIKE '%${search}%'
+  </select>
+
+
+<!--카테고리 눌러서 정렬 보기-->
+  <select id="selectEventNewsByDate">
+    SELECT COUNT(*)
+      FROM EVENT
+      WHERE EVENT_ACTIVITY = 'Y'
+    <if test="search != null">
+        AND EVENT_TITLE LIKE '%${search}%'
+    </if>
+      ORDER BY EVENT_END_DATE
+  </select>
+
+  <select id="selectEventNewsListByDate" resultMap="marketEventNewsOnlyResultSet">
+    SELECT *
+      FROM EVENT
+      WHERE EVENT_ACTIVITY = 'Y'
+    <if test="search != null">
+        AND EVENT_TITLE LIKE '%${search}%'
+    </if>
+      ORDER BY EVENT_END_DATE
+  </select>
+
+<!--조인 한 vo-->
+  <resultMap type="MarketEventNews" id="eventNewsResultSet">
+    <id column="EVENT_NO" property="eventNo"/>
+    <result column="PRODUCT_NO" property="productNo"/>
+    <result column="EMPLOYEE_NO" property="employeeNo"/>
+    <result column="EVENT_CODE" property="eventCode"/>
+    <result column="PRODUCT_CATEGORY_NO" property="productCategoryNo"/>
+    <result column="PRODUCT_NAME" property="productName"/>
+    <result column="PRODUCT_PRICE" property="productPrice"/>
+    <result column="PRODUCT_RESIST_DATE" property="productResistDate"/>
+    <result column="PRODUCT_STOCK" property="productStock"/>
+    <result column="PRODUCT_IMAGE" property="productImage"/>
+    <result column="PRODUCT_STATUS" property="productStatus"/>
+    <result column="EVENT_CODE" property="eventCode"/>
+    <result column="EVENT_TITLE" property="eventTitle"/>
+    <result column="EVENT_START_DATE" property="eventStartDate"/>
+    <result column="EVENT_END_DATE" property="eventEndDate"/>
+    <result column="EVENT_ACTIVITY" property="eventActivity"/>
+    <result column="EVENT_CONTENT" property="eventContent"/>
+  </resultMap>
+
+<!--조인 안한 vo (event테이블만 가져옴)-->
+  <resultMap type="MarketEventNewsOnly" id="marketEventNewsOnlyResultSet" >
+    <id column="EVENT_NO" property="eventNoOnly"/>
+    <result column="EVENT_CODE" property="eventCodeOnly"/>
+    <result column="EVENT_TITLE" property="eventTitleOnly"/>
+    <result column="EVENT_START_DATE" property="eventStartDateOnly"/>
+    <result column="EVENT_END_DATE" property="eventEndDateOnly"/>
+    <result column="EVENT_ACTIVITY" property="eventActivityOnly"/>
+    <result column="EVENT_CONTENT" property="eventContentOnly"/>
+  </resultMap>
+
+<!--마켓 섬네일 갖고오기~-->
+  <resultMap type="MarketEventNewsFrontImages" id="marketEventNewsAttmResultSet">
+    <id column=" ATTM_REF_NO" property="marketAttmRefNo"/>
+    <result column=" ATTM_URL" property="marketAttmURL"/>
+  </resultMap>
+
+</mapper>

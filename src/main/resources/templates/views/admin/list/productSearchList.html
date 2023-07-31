@@ -1,0 +1,91 @@
+<div class="au-card-title">
+    <div class="bg-overlay bg-overlay--blue"></div>
+    <h3><i class="bi bi-cart4"></i>상품 검색 결과</h3>
+</div>
+<div class="au-task js-list-load cardInnerText" th:if="${list == null}">
+    <h3>검색 결과가 없습니다.</h3>
+</div>
+<div class="au-task js-list-load cardInnerText" th:if="${list != null}">
+    <div style="text-align: center; overflow-x: scroll;">
+        <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto;">
+            <thead>
+                <tr>
+                    <th>상품 번호</th>
+                    <th>이미지</th>
+                    <th>분류</th>
+                    <th>이름</th>
+                    <th>가격</th>
+                    <th>상품 재고</th>
+                    <th>등록일/수정일</th>
+                    <th>진열 상태</th>
+                    <th>이벤트 적용</th>
+                </tr>
+            </thead>
+            <tbody>
+                <th:block th:each="p, pStat : ${list}">
+                    <tr>
+                        <td>[[${p.productNo}]]</td>
+                        <td><img th:src="${p.productImage}" width="150px" height="150px"></td>
+                        <td>
+                            <th:block th:switch="${p.productCategoryNo}">
+                                <span th:case="P01">침대</span>
+                                <span th:case="P02">배게</span>
+                                <span th:case="P03">이불</span>
+                                <span th:case="P04">의류</span>
+                                <span th:case="P05">건강</span>
+                                <span th:case="P06">굿즈</span>
+                            </th:block>
+                        </td>
+                        <td><div th:text="${p.productName}" style="max-width: 250px;"></div></td>
+                        <td><span th:text="${#numbers.formatInteger(p.productPrice, 1, 'COMMA') + '원'}"></span></td>
+                        <td>
+                            <span th:text="${#numbers.formatInteger(p.productStock, 1, 'COMMA') + '개'}"></span>
+                        </td>
+                        <td>
+                            <div th:if="${p.productResistDate != null}">[[${p.productResistDate}]]</div>
+                            <hr>
+                            <div th:if="${p.productUpdate != null}">[[${p.productUpdate}]]</div>
+                        </td>
+                        <td>
+                            <span th:text="${p.productStatus} == 'Y' ? '진열 중' : '미진열'"></span>
+                        </td>
+                        <td>
+                            <form method="post" action="productUpdateDetailAdmin">
+                                <button type="button" class="btn btn-warning btn-sm" onclick="addEventProduct(this)"
+                                    th:data-productNo="${p.productNo}"
+                                    th:data-productImage="${p.productImage}"
+                                    th:data-productCategoryNo="${p.productCategoryNo}"
+                                    th:data-productName="${p.productName}"
+                                    th:data-productPrice="${#numbers.formatInteger(p.productPrice, 1, 'COMMA') + '원'}"
+                                    th:data-productPriceOrigin="${p.productPrice}"
+                                    th:data-productStock="${#numbers.formatInteger(p.productStock, 1, 'COMMA') + '개'}"
+                                    th:data-productResistDate="${p.productResistDate}"
+                                    th:data-productUpdate="${p.productUpdate == null ? ' ' : p.productUpdate}"
+                                    th:data-productStatus="${p.productStatus == 'Y' ? '진열 중' : '미진열'}"
+                                    >이벤트 적용
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </th:block>
+            </tbody>
+        </table>
+    </div>
+    <div class="mx-auto bg-white" th:if="${pi != null}">
+        <ul class="pagination mx-auto justify-content-center p-3">
+            <li class="page-item" th:if="${pi.currentPage > 1}">
+                <span class="page-link" th:data-page="${pi.currentPage - 1}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </span>
+            </li>
+            <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}">
+                <span class="page-link" th:data-page="${p}" th:text="${p}"></span>
+            </li>
+            <li class="page-item" th:if="${pi.currentPage &lt pi.maxPage}">
+                <span class="page-link" th:data-page="${pi.currentPage + 1}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </span>
+            </li>
+        </ul>
+    </div> 
+</div>

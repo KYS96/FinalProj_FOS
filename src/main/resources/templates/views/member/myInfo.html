@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+</head>
+
+<body>
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+    <div th:replace="~{ views/member/common/myPageNavbar :: myPageNavbar }"></div>
+
+    <div class="container-fluid bg-secondary mb-5">
+        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
+            <h1 class="font-weight-semi-bold text-uppercase mb-3">내 가입 정보</h1>
+            <div th:replace="~{ views/member/common/myPageInfo :: myPageInfo }"></div>
+        </div>
+    </div>
+
+    <div class="container pt-5">
+        <div class="row px-xl-5">
+            <div class="col-lg-12">
+                <div class="mb-3">
+                    <h4 class="font-weight-semi-bold mb-3">상세 정보</h4>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>아이디</label>
+                            <input class="form-control" type="text" th:value="${ session.loginUser.memberId }" readonly>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>이름</label>
+                            <input class="form-control" type="text" th:value="${ session.loginUser.memberName }" readonly>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>닉네임</label>
+                            <input class="form-control" type="text" th:value="${ session.loginUser.memberNickname }" readonly>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>휴대폰번호</label>
+                            <input class="form-control" type="text" th:value="${ session.loginUser.memberPhone }" readonly>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>커뮤니티 이용</label>
+                            <input class="form-control font-weight-bold text-success" type="text" value="이용 가능" th:if="${ session.loginUser.memberIsBlacklist } == 'N'" readonly>
+                            <input class="form-control font-weight-bold text-danger" type="text" value="이용 불가" th:if="${ session.loginUser.memberIsBlacklist } == 'Y'" readonly>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>가입일</label>
+                            <input class="form-control" type="date" th:value="${ #strings.arraySplit(session.loginUser.memberEnrollDate, ' ')[0] }" readonly>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>도로명 주소</label>
+                            <input class="form-control" type="text" th:value="${ session.loginUser.memberAddr }" readonly>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>상세 주소</label>
+                            <input class="form-control" type="text" th:value="${ session.loginUser.memberDetailAddr }" readonly>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="shipto">
+                                <label class="custom-control-label" for="shipto"  data-toggle="collapse" data-target="#modify-info">수정하기</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <form method="POST" action="updateMember.me" id="formConfirm">
+                    <div class="collapse mb-3" id="modify-info">
+                        <h4 class="font-weight-semi-bold mb-3">정보 수정</h4>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>아이디</label>
+                                <input class="form-control" type="text" name="memberId" th:value="${ session.loginUser.memberId }" readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>이름</label><label class="pl-4 msg" id="nameMsg"></label>
+                                <input class="form-control" type="text" oninput="textRule(this)" name="memberName" maxlength=10 th:value="${ session.loginUser.memberName }">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>닉네임</label><label class="pl-4 msg" id="nicknameMsg"></label>
+                                <input class="form-control" type="text" oninput="noSpace(this)" name="memberNickname" th:value="${ session.loginUser.memberNickname }">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>휴대폰 번호</label><label class="pl-2 msg" id="phoneMsg"></label>
+                                <label class="pl-4"><input type="hidden" id="phoneCode" class="form-control-sm" placeholder="인증번호를 입력하세요."></label>
+                                <label class="pl-4" id="phoneCodeMsg"></label>
+                                <input class="form-control" type="text" oninput="autoHyphen(this)" maxlength="13" name="memberPhone" th:value="${ session.loginUser.memberPhone }">
+                            </div>
+                            <div class="col-md-6 form-group" name="kakaoHidden">
+                                <label>변경할 비밀번호</label><label class="pl-4 msg font-weight-bold" id="passwordMsg"></label>
+                                <input class="form-control" type="password" oninput="noSpace(this)" name="memberPassword" maxlength="15">
+                            </div>
+                            <div class="col-md-6 form-group" name="kakaoHidden">
+                                <label>비밀번호 확인</label><label class="pl-4 msg font-weight-bold" id="passwordCheckMsg"></label>
+                                <input class="form-control" type="password" oninput="noSpace(this)" name="memberPasswordCheck" id="memberPasswordCheck" maxlength="15">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>도로명 주소</label><a class="pl-4 cursor" onclick="searchAddr()"><b>검색</b></a><label class="pl-4 font-weight-bold cursor" onclick="deleteAddr()">삭제</label>
+                                <input class="form-control" type="text" name="memberAddr" th:value="${ session.loginUser.memberAddr }" readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>상세 주소</label><label class="pl-4 msg" id="detailAddrMsg"></label>
+                                <input class="form-control" type="text" name="memberDetailAddr" th:value="${ session.loginUser.memberDetailAddr }">
+                            </div>
+                            <br/>
+                        </div>
+                        <div class="row" style="display: flex; justify-content: right;">
+                            <div class="card-footer bg-transparent border-0">
+                                <button type="button" class="btn btn-lg btn-block btn-primary text-white font-weight-bold my-2 py-2" id="reset">초기화</button>
+                            </div>
+                            <div class="card-footer bg-transparent border-0">
+                                <button type="button" class="btn btn-lg btn-block btn-primary text-white font-weight-bold my-2 py-2" id="confirm">확인</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <script>
+        const id = document.getElementsByName("memberId")[0];
+        const name = document.getElementsByName("memberName")[0];
+        const nickname = document.getElementsByName("memberNickname")[0];
+        const phone = document.getElementsByName("memberPhone")[0];
+        const password = document.getElementsByName("memberPassword")[0];
+        const passwordCheck = document.getElementById("memberPasswordCheck");
+        const addr = document.getElementsByName("memberAddr")[0];
+        const detailAddr = document.getElementsByName("memberDetailAddr")[0];
+
+        const msg = document.getElementsByClassName("msg");
+        const nameMsg = document.getElementById("nameMsg");
+        const nicknameMsg = document.getElementById("nicknameMsg");
+        const phoneMsg = document.getElementById("phoneMsg");
+        const passwordMsg = document.getElementById("passwordMsg");
+        const passwordCheckMsg = document.getElementById("passwordCheckMsg");
+        const addrMsg = document.getElementById("addrMsg");
+        const detailAddrMsg = document.getElementById("detailAddrMsg");
+
+        const phoneCode = document.getElementById("phoneCode");
+        const phoneCodeMsg = document.getElementById("phoneCodeMsg");
+
+        const form = document.getElementById("formConfirm");
+
+        let code = "";
+
+        const searchAddr = () => {
+            new daum.Postcode({
+                oncomplete: (data) => {
+                    addr.value = data.roadAddress;
+                }
+            }).open();
+        }
+
+        const deleteAddr = () => {
+            addr.value = '';
+            detailAddr.value = '';
+            detailAddrMsg.innerText = '';
+        }
+
+        const autoHyphen = (target) => {
+            target.value = target.value.replace(/[^0-9]/gi, '').replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+        }
+
+        const noSpace = (target) => {
+            target.value = target.value.replace(/\s| /gi, '');
+        }
+
+        const textRule = (target) => {
+            target.value = target.value.replace(/[^a-zA-Zㄱ-힣]/gi, '');
+        }
+
+        const errorModal = (title, message) => {
+            Swal.fire({
+                icon: 'error',
+                title: title,
+                text: message
+            });
+        }
+
+        const successModal = (title, message) => {
+            Swal.fire({
+                icon: 'success',
+                title: title,
+                text: message
+            });
+        }
+
+        const sendCode = () => {
+            $.ajax({
+                type: "POST",
+                url: "sendCode.me",
+                data: { memberPhone : phone.value },
+                cache: false,
+                success: (data) => {
+                    if(data == "fail") {
+                        errorModal('발송 실패', '다시 시도해주세요.');
+                    } else {
+                        successModal('발송 완료', '휴대폰 문자 인증번호를 확인해주세요.');
+                        phone.readOnly = true;
+                        code = data;
+                    }
+                }
+            });
+        }
+
+        const confirmCode = () => {
+            if(phoneCode.value == code && code != "") {
+                successModal('인증 성공', '휴대폰 인증이 완료되었습니다.');
+                phoneMsg.innerHTML = '[인증완료]';
+                phoneCode.type = 'hidden';
+                phoneCode.value = '';
+                phoneCodeMsg.innerHTML = ''; 
+            } else {
+                errorModal('인증 실패', '인증 번호를 다시 확인해주세요.');
+            }
+        }
+
+        document.getElementById("reset").addEventListener('click', () => {
+            id.value = '[[${ session.loginUser.memberId}]]';
+            name.value = '[[${ session.loginUser.memberName }]]';
+            nickname.value = '[[${ session.loginUser.memberNickname }]]';
+            phone.value = '[[${ session.loginUser.memberPhone }]]';
+            password.value = "";
+            passwordCheck.value = "";
+            addr.value = '[[${ session.loginUser.memberAddr }]]';
+            detailAddr.value = '[[${ session.loginUser.memberDetailAddr }]]';
+            
+            for(m of msg) {
+                m.innerText = '';
+                m.style.color = '#6F6F6F';
+            }
+
+            phone.readOnly = false;
+            phoneCode.type = 'hidden';
+            phoneCode.value = '';
+            phoneCodeMsg.innerHTML = '';
+            code = '';
+        });
+
+        window.onload = () => {
+            if('[[${ session.loginUser.memberId }]]'.split('@')[0] == 'kakao') {
+                for(const hidden of document.getElementsByName("kakaoHidden")) {
+                    hidden.style.display = 'none';
+                }
+            }
+
+            name.addEventListener('change', function() {
+                if(this.value.trim() == '') {
+                    nameMsg.innerText = '이름을 입력해주세요.';
+                } else if(this.value == '[[${ session.loginUser.memberName }]]' || this.value != '') {
+                    nameMsg.innerText = '';
+                } else if(this.value.length > 11) {
+                    nameMsg.innerText = '이름은 10자까지 입력 가능합니다.'
+                }
+            });
+
+			nickname.addEventListener('change', function() {
+				if(this.value.trim() == '') {
+					nicknameMsg.innerText = '닉네임을 입력해주세요.';
+				}
+
+                if(this.value.trim() != '') {
+                    $.ajax({
+                        url: 'checkDuplication.me',
+                        data: { memberNickname: this.value.trim() },
+                        success: data => {
+                            if(data == 'Y') {
+                                nicknameMsg.innerText = '사용 가능한 닉네임입니다.';
+                            }
+                            
+                            if(data == 'M') {
+                                nicknameMsg.innerText = '';
+                            }
+
+                            if(data == 'N') {
+                                nicknameMsg.innerText = '이미 존재하는 닉네임입니다.';
+                            }
+                        }
+                    });
+                }
+			});
+
+            phone.addEventListener('change', function() {
+				if(this.value.length != 13) {
+					phoneMsg.innerText = '휴대폰번호 11자리를 모두 입력해주세요.';
+                    phoneCode.type = 'hidden';
+                    phoneCode.value = '';
+                    phoneCodeMsg.innerHTML = '';
+                    code = '';
+                    return;
+                }
+                
+                if(this.value == '[[${ session.loginUser.memberPhone }]]') {
+					phoneMsg.innerText = '';
+                    phoneCode.type = 'hidden';
+                    phoneCode.value = '';
+                    phoneCodeMsg.innerHTML = '';
+                    code = '';
+                    return;
+				}
+                
+                phoneMsg.innerHTML = '<a class="pl-4 cursor" onclick="sendCode()"><b>인증하기</b></a>';
+                phoneCode.type = 'text';
+                phoneCodeMsg.innerHTML = '<a class="pl-1 cursor" onclick="confirmCode()"><b>확인</b></a>';
+                return;
+			});
+
+            password.addEventListener('change', function() {
+                let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})');
+                let mediumPassword = new RegExp('((?=.*[a-zA-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{6,}))|((?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9])(?=.{6,}))|((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,}))');
+
+                if(this.value.match(strongPassword)) {
+                    passwordMsg.innerText = '[안전]';
+                    passwordMsg.style.color = 'green';
+                    return;
+                }
+                
+                if(this.value.match(mediumPassword)) {
+                    passwordMsg.innerText = '[보통]';
+                    passwordMsg.style.color = 'black';
+                    return;
+                }
+                
+                if(this.value == '') {
+
+                    passwordMsg.innerText = '';
+                    passwordCheckMsg.innerText = '';
+                    passwordMsg.style.color = 'black';
+                    return;
+                }
+                
+                if(this.value.length < 4) {
+                    passwordMsg.innerText = '최소 4자 이상 입력해주세요.';
+                    passwordMsg.style.color = 'red';
+                    return;
+                }
+
+                passwordMsg.innerText = '[위험]';
+                passwordMsg.style.color = 'red';
+                return;
+            });
+
+            passwordCheck.addEventListener('change', function() {
+                if(this.value.trim() == '' && password.value != '') {
+                    return passwordCheckMsg.innerText = '변경할 비밀번호를 입력해주세요.';
+                }
+                
+                if(this.value != password.value && password.value != '') {
+                    return passwordCheckMsg.innerText = '비밀번호가 일치하지 않습니다.';
+                }
+                
+                if(this.value.trim() == '' && password.value == '') {
+                    return passwordCheckMsg.innerText = '';
+                }
+            });
+
+            detailAddr.addEventListener('change', function(){  
+                if(addr.value != '' && this.value.trim() == '') {
+                    return detailAddrMsg.innerText = '변경할 상세 주소를 입력해주세요.';
+                }
+                
+                if(this.value != '') {
+                    return detailAddrMsg.innerText = '';
+                }
+            });
+
+            const checkForm = () => {
+                if(id.value != '[[${ session.loginUser.memberId }]]') {
+                    return errorModal('수정 실패', '비정상적인 시도입니다.');
+                }                     
+                
+                return checkName();
+            }
+
+            const checkName = () => {
+                let exp = new RegExp(/[a-zA-Z가-힣]/gi);
+
+                if(name.value == '') {
+                    return errorModal('수정 실패', '이름 란이 비어있습니다.');
+                } 
+                
+                if(name.value != '[[${ session.loginUser.memberName }]]') {
+                    if(!name.value.match(exp)) {
+                        return errorModal('이름 수정 실패', '한글단어 혹은 영어 입력만 가능합니다.');
+                    }
+
+                    if(name.value.indexOf(" ") != -1) {
+                        return errorModal('이름 수정 실패', '공백 입력은 불가능합니다.');
+                    }
+
+                    if(name.value > 10) {
+                        return errorModal('이름 수정 실패', '이름은 10자 이하로 입력 가능합니다.');
+                    }
+
+                    return checkNickname();
+                }
+
+                return checkNickname();
+            }
+
+            const checkNickname = () => {
+                if(nickname.value == '') {
+                    return errorModal('수정 실패', '닉네임 란이 비어있습니다.');
+                }
+                
+                if(nickname.value != '[[${ session.loginUser.memberNickname }]]') {
+                    $.ajax({
+                        url: 'checkDuplication.me',
+                        data: { memberNickname: nickname.value.trim() },
+                        success: data => {
+                            if(data == 'Y') {
+                                if(nickname.value.length > 11) {
+                                    return errorModal('닉네임 수정 실패', '닉네임은 최대 10자까지 가능합니다.');
+                                }
+                                
+                                if(nickname.value.indexOf(" ") != -1) {
+                                    return errorModal('닉네임 수정 실패', '공백 입력은 불가능합니다.');
+                                }
+
+                                return checkPhone();
+                            }
+                            
+                            if(data == 'N') {
+                                return errorModal('닉네임 수정 실패', '이미 존재하는 닉네임입니다.');
+                            }
+
+                            return checkPhone();
+                        }
+                    });
+                }
+
+                return checkPhone();
+            }
+
+            const checkPhone = () => {
+                if(phone.value == '') {
+                    return errorModal('수정 실패', '휴대폰 번호 란이 비어있습니다.');
+                }
+                
+                if(phone.value != '[[${ session.loginUser.memberPhone }]]') {
+                    if(phone.value.length != 13) {
+                        return errorModal('휴대폰 번호 수정 실패', '휴대폰 번호는 11자를 입력해야합니다.');
+                    }
+                    
+                    if(phoneMsg.innerHTML != '[인증완료]') {
+                        return errorModal('휴대폰 번호 수정 실패', '휴대폰 인증을 완료해주세요.');
+                    }
+
+                    return checkPassword();
+                }
+
+                return checkPassword();
+            }
+
+            const checkPassword = () => {
+                if(passwordCheck.value != '' && password.value == '') {
+                    return errorModal('수정 실패', '변경할 비밀번호 란이 비어있습니다.');
+                }
+
+                if(password.value != '') {
+                    if(password.value.length < 4) {
+                        return errorModal('비밀번호 수정 실패', '비밀번호는 최소 4자 이상 가능합니다.');
+                    }
+
+                    if(passwordCheck.value == '') {
+                        return errorModal('수정 실패', '비밀번호 확인 란이 비어있습니다.');
+                    }
+                    
+                    if(password.value != passwordCheck.value) {
+                        return errorModal('비밀번호 수정 실패', '비밀번호가 일치하지 않습니다.');
+                    }
+
+                    return checkAddr();
+                }
+
+                return checkAddr();
+            }
+
+            const checkAddr = () => {
+                if(addr.value != '' && detailAddr.value == '') {
+                    return errorModal('수정 실패', '상세 주소 란이 비어있습니다.');
+                }
+
+                if(detailAddr.value != '' && addr.value == '') {
+                    return errorModal('수정 실패', '도로명 주소 란이 비어있습니다.');
+                }
+                
+                return Swal.fire({
+                    icon: 'success',
+                    title: '수정 완료',
+                    text: '내 정보 수정이 완료되었습니다.',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            }
+
+            document.getElementById("confirm").addEventListener("click", () => {
+                checkForm();
+            });
+		}
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+    <link href="market_assets/css/hwayi.css" rel="stylesheet">
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body style="min-width: 1920px;">
+<div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+<div class="row">
+<div class="col-2"></div>
+<div class="col-8">
+    <div th:replace="~{ views/common/mainNavbar :: mainNavbar }"></div>
+    <!-- Page Header Start -->
+    <div class="container-fluid bg-secondary">
+        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
+            <h1 class="font-weight-semi-bold text-uppercase mb-3"><i class="bi bi-cart" style="margin-right: 10px;"></i>장바구니</h1>
+        </div>
+    </div>
+    <!-- Page Header End -->
+    <!-- Cart Start -->
+    <div class="container-fluid pt-5">
+        <div class="row" style="margin-bottom: 3rem;">
+            <div class="col-lg-8 table-responsive mb-5">
+                <table class="table table-bordered text-center mb-0" style="width: 842.44px;">
+                    <thead class="bg-secondary text-dark">
+                        <tr>
+                            <td class="align-middle justify-content-left" style="width: 5%;"></td>
+                            <!-- <td class="align-middle justify-content-left" style="width: 5%;"><input type="checkbox"/></td> -->
+                            <th style="width: 150px;"></th>
+                            <th>상품</th>
+                            <th style="width: 133px;">가격</th>
+                            <th style="width: 63px;">수량</th>
+                            <th style="width: 60px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle" id="cartListArea">
+                        
+                    </tbody>
+                </table>
+                <br>
+                <button onclick="deleteAllCart()" class="w-btn3">장바구니 비우기</button>
+            </div>
+            <div class="col-lg-4" style="padding: 0;">
+                <div class="col-lg-12">
+                <div class="card border-secondary mb-3">
+                    <div class="card-header bg-secondary border-0">
+                        <h4 class="font-weight-semi-bold m-0">상세 정보</h4>
+                    </div>
+                    <div class="card-body" id="summaryArea">
+                        <!-- <h5 class="font-weight-medium mb-3">상품</h5> -->
+                        <!-- <div class="d-flex justify-content-between">
+                            <p>[발란스코드 실프베개 기능성 메모리폼 목편한 베개] X 1</p>
+                            <p>68,000 원</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p>[4면기능성 3D 큐브입체형 인생베개 / 경추베개 메모리폼] X 1</p>
+                            <p>45,800 원</p>
+                        </div> -->
+                    </div>
+                    <div class="card-footer border-secondary bg-transparent">
+                        <div class="d-flex justify-content-between mt-2 mb-3">
+                            <h5 class="font-weight-bold">총 결제 금액</h5>
+                            <!-- <h5 class="font-weight-bold">카카오페이</h5> -->
+                        </div>
+                        <div class="d-flex mt-2" style="justify-content: flex-end;">
+                            <!-- <h5 class="font-weight-bold">총 결제 금액</h5> -->
+                            <h1 class="font-weight-bold" id="finalPriceArea">102,420 원</h1>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button onclick="submit()" class="w-btn3">구매하러가기</button>
+                    <form action="multiPayment" method="POST" id="cartSubmit">
+                        <input type="hidden" id="cartData" name="cartData">
+                    </form>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    <!-- Cart End -->
+
+</div>
+<div class="col-2"></div>
+</div>
+<div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+<div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+<script th:inline="javascript">
+    //전역변수
+    var cartArr = [];
+    var cartisEmpty = 0;
+    /*<![CDATA[*/
+    const loginUser = /*[[${session.loginUser}]]*/hwayi;
+    /*]]>*/
+    console.log(loginUser);
+
+    function updateSummary(){
+        const cartList = document.getElementsByClassName('cartList');
+        const summaryArr = [];
+
+        for(const tr of cartList){
+            const productName = tr.querySelector('.productName');
+            
+            const amount = tr.querySelector('.amount');
+            const productPrice = tr.querySelector('.productPrice');
+
+            summaryArr.push({productName:productName.innerText, productPrice:productPrice.innerText, amount:amount.innerText});
+        }
+        summary(summaryArr);
+    }
+
+    function upbtn(element){
+        element.parentElement.children[1].innerText = Number(element.parentElement.children[1].innerText) + 1;
+        element.parentElement.parentElement.children[4].innerText = priceToString(element.parentElement.parentElement.children[0].value * element.parentElement.children[1].innerText) + '원';
+        updateSummary();
+    }
+
+    function downbtn(element){
+        element.parentElement.children[1].innerText -= 1;
+        if(element.parentElement.children[1].innerText < 1){
+            element.parentElement.children[1].innerText = 1;
+        }
+        element.parentElement.parentElement.children[4].innerText = priceToString(element.parentElement.parentElement.children[0].value * element.parentElement.children[1].innerText) + '원';
+        updateSummary();
+    }
+
+    function summary(data){
+        var dataJSON = JSON.stringify(data);
+        $.ajax({
+            method: "GET",
+            url: "updateSummary",
+            data: {"data":dataJSON},
+            dataType: "html",
+            success: data =>{
+                if(data != ''){
+                    $('#summaryArea').html(data);
+                    const smPrice = document.getElementsByClassName('smPrice');
+                    let totalPrice = 0;
+                    for(const smp of smPrice){
+                        totalPrice+=Number(smp.value);
+                    }
+                    document.getElementById('finalPriceArea').innerText = priceToString(totalPrice) + '원';
+                }
+            },
+            error: error =>{
+                console.error(error);
+            }
+        })
+    }
+
+
+    function test2(){
+        //IndexedDB에 저장된 상품번호와 구매수량 가져오기
+        var request = indexedDB.open('cartDB', 1);
+
+        request.onsuccess = function(event) {
+            var db = event.target.result;
+
+            var transaction = db.transaction('products', 'readonly');
+            var objectStore = transaction.objectStore('products');
+
+            var getAllRequest = objectStore.getAll();
+
+            getAllRequest.onsuccess = function(event) {
+                var data = event.target.result;
+                for(let i of data){
+                    cartArr.push(i);
+                }
+            var cartArrJSON = JSON.stringify(cartArr);
+            if(cartArr.length > 0){
+                //AJAX를 통해 받아온 상품번호에 맞는 상품 정보를 가져와 화면에 노출
+                $.ajax({
+                    method: "GET",
+                    url: "getCartList",
+                    data: {"cartArr":cartArrJSON},
+                    dataType: "html",
+                    success: data =>{
+                        if(data != ''){
+                            $('#cartListArea').html(data);
+
+                            const cartList = document.getElementsByClassName('cartList');
+
+                            const summaryArr = [];
+                            
+                            for(const tr of cartList){
+                                const productName = tr.querySelector('.productName');
+
+                                const amount = tr.querySelector('.amount');
+                                const productPrice = tr.querySelector('.productPrice');
+                                if(amount.innerText > 1){
+                                    const price = parseInt((productPrice.innerText).replace(/,/g, ''));
+                                    productPrice.innerText = priceToString(price*Number(amount.innerText)) + '원';
+                                }
+
+                                summaryArr.push({productName:productName.innerText, productPrice:productPrice.innerText, amount:amount.innerText});
+                            }
+                            summary(summaryArr);
+                        }
+                    },
+                    error: error =>{
+                        console.error(error);
+                    }
+                })
+            }else{
+                cartisEmpty = 1;
+                document.getElementById('finalPriceArea').innerText = '';
+                document.getElementById('summaryArea').innerHTML = '';
+                document.getElementById('cartListArea').innerHTML = '<tr><td colspan="6" class="col-12">장바구니에 담긴 상품이 존재하지 않습니다.</td></tr>';
+            }
+        };
+
+        transaction.oncomplete = function(event) {
+            db.close();
+        };
+
+        transaction.onerror = function(event) {
+            console.error('데이터 조회 중 오류가 발생하였습니다.');
+            db.close();
+        };
+        };
+
+        request.onerror = function(event) {
+            console.error('IndexedDB 데이터베이스를 열 수 없습니다.');
+        };
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    window.onload=()=>{
+        test2();
+        // getCartNums();
+    }//window.onload END
+
+    function deleteCart(data){
+        var request = indexedDB.open('cartDB', 1);
+
+        request.onsuccess = function(event) {
+            var db = event.target.result;
+
+            var transaction = db.transaction(['products'], 'readwrite');
+            var objectStore = transaction.objectStore('products');
+
+            var deleteRequest = objectStore.delete(data.children[1].value);
+
+            deleteRequest.onsuccess = function(event) {
+                console.log('데이터가 성공적으로 삭제되었습니다.');
+            };
+
+            deleteRequest.onerror = function(event) {
+                console.error('데이터 삭제 중 오류가 발생하였습니다.');
+            };
+
+            transaction.oncomplete = function(event) {
+                db.close();
+            };
+
+            transaction.onerror = function(event) {
+                console.error('트랜잭션 오류가 발생하였습니다.');
+                db.close();
+            };
+        };
+
+        request.onerror = function(event) {
+            console.error('IndexedDB 데이터베이스를 열 수 없습니다.');
+        };
+
+        document.getElementById('cartListArea').innerHTML = '';
+        cartArr = [];
+        // getCartNums();
+        test2();
+    }
+
+    function deleteAllCart(){
+        var request = indexedDB.open('cartDB', 1);
+
+        request.onsuccess = function(event) {
+        var db = event.target.result;
+
+        var transaction = db.transaction(['products'], 'readwrite');
+        var objectStore = transaction.objectStore('products');
+
+        var clearRequest = objectStore.clear();
+
+        clearRequest.onsuccess = function(event) {
+            console.log('데이터가 성공적으로 삭제되었습니다.');
+        };
+
+        clearRequest.onerror = function(event) {
+            console.error('데이터 삭제 중 오류가 발생하였습니다.');
+        };
+
+        transaction.oncomplete = function(event) {
+            db.close();
+        };
+
+        transaction.onerror = function(event) {
+            console.error('트랜잭션 오류가 발생하였습니다.');
+            db.close();
+        };
+        };
+
+        request.onerror = function(event) {
+        console.error('IndexedDB 데이터베이스를 열 수 없습니다.');
+        };
+
+        document.getElementById('cartListArea').innerHTML = '';
+        cartArr = [];
+        test2();
+        // getCartNums();
+    }
+
+    function submit(){
+        if(loginUser != null){
+            if(cartisEmpty < 1){
+                console.log(cartisEmpty);
+                var dataArr = [];
+                const cartList = document.getElementsByClassName('cartList');
+                for(const c of cartList){
+                    const productNo = c.children[6].children[0].children[1].value;
+                    const productName = c.children[3].children[0].innerText;
+                    const amount = c.children[5].children[1].innerText;
+                    const total = c.children[4].innerText;
+                    const productImage = c.children[2].children[0].src;
+    
+                    dataArr.push({productNo:productNo,productName:productName,amount:amount,total:total,productImage:productImage});
+                }
+                const cartData = JSON.stringify(dataArr);
+                document.getElementById('cartData').value = cartData;
+                document.getElementById('cartSubmit').submit();
+            }else{
+                swal.fire({
+                    title: "요청 실패",
+                    text: "장바구니에 담긴 상품이 없습니다",
+                    icon: "warning",
+                    button: "확인",
+                });
+            }
+        }else{
+            swal.fire('로그인 후 이용해주세요');
+        }
+        
+    }
+
+
+
+
+
+
+</script>
+</body>
+</html>

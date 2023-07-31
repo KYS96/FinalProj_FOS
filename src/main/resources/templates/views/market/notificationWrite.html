@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <!--common mainHead-->
+  <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+
+  <!-- ======== summernote link ======== -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
+  <!--sweet alert-->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+</head>
+
+<body style="background-color: #eeeeee;">
+  <!--header start-->
+  <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+  <!--header end-->
+
+  <!-- ====== 공지사항 작성 Start ====== -->
+  <div class="row mt-5 mb-5">
+    <div class="col-3"></div>
+    <div class="col-6"
+      style="height: auto; margin: 0; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+      <ul class="ms-4 mb-3" style="list-style-type: circle;">
+        <li>필요한 공지사항을 작성해주세요.</li>
+      </ul>
+
+      <form action="noticeInsert.no" method="post" id="noticeInsertForm">
+        <div class="input-group flex-nowrap mb-2">
+          <span class="input-group-text" id="addon-wrapping">제목</span>
+          <input type="text" class="form-control" placeholder="제목을 입력하세요." name="employeeBoardTitle"
+            aria-label="Username" aria-describedby="addon-wrapping">
+        </div>
+
+        <textarea id="summernote" name="employeeBoardContent"></textarea>
+
+        <!--취소 및 작성완료-->
+        <div class="container mt-4 mb-2">
+          <div class="row-cols-sm-12">
+
+            <!--목록으로 돌아가기-->
+            <button type="button" id="goBackToList" class="badge-dark p-1"
+              onclick="location.href='notice.no'">취소</button>
+            <!-- 첨부파일 버튼 더 넣기 -->
+            <button type="button" id="addAttmBtn" class="badge-dark p-1" onclick="addAttmArea()">첨부파일 추가</button>
+            <!--올릴 사진 저장 -->
+            <button type="button" class="mt-4 p-1 badge-dark" id="uploadImagesBtn" onclick="uploadImages()">저장</button>
+            <button type="button" id="noticeWrite" class="btn-teamcolor p-1">작성완료</button>
+          </div>
+        </div>
+      </form>
+
+      <!--첨부파일의 URL 여러개 가능-->
+      <div id="fileImagesURL" name="fileImagesURL"></div>
+
+      <!--첨부파일 버튼 -->
+      <div id="fileArea">
+        <div class="mt-3 w-50 border border-1">
+          <input type="file" name="addImages" class="p-1 form-control form-control-lg" accept="image/*" />
+        </div>
+      </div>
+
+
+      <div class="col-3"></div>
+    </div>
+
+
+    <script th:inline="javascript">
+      $('#summernote').summernote({
+        toolbar: [
+          ['fontsize', ['fontsize']],
+          ['style', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+          ['color', ['forecolor', 'color']],
+          ['para', ['ul', 'ol', 'paragraph']],
+        ],
+        fontSizes: [
+          "10",
+          "11",
+          "12",
+          "14",
+          "16",
+          "18",
+          "20",
+          "22",
+          "24",
+          "28",
+          "30",
+          "36",
+          "50",
+          "72",
+        ],
+        placeholder: "내용을 입력해 주세요",
+        tabsize: 4,
+        lang: "ko-KR",
+        height: 500,
+        focus: true,
+        //이미지 업로드 함수
+        onImageUpload: function (files) {
+          sendFile(files[0]);
+        }
+      });
+
+
+      //업로드 한 사진 url 받아오기
+      const summerArea = document.getElementById('summernote');
+      function uploadImages() {
+        var addImages = document.getElementsByName("addImages");
+        var formData = new FormData();
+        var formDataCount = 0;
+        for (let i = 0; i < addImages.length; i++) {
+          if (addImages[i].files && addImages[i].files[0] != null) {
+            formDataCount++;
+            formData.append('multipartFileList', addImages[i].files[0]);
+          }
+        }
+        for (const entry of formData.entries()) {
+          //어떤 파일이 들어왔는지 찍어봄
+          const [key, value] = entry;
+          console.log("entry", key, value.name);
+        }
+        if (formDataCount > 0) {
+          $.ajax({
+            type: "POST",
+            url: 'upload',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (data) {//서머노트 textarea에 보내기?
+              console.log(data);
+              summerArea.innerHTML = "";
+              fileImagesURL.innerHTML = "";
+              for (let i = 0; i < data.length; i++) {
+                summerArea.innerHTML += '<img src="' + data[i] + '">';
+                fileImagesURL.innerHTML += '<input type="hidden" name="fileImagesURL" accept="image/*" value="' + data[i] + "'>"
+                $(summerArea).summernote('insertImage', data[i]);//써머노트 영역에 사진 넣기
+              }
+            },
+            error: data => {
+              console.log(data);
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: 'info',
+            title: '첨부파일을 선택해 주세요.',
+            text: 'jpg, png, gif만 가능합니다.'
+          })
+        }
+      }
+
+
+
+
+      //클릭하면 첨부파일 란 추가
+      const fileArea = document.getElementById('fileArea');
+      const addAttmBtn = document.getElementById('addAttmBtn');
+
+      function addAttmArea() {
+        const newDiv = document.createElement('div');
+        newDiv.classList.add('mt-3', 'w-50', 'border', 'border-1', 'text-center');
+        newDiv.innerHTML = '<input type="file" accept="image/*" name="addImages" class="p-1 form-control form-control-lg"/>';
+
+        const newSpan = document.createElement('span');
+        newSpan.innerHTML = '<a class="deleteBtn btn" href="javascript:void()">삭제</a>';
+        newDiv.appendChild(newSpan);
+
+        fileArea.appendChild(newDiv);
+
+        if (fileArea.childElementCount == 6) {
+          Swal.fire('사진은 최대 5개 올릴 수 있습니다.');
+          fileArea.lastChild.remove();
+        }
+      }
+
+      //첨부파일 옆 삭제 버튼 누르면 삭제되는 기능
+      $(document).on('click', '.deleteBtn', function () {
+        $(this).parent().parent().remove();
+      })
+
+      const noticeWrite = document.querySelector('#noticeWrite');
+      const noticeInsertForm = document.querySelector('#noticeInsertForm');
+      noticeWrite.addEventListener('click', () => {
+        Swal.fire({
+          title: '등록하시겠습니까?',
+          showCancelButton: true,
+          confirmButtonText: '네',
+          cancelButtonText: '아니요'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire('공지사항 등록완료!', '', 'success')
+            $('.swal2-confirm').click(() => {
+              noticeInsertForm.submit();
+            });
+          }
+        })
+      })
+    </script>
+
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+</body>
+
+</html>

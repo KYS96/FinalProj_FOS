@@ -1,0 +1,72 @@
+<div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+<script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+<style>
+    th {padding: 10px;}
+</style>
+<div class="au-card-title">
+    <div class="bg-overlay bg-overlay--blue"></div>
+    <h3><i class="bi bi-basket3"></i>상품문의 상세보기</h3>
+</div>
+<div class="au-task js-list-load cardInnerText">
+    <div style="text-align: center;">
+        <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto; word-wrap: break-word;">
+            <tr>
+                <th>이름</th>
+                <th th:text="${a.memberName}"></th>
+            </tr>
+            <tr>
+                <th>제목</th>
+                <th>
+                    <div th:text="${a.questionTitle}" style="width: 440px;"></div>
+                </th>
+            </tr>
+            <tr>
+                <th>내용</th>
+                <th>
+                    <div th:text="${a.questionContent}" style="width: 440px;"></div>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <br>
+        답변
+        <br>
+        <textarea th:text="${a.questionAnswer}" style="border: 1px solid black; width: 500px; height: 300px;" id="questionAnswer"></textarea>
+    </div>
+    <div class="user-data__footer">
+        <button class="btn btn-primary btn-sm" onclick="updateQuestionBoard(this)">제출하기</button>
+        <input type="hidden" th:value="${a.questionNo}">
+    </div>
+</div>
+<script>
+    const updateQuestionBoard = (element) =>{
+            var questionNo = element.nextElementSibling.value;
+            var questionAnswer = document.getElementById("questionAnswer").value;
+
+
+            $.ajax({
+                type: 'post',
+                url: 'updateQuestionBoard.admin',
+                dataType: 'json',
+                data: {
+                    "questionNo" : questionNo,
+                    "questionAnswer" : questionAnswer
+                },
+                success: data =>{
+                    if(data.error != null && data.error == 'error'){
+                        Swal.fire({
+                        icon: 'error',
+                        title: '상품 문의 답변 실패'
+                    });
+                    }else{
+                        Swal.fire({
+                            icon: 'success',
+                            title: '상품 문의 답변 성공'
+                        });
+                    }
+                }
+            });
+        }
+</script>
+<div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>

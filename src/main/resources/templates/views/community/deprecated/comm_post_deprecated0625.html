@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="kor">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>this is post</title>
+
+  <!-- bootstrap icon-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+
+  <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+  <style>
+    #reportBtn,
+    #editBtn {
+      cursor: pointer;
+      background-color: #5c8984;
+      border: none;
+      color: white;
+      margin: 1px;
+    }
+
+    .replyActions {
+      border: none;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="top"></div> <!-- 페이지 스크롤 앵커 - top-->
+
+  <!-- header thymeleaf 삽입-->
+  <header th:replace="~{views/community/header :: header}"></header>
+  <!-- banner 삽입 -->
+  <div th:replace="~{views/community/banner :: banner}"></div>
+  <!-- autoScroll 삽입-->
+  <div th:replace="~{views/community/autoScroll :: autoScroll}"></div>
+
+  <!-- Page content-->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-2 side-areas" style="background-color: lightgray;">
+        " cursor: pointer;"
+        onclick="history.back();">
+        <!-- 공백을 주기 위한 div입니다. -->
+      </div>
+      <div class="col-8 align-content-lg-center ">
+        <!-- Post content-->
+        <article style="padding: 10px;">
+          <!-- Post header-->
+          <header class="mb-4">
+            <div style="height: 200px;">
+              광고를 위한 빈칸입니다.
+            </div>
+            <!-- Post title-->
+            <h1 class="fw-bolder mb-1" id="content">[[${cpaw.boardTitle}]]</h1>
+            <!-- 밑줄 굵게 2px로-->
+
+            <div class="d-flex justify-content-start">
+              <div class="fs-5 mb-2 me-5" th:onclick="#" style="cursor: pointer;">
+                작성자 : [[${cpaw.memberNickname}]]
+              </div>
+              <!-- Post meta content-->
+            </div>
+            <div class="d-flex justify-content-between ml-2">
+              <div class="text-muted mb-2">등록일 : [[${cpaw.boardEnrollDate}]] </div>
+              <div class="d-flex justify-content-between">
+                <div class="text-muted mb-2">조회수 : [[${cpaw.boardViews}]]&nbsp;&nbsp;&nbsp;</div>
+                <div class="text-muted mb-2">글번호 : [[${cpaw.boardNo}]] </div>
+              </div>
+            </div>
+            <!-- Post categories-->
+
+            <!-- 회색 테두리로 감싸진 div-->
+            <div style="background-color: darkgray; padding: 5px;">
+              <!-- <a class="badge bg-secondary text-decoration-none link-light" href="#!">꿀팁</a>
+                            <a class="badge bg-secondary text-decoration-none link-light" href="#!">개념글</a> -->
+            </div>
+
+
+          </header>
+
+          <!-- 본문 내용 시작-->
+
+          <!-- Preview image figure-->
+          <figure class="mb-4"><img class="img-fluid rounded" src="https://dummyimage.com/900x400/ced4da/6c757d.jpg"
+              alt="..." /></figure>
+          <!-- Post content-->
+          <section class="mb-5 col-lg-8"> <!--게시글 내용입니다. 어떻게 받아올지는 생각해봐야함.-->
+            <p class="fs-5 mb-4">Science is an enterprise that should be cherished as an activity of the
+              free human mind. Because it transforms who we are, how we live, and it gives us an
+              understanding of our place in the universe.</p>
+            <p class="fs-5 mb-4">The universe is large and old, and the ingredients for life as we know it
+              are everywhere, so there's no reason to think that Earth would be unique in that regard.
+              Whether of not the life became intelligent is a different question, and we'll see if we find
+              that.</p>
+            <p class="fs-5 mb-4">If you get asteroids about a kilometer in size, those are large enough and
+              carry enough energy into our system to disrupt transportation, communication, the food
+              chains, and that can be a really bad day on Earth.</p>
+            <h2 class="fw-bolder mb-4 mt-5">I have odd cosmic thoughts every day</h2>
+            <p class="fs-5 mb-4">For me, the most fascinating interface is Twitter. I have odd cosmic
+              thoughts every day and I realized I could hold them to myself or share them with people who
+              might be interested.</p>
+            <p class="fs-5 mb-4">Venus has a runaway greenhouse effect. I kind of want to know what happened
+              there because we're twirling knobs here on Earth without knowing the consequences of it.
+              Mars once had running water. It's bone dry today. Something bad happened there as well.</p>
+          </section>
+          <!-- 본문 내용 종료-->
+        </article>
+
+        <!-- 추천, 반대, 신고 버튼-->
+        <div class="d-flex justify-content-center mt-5" style="padding: 10px;" th:unless="${session.loginUser == null}">
+          <button type="button" class="btn btn-outline-primary me-2" id="like-btn" style="cursor: pointer;
+                    background-color: #5c8984;border: none; color: white;">추천 [[${cpaw.boardLikes}]] <i
+              class="bi bi-hand-thumbs-up-fill"></i></button>
+          <button type="button" class="btn btn-outline-primary me-2" id="dislike-btn" style="cursor: pointer;
+                    background-color: #5c8984;border: none; color: white;">반대 [[${cpaw.boardDislikes}]]<i
+              class="bi bi-hand-thumbs-down-fill"></i></button>
+        </div>
+        <script th:inline="javascript">
+          var boardNo = /*[[${cpaw.boardNo}]]*/1;
+          var userNo = /*[[${session.loginUser?.memberNo}]]*/1;
+
+          $('#like-btn').click(function () {
+            $.ajax({
+              url: '/likePost',
+              type: 'POST',
+              data: { boardNo: boardNo, userNo: userNo },
+              success: function (response) {
+                // handle success
+                alert(response);
+              },
+              error: function (response) {
+                // handle error
+                alert("에러다에러~~");
+                console.log('Error liking post');
+              }
+            });
+          });
+
+          $('#dislike-btn').click(function () {
+            $.ajax({
+              url: '/dislikePost',
+              type: 'POST',
+              data: { boardNo: boardNo, userNo: userNo },
+              success: function (response) {
+                // handle success
+                alert(response);
+              },
+              error: function (response) {
+                // handle error
+                alert("에러다에러~~");
+                console.log('Error disliking post');
+              }
+            });
+          });
+        </script>
+
+        <div class="d-flex justify-content-center mt-5" style="padding: 10px;" th:if="${session.loginUser == null}">
+          <p style="font-size: 15px;">추천, 반대, 신고하려면, 로그인을 먼저 해주세요. </p><br>
+          <p style="font-size: 15px;">로그인 하시려면, <a href="/loginView.me">여기</a>을 눌러주세요</p>
+        </div>
+        <div class="d-flex justify-content-between" th:unless="${session.loginUser == null}">
+          첨부파일 표시
+          <button type="button" class="btn btn-outline-primary me-2"  id="report-btn" style="cursor: pointer;
+                    background-color: #5c8984;border: none; color: white;">신고 [[${cpaw.boardReports}]] &nbsp;<i
+              class="bi bi-megaphone-fill"></i></button>
+        </div>
+        <div style="height: 30px;"></div>
+
+        <script th:inline="javascript">
+          $('#report-btn').click(function () {
+            $.ajax({
+              url: '/reportPost',
+              type: 'POST',
+              data: { boardNo: boardNo, userNo: userNo },
+              success: function (response) {
+                // handle success
+                alert(response);
+              },
+              error: function (response) {
+                // handle error
+                alert("에러다에러~~");
+                console.log('Error reporting post');
+              }
+            });
+          });
+        </script>
+
+        <!--댓글창 + 페이지네이션-->
+        <div id="comments"></div>
+        <!-- 댓글목록 구현 javascript -->
+        <script th:inline="javascript">
+          /*<![CDATA[*/
+          $(document).ready(function () {
+            loadComments(1);    //페이지 로드 시 첫 번째 페이지의 댓글을 로드합니다. 이게 없으면 로드가 안됩니다.
+          });
+          function loadComments(page) {
+            $.ajax({
+              url: "/replyList",
+              type: "get",
+              dataType: "html",
+              data: {
+                "boardNo": /*[[${cpaw.boardNo}]]*/1,
+                "page": page
+              },
+              success: function (html) {
+                console.log("댓글 로드 성공");
+                $("#comments").html(html);
+              }
+            })
+          }
+
+          //댓글 페이지네이션 인터셉터를 위한 이벤트
+          $(document).on('click', '.comment-page-link', function (e) {
+            e.preventDefault(); // prevent the default action (navigation)
+            var page = $(this).attr('data-page'); // get the page number from the data attribute
+            loadComments(page); // load the new page of comments
+          });
+                /*]]>*/
+        </script>
+
+        <!-- 수정 폼 -->
+        <form id="editForm" th:if="${session.loginUser}" style="display: none;">
+          <div class="mb-3">
+            <label for="editComment" class="form-label">댓글</label>
+            <textarea class="form-control" id="editComment" rows="3" maxlength="1000" placeholder="댓글은 1000자 제한입니다."
+              required oninput="countChars()"></textarea>
+            <div id="editCharNum">0/1000</div>
+          </div>
+          <button type="submit" class="btn btn-primary float-end" style="cursor: pointer;
+            background-color: #5c8984;border: none; color: white; margin: 1px;">수정하기</button>
+        </form>
+
+        <!-- 댓글 등록 창-->
+        <form id="commentForm" th:if="${session.loginUser}">
+          <div class="mb-3">
+            <label for="comment" class="form-label">댓글</label>
+            <textarea class="form-control" id="comment" rows="3" maxlength="1000" placeholder="댓글은 1000자 제한입니다."
+              required oninput="countChars()"></textarea>
+            <div id="charNum">0/1000</div>
+          </div>
+          <button type="submit" class="btn btn-primary float-end" style="cursor: pointer;
+                    background-color: #5c8984;border: none; color: white; margin: 1px;">등록하기</button>
+        </form>
+        <div th:unless="${session.loginUser}">
+          <p style="font-size: 20px; font-weight: bold;">댓글을 작성하시려면 <a href="loginView.me">로그인</a>을 해주세요.</p>
+        </div>
+
+        <script th:inline="javascript">
+          // 댓글 입력창 글자수 제한
+          function countChars() {
+            var comment = $("#comment").val();
+            var commentLength = comment.length;
+            $("#charNum").text(commentLength + "/1000");
+            if (commentLength > 1000) {
+              alert("댓글은 1000자까지 입력 가능합니다.");
+              $("#comment").val(comment.substring(0, 1000));
+              $("#charNum").text("1000/1000");
+            }
+          }
+        </script>
+
+        <script th:inline="javascript">
+          function showEditForm(button) {
+            // 버튼이 속한 <tr> 요소를 찾아서, 그 요소의 다음 <tr> 요소에 수정 폼을 추가함
+            var tr = $(button).closest('tr');
+            tr.next().after($('#editForm').show());
+          }
+        </script>
+
+        <!-- 댓글 수정,  -->
+        <script th:inline="javascript">
+          function editReply(replyNo) {
+            var content = $("#editComment").val(); // 수정된 댓글 내용을 가져옵니다.
+            var data = {
+              memberNo: /*[[${ session.loginUser?.memberNo }]]*/1,
+              replyNo: replyNo,
+              replyContent: content
+            };
+            // 댓글 글자수 1000자 제한, 공백 댓글 제한 if문
+            if (content.length > 1000) {
+              alert("댓글은 1000자 이내로 작성해주세요.");
+              return;
+            } else if (content.trim().length == 0) {
+              alert("댓글을 작성해주세요. 빈칸으로만 댓글 다는 것은 안됩니다.");
+            } else {
+              $.ajax({
+                type: "post",
+                url: "editReply",
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+              }).done(function (response) {
+                if (response.statusCode == 1) {
+                  alert("댓글이 수정되었습니다.");
+                  window.location.reload();
+                } else {
+                  alert("댓글 수정에 실패하였습니다.");
+                }
+              }).fail(function (error) {
+                alert("댓글 수정에 실패하였습니다.");
+              });
+            }
+          }
+        </script>
+
+        <script th:inline="javascript">
+          function deleteReply(replyNo) {
+            var data = {
+              memberNo: /*[[${session.loginUser?.memberNo}]]*/ 1,
+              boardNo: /*[[${cpaw.boardNo}]]*/ 0,
+              replyNo: replyNo  // 삭제할 댓글 번호
+            };
+            $.ajax({
+              type: "POST",
+              url: "/deleteReply",
+              data: JSON.stringify(data),
+              contentType: "application/json; charset=utf-8",
+              dataType: "json",
+              success: function (response) {
+                if (response.statusCode == 1) {
+                  alert("댓글이 삭제되었습니다.");
+                  location.reload();
+                } else {
+                  alert("댓글 삭제에 실패하였습니다.");
+                }
+              },
+              error: function (xhr, status, error) {
+                alert("댓글 삭제에 실패하였습니다.");
+              }
+            });
+          }
+        </script>
+
+        <script th:inline="javascript">
+          // 로그인 하지 않은 경우 댓글 입력창 로딩 에러를 막기 위한 로직입니다.
+          $(document).ready(function () {
+            // 로그인 여부를 확인합니다.
+            var memberNo = /*[[${session.loginUser?.memberNo}]]*/ null;
+            if (memberNo == null) {
+              // 댓글 입력창을 비활성화합니다.
+              $("#comment").prop("disabled", true);
+            }
+          });
+        </script>
+
+        <script th:inline="javascript">
+          /*<![CDATA[*/
+          var commentForm = $("#commentForm");
+          commentForm.submit(addComment);
+
+          //만일 로그인하지 않으면 아래 댓글 등록 창을 숨깁니다.
+
+          function addComment(event) {
+            event.preventDefault();    //기본 동작을 막습니다.
+            var content = $("#comment").val();  //댓글 내용을 가져옵니다.
+            var data = {
+              memberNo: /*[[${ session.loginUser?.memberNo }]]*/1,
+              boardNo: /*[[${ cpaw.boardNo }]]*/0,
+              replyContent: content,
+            };
+            //만약을 위해, 댓글 글자수 1000자 제한, 공백 댓글 제한 if문
+            if (content.length > 1000) {
+              alert("댓글은 1000자 이내로 작성해주세요.");    //이 alert를 예쁘게 바꿔도 됩니다.
+              return;
+            } else if (content.trim().length == 0) {
+              alert("댓글을 작성해주세요. 빈칸으로만 댓글 다는 것은 안됩니다.");
+            } else {
+              $.ajax({
+                type: "post",
+                url: "addReply",
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+              }).done(function (response) {
+                if (response.statusCode == 1) {
+                  alert("댓글이 등록되었습니다.");
+                  window.location.reload();
+                } else {
+                  alert("댓글 등록에 실패하였습니다.");
+                }
+              }).fail(function (error) {
+                alert("댓글 등록에 실패하였습니다.");
+              });
+            }
+          }
+                    /*]]>*/
+        </script>
+
+        <div style="height: 100px;"></div>
+
+      </div>
+      <div class="col-2" style="background-color: lightgray;">
+        <!-- 공백을 주기 위한 div입니다. -->
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="~{views/community/banner :: banner}"></div>
+
+  <!-- 리스트 삽입 : 파기함.-->
+  <!-- <div th:replace="~{community/list :: list}"></div> -->
+
+  <div id="bottom"></div>
+  <!-- 바닥 앵커-->
+
+  <!-- footer 삽입 -->
+  <div th:replace="~{views/community/footer :: footer}"></div>
+
+</body>
+
+</html>

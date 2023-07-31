@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="kor" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <style>
+        td {text-align: center;}
+    </style>
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid" id="mainContentAdmin">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-card-text"></i>배송 관리</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div style="min-width: 600px;">
+                                            <span>
+                                                <select id="productOrderCategory">
+                                                    <option value="all">전체</option>
+                                                    <option value="product_name">상품명</option>
+                                                    <option value="order_addr">주소</option>
+                                                    <option value="member_name">이름</option>
+                                                </select>
+                                            </span>
+                                            <select id="productOrderOrder"> 
+                                                <option value="order_date asc">주문일빠른순</option> 
+                                                <option value="order_date desc">주문일느린순</option> 
+                                                <option value="order_delivery_date asc">출고일빠른순</option> 
+                                                <option value="order_delivery_date desc">출고일느린순</option> 
+                                                <option value="order_price desc">금액높은순</option> 
+                                                <option value="order_price asc">금액낮은순</option> 
+                                            </select>
+                                            <select id="productOrderStatus"> 
+                                                <option value="all">전체</option> 
+                                                <option value="N">출고 전</option> 
+                                                <option value="Y">출고완료</option> 
+                                            </select>
+                                            <span>
+                                                <input type="text" id="productOrderQuery">
+                                            </span>    
+                                            <button class="btn btn-primary btn-sm" onclick="getSearchProductOrderList();"><i class="bi bi-search"></i>검색</button> 
+                                        </div>
+                                        <br><br>
+                                        <div style="text-align: center;" id="searchedProductOrderList">
+                                            <h3>검색 결과가 없습니다.</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+
+        var page = 1;
+        const getSearchProductOrderList = () =>{
+            var searchedProductOrderList = document.getElementById("searchedProductOrderList");
+            var productOrderCategory = document.getElementById("productOrderCategory").value;
+            var productOrderQuery = document.getElementById("productOrderQuery").value
+            var productOrderStatus = document.getElementById("productOrderStatus").value
+            var productOrderOrder = document.getElementById("productOrderOrder").value
+            $.ajax({
+                type: 'get',
+                url: 'getSearchProductOrderList.admin',
+                dataType: 'html',
+                data: {
+                    "page" : page,
+                    "category" : productOrderCategory,
+                    "query" : productOrderQuery,
+                    "status" : productOrderStatus,
+                    "order" : productOrderOrder
+                },
+                success: data =>{
+                    searchedProductOrderList.innerHTML = data;
+                }
+            });
+        }
+        $(document).on('click', '.page-link', function () {
+            page = $(this).attr('data-page');
+            getSearchProductOrderList(); 
+        });
+
+        const productOrderDetail = (element) =>{
+            var cartNo = element.parentElement.parentElement.children[3].value;
+            window.open('deliveryPopup.admin?cartNo=' + cartNo, "deliveryPopup", "width=600, height=805px");
+        }
+
+    </script>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    
+</body>
+
+</html>
+<!-- end document-->

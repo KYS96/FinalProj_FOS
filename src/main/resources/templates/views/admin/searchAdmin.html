@@ -1,0 +1,18 @@
+<tr th:each="a : ${ list }">
+    <td class="align-middle" th:text="${ a.adminNo }"></td>
+    <td class="align-middle">
+        <div class="table-data__info" data-toggle="modal" data-target="#adminModal" style="cursor: pointer;" th:onclick="adminDetail([[${ a.adminNo }]])">
+            <h6 th:text="${ a.adminName }"></h6>
+            <span>
+                <a style="color: rgb(150, 150, 150);" th:text="${ a.adminId }"></a>
+            </span>
+        </div>
+    </td>
+    <td class="align-middle">
+        <span class="role member" th:if="${ a.adminStatus == 'Y' }" th:onclick="updateAdmin([[${ a.adminNo }]], [[${ a.adminStatus }]], [[${ type }]], [[${ keyword }]], [[${ currentPage }]])">활동중</span>
+        <span class="role admin" th:if="${ a.adminStatus == 'N' }" th:onclick="updateAdmin([[${ a.adminNo }]], [[${ a.adminStatus }]], [[${ type }]], [[${ keyword }]], [[${ currentPage }]])">탈퇴</span>
+    </td>
+</tr>
+<tr th:if="${ #lists.isEmpty(list) }">
+    <td class="align-middle text-center" colspan="3">검색 결과가 없습니다.</td>
+</tr>

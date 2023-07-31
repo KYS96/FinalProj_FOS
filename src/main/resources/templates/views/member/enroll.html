@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+  <meta name="generator" content="Hugo 0.112.5">
+
+  <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+  
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+
+    .b-example-divider {
+      width: 100%;
+      height: 3rem;
+      background-color: rgba(0, 0, 0, .1);
+      border: solid rgba(0, 0, 0, .15);
+      border-width: 1px 0;
+      box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+    }
+
+    .b-example-vr {
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 100vh;
+    }
+
+    .bi {
+      vertical-align: -.125em;
+      fill: currentColor;
+    }
+
+    .nav-scroller {
+      position: relative;
+      z-index: 2;
+      height: 2.75rem;
+      overflow-y: hidden;
+    }
+
+    .nav-scroller .nav {
+      display: flex;
+      flex-wrap: nowrap;
+      padding-bottom: 1rem;
+      margin-top: -1px;
+      overflow-x: auto;
+      text-align: center;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .btn-bd-primary {
+      --bd-violet-bg: #712cf9;
+      --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+
+      --bs-btn-font-weight: 600;
+      --bs-btn-color: var(--bs-white);
+      --bs-btn-bg: var(--bd-violet-bg);
+      --bs-btn-border-color: var(--bd-violet-bg);
+      --bs-btn-hover-color: var(--bs-white);
+      --bs-btn-hover-bg: #6528e0;
+      --bs-btn-hover-border-color: #6528e0;
+      --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
+      --bs-btn-active-color: var(--bs-btn-hover-color);
+      --bs-btn-active-bg: #5a23c8;
+      --bs-btn-active-border-color: #5a23c8;
+    }
+
+    .bd-mode-toggle {
+      z-index: 1500;
+    }
+
+    .vertical-align {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: left;
+    height: 150%;
+    }
+
+    .divider2 {
+    border-top: 1px dotted #080808;
+    margin: 20px 0;
+    }
+    
+    .errorMsg {
+      color: red; 
+      font-weight: bold;
+      margin-left: 20px;
+    }
+
+    .agreeDetail{
+      color: blue;
+      margin-left: 20px;
+    }
+
+    #dangerDegree{
+      margin-left: 80px;
+      display: none;
+    }
+
+    .passwordInfo{
+      font-size: 14px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+
+    </style>
+
+</head>
+
+<body class="bg-body-tertiary">
+  <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="check2" viewBox="0 0 16 16">
+      <path
+        d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+    </symbol>
+    <symbol id="circle-half" viewBox="0 0 16 16">
+      <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
+    </symbol>
+    <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+      <path
+        d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z" />
+      <path
+        d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z" />
+    </symbol>
+    <symbol id="sun-fill" viewBox="0 0 16 16">
+      <path
+        d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z" />
+    </symbol>
+  </svg>
+
+  <div class="container">
+    <main>
+      <div class="py-5 text-center">
+        <img class="d-block mx-auto mb-4" src="member_assets/images/logo/Forest.png" width="150" height="150">
+        <br><h1>회원가입</h1>
+      </div>
+
+      <div class="row g-5" style="display: flex; justify-content: center;">
+        <div class="col-md-7 col-lg-8">
+          <h4 class="mb-3" style="text-align: center;">가입정보</h4>
+          <form class="needs-validation"  action="enrollMember.me" method="POST" id="enrollMember" novalidate>
+            <div class="row g-3">
+              <div class="col-sm-12">
+                <label class="form-label">이름</label><label class="errorMsg" id="nameMsg"></label>
+                <input type="text" oninput="nameRule(this)" class="form-control" maxlength="10" name="memberName" id="memberName" placeholder="이름을 입력하세요"  required>
+              </div>
+
+              <div class="col-12">
+                <label for="username" class="form-label">아이디</label><label class="errorMsg" id="idMsg"></label>
+                <div class="input-group has-validation">
+                  <input type="text" class="form-control" maxlength="30" oninput="idRule(this)" name="memberId" id="memberId" placeholder="아이디를 입력하세요" required>
+                </div>
+                <p class="passwordInfo">※ 아이디는 영어와 숫자만 가능합니다.</p>
+              </div>
+
+              <div class="col-12">
+                <label for="username" class="form-label">비밀번호</label> <label id="dangerDegree" >안전도 &nbsp;&nbsp;&nbsp;&nbsp;:</label> <label class="errorMsg" id="passwordMsg"></label>
+                <div class="input-group has-validation">
+                  <input type="password" class="form-control" maxlength="30" oninput="noSpace(this)" name="memberPassword" id="memberPassword" placeholder="비밀번호를 입력하세요" required>
+                  <i class="bi bi-eye" name="visibleBtn" style="position: absolute; top: 33.5%; right: 20px; transform: translateY(-35%); font-size: 23px; z-index: 5; "></i>
+                </div>
+                <p class="passwordInfo">※ 비밀번호는 최소 4자 이상이여야 합니다.</p>
+                <p class="passwordInfo">※ 영문소문자, 영문대문자, 숫자, 특수문자 4가지를 모두 사용하면 안전도가 올라갑니다.</p>
+              </div>
+
+              <div class="col-12">
+                <label for="username" class="form-label">비밀번호 확인</label> <label class="errorMsg" id="passwordCheckMsg"></label>
+                <div class="input-group has-validation">
+                  <input type="password" class="form-control" maxlength="30" oninput="noSpace(this)" id="memberPasswordCheck" name="memberPasswordCheck" placeholder="비밀번호를 한번 더 입력하세요" required>
+                  <i class="bi bi-eye" name="visibleBtn" style="position: absolute; top: 33.5%; right: 20px; transform: translateY(-35%); font-size: 23px; z-index: 5;"></i>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label for="username" class="form-label">닉네임</label> <label class="errorMsg" id="nicknameMsg"></label>
+                <div class="input-group has-validation">
+                  <input type="text" class="form-control" maxlength="30" oninput="noSpace(this)" name="memberNickname" id="memberNickname" placeholder="닉네임을 입력하세요" required>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label for="username" class="form-label">핸드폰 번호</label>
+                <label class="pl-4" id="phoneCodeMsg"></label>
+                <div class="input-group has-validation">
+                  <input type="text" class="form-control" maxlength="15" oninput="autoHyphen(this)" name="memberPhone" id="memberPhone" placeholder="핸드폰 번호를 입력하고 인증번호 전송 버튼을 누르세요" required>
+                  <button type="button" class="btn btn-primary" id="sendCodeButton" onclick="sendCode()">인증번호 전송</button>
+                </div>
+
+                <div class="input-group has-validation" style="margin-top: 10px;">
+                  <input type="text" class="form-control" id="phoneCode" placeholder="인증번호를 입력하고 확인 버튼을 누르세요" required>
+                  <button type="button" class="btn btn-primary" id="confirmCodeButton" onclick="confirmCode()">확 인</button>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label for="address" class="form-label">주소<span class="text-body-secondary">(선택사항)</span> <a class="pl-4 msg cursor" onclick="searchPostcode()"><b>[검색]</b></a><label class="pl-4 font-weight-bold" id="addrMsg"></label></label>
+                <input type="text" class="form-control" name="memberAddr" placeholder="검색을 눌러주세요" readonly>
+              </div>
+
+              <div class="col-12">
+                <label for="address" class="form-label">상세주소<span class="text-body-secondary">(선택사항)</span>  </label>
+                <input type="text" class="form-control" name="memberDetailAddr" placeholder="주소를 입력하세요" >
+              </div>
+
+              <hr class="my-4">
+
+              <div class="col-12">
+                <div class="divider2"></div> <!-- 점선 -->
+              </div>
+              <div class="vertical-align">
+                <div>
+                  <input type="checkbox" id="trade-agree" class="agree1" name = "checkAgree" required>
+                  <label for="trade-agree">전자금융거래 이용약관 동의</label><label class="agreeDetail" id="agreeTrade" onmouseover="this.style.cursor='pointer'"> [자세히 보기] </label>
+                </div>
+
+                <div>
+                  <input type="checkbox" id="save-info" class="agree1" name = "checkAgree" required>
+                  <label for="save-info">개인정보 수집 및 이용약관 동의</label><label class="agreeDetail" id="infoSave" onmouseover="this.style.cursor='pointer'"> [자세히 보기] </label>
+                </div>
+    
+                <div>
+                  <input type="checkbox" id="give-info" class="agree1" name = "checkAgree" required>
+                  <label for="give-info">개인정보 제3자 제공 약관 동의</label><label class="agreeDetail" id="infoGive" onmouseover="this.style.cursor='pointer'"> [자세히 보기] </label>
+                </div>
+    
+                <div class="col-12">
+                  <input type="checkbox" id="agreeAll" class="agree2" name = "checkAgree" required>
+                  <label for="agreeAll">모두 동의</label>
+                  <div class="invalid-feedback">
+                    약관은 모두 필수동의사항입니다.
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-12">
+                <div class="divider2"></div> <!-- 점선 -->
+              </div>
+              
+              <hr class="divider">
+              <hr class="my-4">
+
+              <button class="w-100 btn btn-primary btn-lg" type="button" id="signup">가입하기</button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer class="my-5 pt-5 text-body-secondary text-center text-small">
+      <p class="mb-1">&copy; since 2023 수면의 숲</p>
+      <!-- <ul class="list-inline">
+      <li class="list-inline-item"><a href="#">Privacy</a></li>
+      <li class="list-inline-item"><a href="#">Terms</a></li>
+      <li class="list-inline-item"><a href="#">Support</a></li>
+    </ul> -->
+    </footer>
+  </div>
+
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+  <script>
+    // 모달
+    const errorModal = (title, message) => {
+        Swal.fire({
+            icon: 'error',
+            title: title,
+            text: message
+        });
+    }
+
+    const successModal = (title, message) => {
+        Swal.fire({
+            icon: 'success',
+            title: title,
+            text: message
+        });
+    }
+
+    const autoHyphen = (target) => {
+        target.value = target.value.replace(/[^0-9]/gi, '').replace(/^(\d{2,3})(\d{3,4})(\d+)$/, `$1-$2-$3`);
+    }
+
+    const noSpace = (target) => {
+        target.value = target.value.replace(/\s| /gi, '');
+    }
+
+    const idRule = (target) => {
+        target.value = target.value.replace(/[^a-z0-9]/gi, '');
+    }
+
+    const agreeTrade = document.getElementById("agreeTrade");
+    agreeTrade.onclick = function(){
+      Swal.fire({
+        icon: 'info',
+        title: '전자금융거래 이용약관',
+        html: '제1장 총칙<br>제 1조 (목적)<br>본 약관은 수면의 숲 주식회사(이하 "회사"라 합니다)가 제공하는 전자지급결제대행서비스, 선불전자지급수단의 발행 및 관리서비스, 직불전자지급수단의 발행 및 관리서비스, 결제대금예치서비스, 전자고지결제서비스(이하 통칭하여 "전자금융거래서비스"라 합니다)를 "회원"이 이용함에 있어, "회사"와 "회원" 간 권리, 의무 및 "회원"의 서비스 이용절차 등에 관한 사항을 규정하는 것을 그 목적으로 합니다.<br><br>제2조 (정의)<br>(1) 본 약관에서 정한 용어의 정의는 아래와 같습니다.<br>① "전자금융거래"라 함은 "회사"가 "전자적 장치"를 통하여 전자금융업무를 제공하고, "회원"이 "회사"의 종사자와 직접 대면하거나 의사소통을 하지 아니하고 자동화된 방식으로 이를 이용하는 거래를 말합니다.<br>② "전자지급거래"라 함은 자금을 주는 자(이하 "지급인"이라 합니다)가 "회사"로 하여금 전자지급수단을 이용하여 자금을 받는 자(이하 "수취인"이라 합니다)에게 자금을 이동하게 하는 "전자금융거래"를 말합니다.<br>③ "전자적 장치"라 함은 "전자금융거래" 정보를 전자적 방법으로 전송하거나 처리하는데 이용되는 장치로써 현금자동지급기, 자동입출금기, 지급용단말기, 컴퓨터, 전화기 그 밖에 전자적 방법으로 정보를 전송하거나 처리하는 장치를 말합니다.<br>④ "접근매체"라 함은 "전자금융거래"에 있어서 "거래지시"를 하거나 이용자 및 거래내용의 진실성과 정확성을 확보하기 위하여 사용되는 수단 또는 정보로서 "전자금융거래법" 제2조 제2호에서 정한 "전자적 장치"와 "전자금융거래정보"에 관련된 수단 또는 정보를 말합니다.<br>⑤ "거래지시"라 함은 "회원"이 "회사"에게 "전자금융거래"의 처리를 지시하는 것을 말합니다.<br>⑥ "이용자번호(ID)"라 함은 "회원"의 식별과 "회원"의 권리와 의무의 근거를 확립하기 위하여 "회원"이 선정하고 "회사"가 승인한 문자와 숫자의 조합을 말합니다.<br>⑦ "비밀번호"라 함은 "회원"이 부여 받은 "이용자번호(ID)"와 일치된 "회원"임을 확인하고 비밀보호를 위하여 "회원" 자신이 설정한 문자와 숫자의 조합을 말합니다.<br>⑧ "전자금융거래지급정지"라 함은 "회사"가 "회원"의 "전자금융거래"에 대하여 금융위원회가 정하는 사유에 해당하는 경우 "회원"의 "전자금융거래" 지급을 정지하는 것을 말합니다.<br>⑨ "전자서명"이라 함은 "회사"의 전자금융거래정보시스템에 고유하게 등록된 "회원"임을 확인하고 "회원"이 전자금융거래와 관련하여 입력한 정보의 변동 없음을 보장하기 위하여 "회사"가 각 "회원"에게 부여한 인증기호를 말합니다.<br>⑩ "전자문서"라 함은 전자적 장치를 통하여 작성된 문서 또는 기록을 말합니다.<br><br>(2) 본 약관에서 정의되지 않은 용어는 전자금융거래법 및 동법 시행령에서 정하는 바에 따릅니다.<br><br>제3조 (약관의 효력과 변경)<br>(1) "회사"는 "전자금융거래"에 관하여 "회원"에게 본 약관의 내용을 게시하고, "회원"이 그 약관에 동의함으로써 이를 효력있게 합니다.<br>(2) "회사"는 "전자금융거래"의 효율적 이행과 거래의 신속한 처리를 위하여 필요한 경우 관계 법령에 위배되지 않는 범위 내에서 본 약관을 개정할 수 있으며, 이 경우 개정된 약관의 내용과 적용일자를 명시하여 현행약관과 함께 그 개정약관의 적용일자 1개월 전부터 적용일자 전일까지 공지합니다. 다만, "회원"에게 불리하게 개정되는 경우에는 개정약관의 적용일자 3개월 전부터 적용일자 전일까지 공지하며, 이 경우 "회사"는 "회원"에게 그 개정약관 적용일자 전에 제13조제2항의 방법을 이용하여 통지합니다. <br>(3) "회원"은 개정약관에 동의하지 않는 경우 적용일자 전일까지 거래계약을 해지할 수 있습니다. 이 경우 "회사"는 적용일 이후 발생하는 "회원"의 "전자금융거래"에 관하여 거래를 처리할 수 없으며, 개정약관의 적용일 이후로도 "회원"이 "전자금융거래"를 계속하는 경우에는 "회원"이 개정약관에 동의한 것으로 간주됩니다.<br><br>제4조 (서비스의 종류 및 내용)<br>(1) "회사"가 제공하는 서비스의 종류 및 내용은 다음 각 호와 같습니다.<br>1. 예금주의 청약 및 예금주와 "회사" 간의 의사표시의 전자적 처리<br>2. 예금주의 의사표시를 받아서 "회사"의 명령, 처리 또는 이의 의사표시의 전자적 처리<br>3. 전자적 장치에 의한 정보통신망을 통한 예금주의 자금의 입금 또는 출금의 전자적 처리<br>4. 전자적 장치에 의한 예금주의 잔액확인 또는 이체내역의 조회<br>5. 전자적 장치에 의한 입금 및 출금의 지급<br>6. "회사"의 기타 서비스와 계약 등<br>(2) "회사"는 제(1)항에 따른 "회원"의 거래내용 서면 교부 요청을 받은 경우 "전자적 장치"의 운영장애, 그 밖의 사유로 거래내용을 제공할 수 없는 때에는 즉시 "회원"에게 전자문서 전송의 방법으로 그러한 사유를 알려야 하며, "전자적 장치"의 운영장애 등의 사유로 거래내용을 제공할 수 없는 기간은 제(1)항의 거래내용에 관한 서면의 교부기간에 산입하지 아니합니다.<br>(3) 제(1)항의 대상이 되는 거래내용 중 대상기간이 5년인 것은 다음 각 호와 같습니다.<br>① 거래계좌의 명칭 또는 번호<br>② "전자금융거래"의 종류 및 금액<br>③ "전자금융거래"의 상대방에 관한 정보<br>④ "전자금융거래"의 거래일시<br>⑤ "전자적 장치"의 종류 및 "전자적 장치"를 식별할 수 있는 정보<br>⑥ "회사"가 "전자금융거래"의 대가로 받은 수수료<br>⑦ "회원"의 출금 동의에 관한 사항<br>⑧ "전자금융거래"의 신청 및 조건의 변경에 관한 사항<br>(4) 제(1)항의 대상이 되는 거래내용 중 대상기간이 1년인 것은 다음 각 호와 같습니다.<br>① "회원"의 "오류" 정정 요구사실 및 처리결과에 관한 사항<br>② 기타 금융위원회가 고시로 정한 사항<br>(5) "회원"이 제(1)항에서 정한 서면 교부를 요청하고자 할 경우 다음의 주소 및 전화번호로 요청할 수 있습니다.<br>① 주소: 서울특별시 중구 남대문로 120 그레이츠 청계(구 대일빌딩) 2F, 3F <br>② 이메일 주소: forest@fos.com<br>③ 전화번호: 010 5247 1664',
+        imageHeight: 20000,
+        width: 1200
+      });
+    }
+
+    const infoSave = document.getElementById("infoSave");
+    infoSave.onclick = function(){
+      Swal.fire({
+            icon: 'info',
+            title: '개인정보 수집 및 이용약관',
+            html: '제 1 장 총칙<br><br>제 1 조 (목적)<br>본 약관은 통계청이 운영하는 나라통계시스템 운영홈페이지(이하 "당 사이트")에서 제공하는 모든 서비스(이하 "서비스")의 이용조건 및 절차, 이용자와 당 사이트의 권리, 의무, 책임사항과 기타 필요한 사항을 규정함을 목적으로 합니다.<br><br>제 2 조 (약관의 효력과 변경)<br>① 당 사이트는 이용자가 본 약관 내용에 동의하는 것을 조건으로 이용자에게 서비스를 제공하며, 당 사이트의 서비스 제공 행위 및 이용자의 서비스 사용 행위에는 본 약관을 우선적으로 적용하겠습니다.<br>② 당 사이트는 본 약관을 사전 고지 없이 변경할 수 있으며, 변경된 약관은 당 사이트 내에 공지함으로써 이용자가 직접 확인하도록 할 것입니다. 이용자가 변경된 약관에 동의하지 아니하는 경우 본인의 회원등록을 취소(회원탈퇴)할 수 있으며, 계속 사용할 경우에는 약관 변경에 대한 암묵적 동의로 간주됩니다. 변경된 약관은 공지와 동시에 그 효력을 발휘합니다.<br><br>제 3 조 (약관 외 준칙)<br>본 약관에 명시되지 않은 사항은 전기통신기본법, 전기통신사업법, 정보통신망 이용촉진 및 정보보호 등에 관한 법률 및 기타 관련 법령의 규정에 의합니다.<br><br>제 4 조 (용어의 정의)<br>① 본 약관에서 사용하는 용어의 정의는 다음과 같습니다.<br> 1. 이용자 : 본 약관에 따라 당 사이트가 제공하는 서비스를 받는 자<br> 2. 가 입 : 당 사이트가 제공하는 신청서 양식에 해당 정보를 기입하고, 본 약관에 동의하여 서비스 이용계약을 완료시키는 행위<br> 3. 회 원 : 당 사이트에 필요한 개인 정보를 제공하여 회원 등록을 한 자로서, 당사이트와의 이용계약을 맺은 자<br> 4. 아이디(ID) : 이용자 식별과 서비스 이용을 위하여 이용자가 설정하고 당 사이트가 승인한 문자와 숫자의 조합<br> 5. 비밀번호 : 이용자의 동일성 확인과 이용자 정보 보호를 위해 이용자 자신이 설정한 문자와 숫자의 조합<br> 6. 탈퇴 : 회원이 이용계약을 종료시키는 행위<br><br>제 2 장 이용계약<br><br>제 5 조 (이용계약의 성립)<br>① 이용계약은 이용자가 제 1 조에 따라 약관의 내용을 확인하고 "동의합니다" 등의 버튼을 누름으로써 체결됩니다.<br>② 이용계약은 이용자의 약관 동의 후 당 사이트가 승인함으로써 성립합니다.<br><br>제 6 조 (이용계약의 유지)<br>이용계약은 이용자와 당 사이트의 서비스 이용에 따라 동일하게 유지됩니다.<br><br>제 7 조 (이용자의 정보보호)<br>당 사이트는 관련 법령이 정하는 바에 따라 이용자의 개인정보를 보호하기 위해 노력합니다. 개인정보의 보호 및 사용에 대해서는 관련 법령 및 당 사이트의 개인정보처리방침이 적용됩니다.<br><br>제 8 조 (이용자의 아이디 및 비밀번호에 대한 의무)<br>① 아이디(ID)와 비밀번호에 대한 관리책임은 이용자에게 있습니다.<br>② 이용자는 자신의 아이디(ID) 및 비밀번호를 제 3 자에게 이용하게 해서는 안 됩니다.<br>③ 이용자는 아이디(ID) 및 비밀번호를 도난당하거나 제 3 자가 사용하고 있음을 인지한 경우에는 즉시 당 사이트에 통보하고 당 사이트의 안내에 따라야 합니다.<br><br>제 3 장 서비스 이용<br><br>제 9 조 (서비스의 제공)<br>① 당 사이트는 다음과 같은 서비스를 제공합니다.<br> 1. 통계 데이터 조회 서비스<br> 2. 데이터 다운로드 서비스<br> 3. 통계정보 이용을 위한 다양한 도구 및 자료<br> 4. 기타 통계 관련 서비스<br>② 당 사이트는 필요한 경우 서비스의 내용을 추가 또는 변경할 수 있으며, 이 경우에는 추가 또는 변경된 서비스의 내용을 이용자에게 제공합니다.<br><br>제 10 조 (서비스의 중지)<br>① 당 사이트는 컴퓨터 등 정보통신설비의 보수점검∙교체 및 고장, 통신의 두절 등의 사유가 발생한 경우에는 서비스의 제공을 일시적으로 중단할 수 있습니다.<br>② 당 사이트는 제 1 항의 사유로 서비스의 제공이 일시적으로 중단됨으로써 이용자 또는 제 3 자가 입은 손해에 대하여 배상하지 않습니다.<br><br>제 11 조 (정보의 제공)<br>당 사이트는 이용자가 서비스 이용 중 필요하다고 인정되는 다양한 정보에 대하여 전자우편이나 서신우편 등의 방법으로 이용자에게 제공할 수 있습니다.<br><br>제 4 장 계약 해지 및 이용제한<br><br>제 12 조 (계약 해지)<br>① 이용자는 언제든지 서비스 이용을 원하지 않는 경우 이용계약 해지 신청을 통하여 이용계약을 해지할 수 있습니다.<br>② 당 사이트는 제 1 항에 따라 이용계약 해지를 신청한 이용자에게 서비스 이용을 제한할 수 있습니다.<br><br>제 13 조 (이용제한)<br>① 당 사이트는 이용자가 다음 각 호에 해당하는 경우에는 사전 통지 없이 서비스 이용을 제한할 수 있습니다.<br> 1. 이용자가 제 8 조 제 2 항에 따른 회원의 의무를 위반한 경우<br> 2. 이용자가 제 15 조 제 3 항에 따른 계약의 해지 또는 이용계약의 중지사유를 발생시킨 경우<br> 3. 이용자가 타인의 아이디(ID)나 비밀번호를 도용한 경우<br> 4. 이용자가 서비스의 이용과 관련하여 법령 또는 이 약관을 위반한 경우<br> 5. 이용자가 당 사이트의 서비스 운영을 고의로 방해한 경우<br> 6. 이용자가 제 17 조 제 1 항에서 정한 행위를 한 경우<br> 7. 기타 당 사이트가 서비스 이용을 제한할 필요가 있다고 인정하는 경우<br>② 당 사이트는 제 1 항에 따른 서비스 이용의 제한 범위 내에서 제한의 조건 및 세부내용을 이용자에게 통지하여야 합니다.<br>③ 당 사이트는 이용자가 제 1 항에 따라 서비스 이용제한에 대하여 이의신청을 한 경우, 이용제한 사유가 부당하다고 인정되면 지체 없이 서비스 이용을 재개합니다.<br><br>제 5 장 손해배상 및 기타사항<br><br>제 14 조 (손해배상)<br>당 사이트 또는 이용자는 서비스 이용과 관련하여 발생한 손해에 대하여 고의 또는 중과실을 이행한 책임이 있는 경우에는 상대방의 손해를 배상할 책임을 집니다.<br><br>제 15 조 (면책)<br>① 당 사이트는 천재지변 또는 이에 준하는 불가항력으로 인하여 서비스를 제공할 수 없는 경우에는 서비스 제공에 관한 책임이 면제됩니다.<br>② 당 사이트는 이용자의 귀책사유로 인한 서비스 이용의 장애에 대하여 책임을 지지 않습니다.<br><br>부 칙 (시행일)<br>이 약관은 2023년 6월 28일부터 시행합니다.',
+            imageHeight: 20000,
+            width: 1200
+        });
+    }
+
+    const infoGive = document.getElementById("infoGive");
+    infoGive.onclick = function(){
+      Swal.fire({
+            icon: 'info',
+            title: '개인정보 제3자 제공 약관',
+            html: '<p>개인정보 제3자 제공<br>① 개념: 제3자(제공받는 자)의 이익이나 목적을 위하여 개인정보를 이전<br>② 고려사항<br>- 제공 시 법적 근거가 있는가?<br>- 법령상 요청 근거가 없을 경우, 정보주체의 동의를 받고 제공하는가?<br>- 요청한 목적에 필요한 최소한의 개인정보인가?<br>③ 개인정보의 수집 목적 內 제3자 제공 기준(개인정보 보호법 제17조)</p><p>1. 정보주체의 동의를 받은 경우 2. 법률의 특별한 규정, 법령상 의무 준수를 위해 불가피한 경우 3. 공공기관이 법령 등에서 정한 소관업무를 위해 불가피한 경우 4. 명백히 정보주체 등의 급박한 생명, 신체, 재산의 이익을 위해 필요한 경우로서 정보주체의 사전 동의를 받을 수 없는 경우</p><p>④ 정보주체의 동의 획득 시 필수 고지사항<br>① 개인정보를 제공받는 자 ② 제공받는 자의 개인정보 이용 목적 ③ 제공하는 개인정보의 항목 ④ 제공받는 자의 개인정보 보유·이용기간 ⑤ 동의거부 권리 및 동의거부 시 불이익 내용</p><p><개인정보 제3자 제공 시 동의 예시><br>1. 개인정보를 제공받는 자: 00은행 2. 제공받는 자의 개인정보 이용 목적: 수납 및 환불, 수납자 관리 3. 제공하는 개인정보 항목: 학부모성명, 은행명, 계좌번호, 연락처 4. 제공받는 자의 개인정보 보유 및 이용기간: 5년 5. 개인정보 제공을 거부할 수 있으며, 미동의 시 자동이체 출금이 불가하여 각종 납부금을 학교에 방문 납부하셔야 합니다. 정보주체는 동의 거부에 동의하지 않을 권리가 있으나, 동의 거부 시 불이익이 발생할 수 있습니다. <p>&#64257;‘개인정보를 제공받는 자, 제공받는 자의 목적, 보유 및 이용기간’은 법령에서 정한 중요한 내용으로, 최소 9포인트 이상, 다른 고지 내용보다 20% 크게, 색깔‧굵기‧ 밑줄 등을 사용하여 명확하게 드러나게 표시<br>⑤ 개인정보 제3자 제공 예시<br> 교육활동 홍보를 위하여 언론사, 홍보지, 불특정 홈페이지에 제공(정보주체 동의 필요)<br> 외부대회(행사)에 참가하기 위해 제공(정보주체 동의 필요)<br> 스쿨뱅킹 등 계좌연동을 위하여 개인정보를 금융기관에 제공하는 경우(정보주체 동의 필요)<br> 학교생활기록부, 건강기록부를 전출교 및 상급학교에 제공(초중등교육법 제25조에 따름)<br> 여행자보험 가입을 위하여 보험사와 직접 계약하여 제공하는 경우(정보주체 동의 필요)</p><p>&#64257; 개인정보의 목적 외 이용 및 제3자 제공<br>① 개념: 개인정보처리자가 당초에 수집 목적을 벗어나 다른 목적으로 개인정보를 이용하거나, 다른 목적으로 이용하기 위해 제3자에게 제공하는 것<br>② 고려사항<br>- 목적 외 이용 및 제공할 수 있는 예외적인 사항에 포함되는가?<br>- 법령상 허용 기준이 없을 경우, 정보주체의 별도의 동의를 받고 제공하는가?<br>- 요청한 목적에 필요한 최소한의 개인정보인가?<br>- 적절한 보안대책 등 처리정보에 대한 안전성 확보조치가 이루어졌는가?</p><p>&#64257; 개인정보의 수집 목적 外 이용 및 제3자 제공 가능 범위(개인정보 보호법 제18조)<br>- 원칙적으로는 개인정보의 목적 외 이용 및 제3자 제공 금지</p><p><개인정보의 목적 외 제3자 제공 허용기준><br>1. 정보주체의 별도의 동의를 받은 경우 2. 다른 법률에 특별한 규정이 있는 경우 3. 명백히 정보주체 또는 제3자의 급박한 생명, 신체, 재산의 이익에 필요한 경우 4. 개인정보를 목적 외로 이용하거나 이를 제3자에게 제공하지 않으면 다른 법률에서 정하는 소관 업무 수행 불가한 경우로 보호위원회의 심의·의결을 거친 경우 5. 조약, 국제협정 이행을 위해 외국정부 등 제공에 필요한 경우 6. 범죄의 수사와 공소의 제기 및 유지를 위하여 필요한 경우 7. 법원의 재판업무 수행을 위하여 필요한 경우 8. 형(刑) 및 감호, 보호처분의 집행을 위하여 필요한 경우</p><p>④ 정보주체의 별도의 동의 획득 시 필수 고지사항</p><p>① 개인정보를 제공받는 자  ② 제공받는 자의 개인정보 이용 목적 ③ 제공하는 개인정보의 항목      ④ 제공받는 자의 개인정보 보유·이용기간 ⑤ 동의거부 권리 및 동의거부 시 불이익 내용</p><p>⑤ 개인정보 목적 외 이용 및 제3자 제공에 따른 이행 사항<br>- 개인정보를 제공받는 자에게 이용 목적, 이용 방법, 그 밖에 필요한 사항에 대하여 제한을 하거나, 개인정보의 안전성 확보를 위하여 필요한 조치를 마련하도록 문서로 요청 <br>-‘개인정보 목적 외 이용 및 제3자 제공 대장’기록·관리<br>- 개인정보처리방침 내 개인정보처리 위탁 게시판을 통해 홈페이지 공개<br>(단, 정보주체의 별도 동의를 받았거나, 범죄의 수사와 공소의 제기 및 유지를 위하여 제공한 경우는 제외)⑥ 개인정보 목적 외 이용 및 제3자 제공 예시<br> 병역법 제20조의3에 따른 병무청에 학적 및 학적변경 자료 제공(다른 법률에 특별한 규정) <br> 감사원법 제27조에 따른 감사원 요구에 따른 자료 제공(다른 법률에 특별한 규정)<br> 국회법 제128조에 따른 국회 요구에 의한 자료 제공(다른 법률에 특별한 규정)<br> 부패방지 및 국민권익위원회 설치와 운영에 관한 법률 제42조제1항 및 제3항에 따른 국민권익위원회 자료제출 요청<br> 범죄의 수사와 공소의 제기 및 유지를 위해 경찰서에서 요구하는 경우</p>',
+            imageHeight: 20000,
+            width: 1200
+        });
+    }
+
+    const checkAgree = document.getElementsByName('checkAgree');
+    const checkAllCheckbox = document.getElementById('agreeAll');
+    // 전체 동의하게 하는 함수, 전체 해제도 가능
+    checkAllCheckbox.onclick = function() {
+      if(this.checked){
+        for(const cate of checkAgree){
+          cate.checked = true;
+        }
+      }else {
+        for(const cate of checkAgree){
+          cate.checked = false;
+        }
+      }
+    }
+    
+    const agree1Checkboxes = document.querySelectorAll('.agree1');
+    const agree2Checkbox = document.getElementById('agreeAll');
+
+    // agree1 체크박스들을 감시하고 agree2 체크박스 상태를 업데이트
+    for (const checkbox of agree1Checkboxes) {
+      checkbox.addEventListener('change', function () {
+        let allChecked = true;
+        for (const checkbox of agree1Checkboxes) {
+          if (!checkbox.checked) {
+            allChecked = false;
+            break;
+          }
+        }
+        agree2Checkbox.checked = allChecked;
+      });
+    }
+
+    // agree2 체크박스 클릭 시 agree1 체크박스들 상태 업데이트
+    agree2Checkbox.addEventListener('change', function () {
+      const isChecked = agree2Checkbox.checked;
+      for (const checkbox of agree1Checkboxes) {
+        checkbox.checked = isChecked;
+      }
+    });
+
+    const id = document.getElementsByName("memberId")[0];
+    const name = document.getElementsByName("memberName")[0];
+    const nickname = document.getElementsByName("memberNickname")[0];
+    const phone = document.getElementsByName("memberPhone")[0];
+    const password = document.getElementsByName("memberPassword")[0];
+    const passwordCheck = document.getElementById("memberPasswordCheck");
+    const addr = document.getElementsByName("memberAddr")[0];
+    const detailAddr = document.getElementsByName("memberDetailAddr")[0];
+    
+    const msg = document.getElementsByClassName("msg");
+    const nameMsg = document.getElementById("nameMsg");
+    const nicknameMsg = document.getElementById("nicknameMsg");
+    const phoneMsg = document.getElementById("phoneMsg");
+    const passwordMsg = document.getElementById("passwordMsg");
+    const passwordCheckMsg = document.getElementById("passwordCheckMsg");
+    const addrMsg = document.getElementById("addrMsg");
+    const detailAddrMsg = document.getElementById("detailAddrMsg");
+    const dangerDegree = document.getElementById("dangerDegree");
+    
+    const phoneCode = document.getElementById("phoneCode");
+    const phoneCodeMsg = document.getElementById("phoneCodeMsg");
+    
+    const enroll = document.getElementById("enrollMember");
+    const buttons = document.getElementsByName("visibleBtn");
+
+    let code = "";
+    let timerId;
+    let remainingTime = 300; // 5분 = 300초
+    
+    function startTimer() {
+        timerId = setInterval(function() {
+            if (remainingTime > 0) {
+                remainingTime--;
+                updateTimerDisplay(remainingTime);
+            } else {
+                resetCode();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        phoneCodeMsg.innerHTML = `남은 시간: ${minutes}분 ${remainingSeconds}초`;
+        phoneCodeMsg.style.color = 'red';
+    }
+
+    function resetCode() {
+        clearInterval(timerId);
+        remainingTime = 300; // 타이머 초기화
+        code = ""; // 인증번호 초기화
+        phoneCode.value = ""; // 입력된 인증번호 초기화
+        phone.readOnly = false; // 입력란 활성화
+        phoneCodeMsg.innerHTML = "시간이 초과되었습니다. 다시 인증해주세요."; // 인증 메시지 초기화
+        document.getElementById("sendCodeButton").disabled = false; // 인증번호 전송 버튼 활성화
+        document.getElementById("confirmCodeButton").disabled = false; // 확인 버튼 활성화
+    }
+    
+    const sendCode = () => {
+      if(phone.value == ''){
+        return errorModal('발송 실패', '핸드폰 번호를 입력해주세요');
+      } 
+      if(phone.value.length != 13){
+        return errorModal('발송 실패', '핸드폰 번호 11자리를 정확히 입력해주세요');
+      }
+
+      startTimer();
+      $.ajax({
+          type: "POST",
+          url: "sendCode.me",
+          data: { memberPhone : phone.value },
+          cache: false,
+          success: (data) => {
+            if(data == "fail") {
+              return errorModal('발송 실패', '다시 시도해주세요.');
+            } else {
+              phone.readOnly = true; //입력란 비활성화
+              code = data;
+              document.getElementById("sendCodeButton").disabled = true; // 인증번호 전송 버튼 비활성화
+              return successModal('발송 완료', '휴대폰 문자 인증번호를 확인해주세요.');
+            }
+          }
+      });
+    }
+
+    const confirmCode = () => {
+        if(phoneCode.value == code && code != "") {
+            clearInterval(timerId);
+            phoneCodeMsg.innerText = '인증완료'; 
+            phoneCodeMsg.style.color = 'green';
+            phoneCode.readOnly = true;
+            document.getElementById("sendCodeButton").disabled = true;
+            document.getElementById("confirmCodeButton").disabled = true;
+            successModal('인증 성공', '휴대폰 인증이 완료되었습니다.');
+        }else{
+            errorModal('인증 실패', '인증 번호를 다시 확인해주세요.');
+        }
+    }
+
+    const nameRule = (target) => {
+            target.value = target.value.replace(/[^a-zA-Zㄱ-힣]/gi, '');
+    }
+    
+    function searchPostcode() {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          addr.value = data.roadAddress;
+        }
+      }).open();
+    }
+
+    window.onload = () => {
+      name.addEventListener('keyup', function() {
+
+          if(this.value.length >= 10) {
+            nameMsg.innerText = '이름은 10자까지 입력 가능합니다.'
+          } else if(this.value != '') {
+              nameMsg.innerText = '';
+          }
+      });
+      
+      id.addEventListener('keyup', function() {
+        console.log(this.value);
+          
+            $.ajax({
+              url: 'checkId.me',
+              data: { memberId: this.value },
+              success: data => {
+                if(data == 'yes') {
+                  idMsg.innerText = '사용 가능한 아이디입니다.';
+                  idMsg.style.color = 'green';
+                }           
+                if(data == 'no') {
+                  idMsg.innerText = '이미 존재하는 아이디입니다.';
+                  idMsg.style.color = 'red';
+                }
+              }
+            });
+        console.log(idMsg.innerText);
+			});
+      
+      password.addEventListener('keyup', function() {
+        let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})');
+        let mediumPassword = new RegExp('((?=.*[a-zA-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{6,}))|((?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9])(?=.{6,}))|((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,}))');
+        
+        if(this.value.match(strongPassword)) {
+          dangerDegree.style.display = 'inline';
+          passwordMsg.innerText = '[안전]';
+          passwordMsg.style.color = 'green';
+          return;
+        }
+        
+        if(this.value.match(mediumPassword)) {
+          dangerDegree.style.display = 'inline';
+          passwordMsg.innerText = '[보통]';
+          passwordMsg.style.color = 'black';
+          return;
+        }
+        
+        if(this.value == '') {
+          passwordMsg.innerText = '';
+          passwordCheckMsg.innerText = '';
+          passwordMsg.style.color = 'black';
+          return;
+        }
+        
+        if(this.value.length < 4) {
+          passwordMsg.innerText = '최소 4자 이상 입력해주세요.';
+          passwordMsg.style.color = 'red';
+          return;
+        }
+        dangerDegree.style.display = 'inline';
+        passwordMsg.innerText = '[위험]';
+        passwordMsg.style.color = 'red';
+        return;
+        
+      });
+
+      passwordCheck.addEventListener('keyup', function() {
+          if(password.value.length == 0){
+            return passwordCheckMsg.innerText = '';
+          } else if(this.value != password.value  ) {
+            passwordCheckMsg.innerText = '비밀번호가 일치하지 않습니다.';
+            passwordCheckMsg.style.color = 'red';
+            return;
+          } else if(this.value == password.value && password.value != ''){
+            passwordCheckMsg.innerText = '비밀번호가 일치합니다.';
+            passwordCheckMsg.style.color = 'green';
+            return ;
+          }
+      });
+
+      nickname.addEventListener('keyup', function() {
+        if(this.value.trim() == '') {
+          nicknameMsg.innerText = ' ';
+          
+				} else {
+          $.ajax({
+            url: 'checkNickname.me',
+            data: { memberNickname: this.value.trim() },
+            success: data => {
+              if(data == 'yes') {
+                nicknameMsg.innerText = '사용 가능한 닉네임입니다.';
+                nicknameMsg.style.color = 'green';
+              }           
+              if(data == 'no') {
+                nicknameMsg.innerText = '이미 존재하는 닉네임입니다.';
+                nicknameMsg.style.color = 'red';
+              }
+            }
+          });
+        }
+			});
+    }
+    
+    for(const btn of buttons) {
+        btn.addEventListener('mouseover', function() {
+            this.parentElement.querySelector('input').type="text";
+        });
+
+        btn.addEventListener('mouseleave', function() {
+            this.parentElement.querySelector('input').type="password";
+        });
+    }
+
+    document.getElementById("signup").addEventListener("click", () => {
+        checkMemberId();
+    });
+
+    const checkMemberId = ()=> {
+      if(name.value == ''){
+        memberName.focus();
+        return errorModal('회원가입 실패', '이름은 필수 입력사항입니다.')
+      }
+
+      if(id.value == ''){
+        memberId.focus();
+        return errorModal('회원가입 실패', '아이디는 필수 입력사항입니다.')
+      } else {
+        $.ajax({
+            url: 'checkId.me',
+            data: { memberId: id.value.trim() },
+            success: data => {
+              if(data == 'no') {
+                memberId.focus();
+                return errorModal('회원가입 실패', '이미 존재하는 아이디입니다.');
+              }
+            }
+        })
+      } 
+
+      if(password.value == ''){
+        memberPassword.focus();
+        return errorModal('회원가입 실패', '비밀번호는 필수 입력사항입니다.')
+      } else if(password.value.length < 4) {
+        memberPassword.focus();
+        return errorModal('회원가입 실패', '비밀번호는 최소 4자 이상 입력해주세요.');
+      }
+      
+      if(password.value != passwordCheck.value){
+        memberPasswordCheck.focus();
+        return errorModal('회원가입 실패', '비밀번호와 비밀번호 확인이 일치하지 않습니다.')
+      }
+
+      if(nickname.value == ''){
+        memberNickname.focus();
+        return errorModal('회원가입 실패', '닉네임은 필수 입력사항입니다.')
+      } else {
+        $.ajax({
+          url: 'checkNickname.me',
+          data: { memberNickname: nickname.value.trim() },
+          success: data => {
+            if(data == 'no') {
+              nicknameMsg.focus();
+              return errorModal('회원가입 실패', '이미 존재하는 닉네임입니다.')
+            }
+          }
+        });
+      }
+      
+      if(phone.value == ''){
+        phone.focus();
+        return errorModal('회원가입 실패', '핸드폰 번호는 필수 입력사항입니다.')
+      }
+
+      if(phone.value.length != 13) {
+          return errorModal('회원가입 실패', '휴대폰 번호는 11자를 입력해야합니다.');
+      }
+      
+      if(!phoneCode.readOnly){
+        phoneCode.focus();
+        return errorModal('회원가입 실패', '핸드폰 번호 인증을 완료해주세요.')
+      }
+
+      if(!agreeAll.checked){
+        agreeAll.focus();
+        return errorModal('회원가입 실패', '모든 약관에 동의하셔야 합니다.')
+      } else {
+        
+        return Swal.fire({
+          icon: 'success',
+          title: '회원가입 완료',
+          text: '회원가입이 완료되었습니다.',
+        }).then((result) => {
+          enroll.submit();
+        });
+      }
+    }
+    
+    
+    
+  </script>
+  
+  <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+  <!-- Back to Top -->
+  <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+  <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+</body>
+
+</html>

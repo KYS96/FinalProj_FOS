@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kh.slumber.yongseong.notice.model.dao.NotificationDAO">
+
+<resultMap type="MarketNotice" id="noticeResultSet">
+  <id column="EMPLOYEE_BOARD_NO" property="employeeBoardNo"/>
+  <result column="EMPLOYEE_BOARD_TITLE" property="employeeBoardTitle"/>
+  <result column="EMPLOYEE_BOARD_UPDATE" property="employeeBoardUpdate"/>
+  <result column="EMPLOYEE_BOARD_VIEWS" property="employeeBoardViews"/>
+  <result column="EMPLOYEE_BOARD_TYPE" property="employeeBoardType"/>
+  <result column="EMPLOYEE_BOARD_STATUS" property="employeeBoardStatus"/>
+  <result column="EMPLOYEE_BOARD_CONTENT" property="employeeBoardContent"/>
+</resultMap>
+
+<!-- 공지사항 상세정보 가져오기 -->
+<select id="selectDetailNoticePage" resultMap="noticeResultSet">
+  SELECT *
+  FROM EMPLOYEE_BOARD
+  WHERE EMPLOYEE_BOARD_NO = #{employeeBoardNo}
+    AND EMPLOYEE_BOARD_STATUS = 'Y'
+</select>
+
+<!--공지사항 등록하기-->
+<!--관리자 로그인 생기면 번호 수정-->
+<insert id="noticeInsert">
+  INSERT INTO EMPLOYEE_BOARD
+  VALUES(SEQ_BOARD_NO.NEXTVAL, #{employeeBoardTitle}, SYSDATE, 0, 0, 'Y', #{employeeBoardContent})
+</insert>
+
+<!--공지사항 삭제 (상태 값 수정)-->
+<update id="noticeDelete">
+  UPDATE EMPLOYEE_BOARD
+  SET EMPLOYEE_BOARD_STATUS = 'N'
+  WHERE EMPLOYEE_BOARD_NO = #{employeeBoardNo}
+  </update>
+
+  <!--공지사항 수정-->
+  <update id="noticeUpdatePopupConfirm">
+    UPDATE EMPLOYEE_BOARD
+    SET
+        EMPLOYEE_BOARD_TITLE = #{employeeBoardTitle},
+        EMPLOYEE_BOARD_CONTENT = #{employeeBoardContent}
+    WHERE EMPLOYEE_BOARD_NO = #{employeeBoardNo}
+      AND EMPLOYEE_BOARD_TYPE = 0
+  </update>
+
+  <!--공지사항 검색 리스트 전체 개수-->
+  <select id="selectNoticeSearchListCount">
+    SELECT COUNT(*)
+    <if test="category == 'all'">
+    FROM (SELECT * FROM EMPLOYEE_BOARD
+      WHERE EMPLOYEE_BOARD_TITLE LIKE '%${search}%'
+        OR EMPLOYEE_BOARD_CONTENT LIKE '%${search}%')
+    </if>
+    <if test="category != 'all'">
+    FROM (SELECT * FROM EMPLOYEE_BOARD
+      WHERE ${category} LIKE '%${search}%')
+    </if>
+      WHERE EMPLOYEE_BOARD_TYPE = 0
+        AND EMPLOYEE_BOARD_STATUS = 'Y'
+    ORDER BY EMPLOYEE_BOARD_NO DESC
+  </select>
+
+  <!--검색결과 리스트 페이징 받음 -->
+  <select id="selectNoticeSearchList" resultMap="noticeResultSet">
+    SELECT *
+    <if test="category == 'all'">
+    FROM (SELECT * FROM EMPLOYEE_BOARD
+      WHERE EMPLOYEE_BOARD_TITLE LIKE '%${search}%'
+        OR EMPLOYEE_BOARD_CONTENT LIKE '%${search}%')
+    </if>
+    <if test="category != 'all'">
+    FROM (SELECT * FROM EMPLOYEE_BOARD
+      WHERE ${category} LIKE '%${search}%')
+    </if>
+      WHERE EMPLOYEE_BOARD_TYPE = 0
+        AND EMPLOYEE_BOARD_STATUS = 'Y'
+    ORDER BY EMPLOYEE_BOARD_NO DESC
+  </select>
+
+  <!--공지사항 조회수 추가-->
+  <update id="noticeAddCount">
+    UPDATE EMPLOYEE_BOARD
+    SET EMPLOYEE_BOARD_VIEWS = EMPLOYEE_BOARD_VIEWS + 1
+    WHERE EMPLOYEE_BOARD_NO = ${empBoardNo}
+  </update>
+
+</mapper>

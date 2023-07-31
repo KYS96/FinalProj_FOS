@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kh.slumber.admin.model.dao.AdminDAOTemp">
+    <select id="getMemberListCount">
+        SELECT COUNT(*)
+		FROM MEMBER
+		WHERE ${ type } LIKE '%${ keyword }%'
+    </select>
+
+	<select id="getAdminListCount">
+        SELECT COUNT(*)
+		FROM EMPLOYEE
+		WHERE ${ type } LIKE '%${ keyword }%'
+    </select>
+
+    <select id="selectMember" resultMap="memberResultSet">
+        SELECT *
+		FROM MEMBER
+		WHERE ${ type } LIKE '%${ keyword }%'
+        ORDER BY MEMBER_NO
+    </select>
+
+	<select id="selectAdmin" resultMap="adminResultSet">
+        SELECT *
+		FROM EMPLOYEE
+		WHERE ${ type } LIKE '%${ keyword }%'
+        ORDER BY EMPLOYEE_NO
+    </select>
+
+	<update id="updateBlacklist">
+		UPDATE MEMBER
+		SET MEMBER_IS_BLACKLIST = #{ memberIsBlacklist }
+		WHERE MEMBER_NO = #{ memberNo }
+	</update>
+
+	<update id="updateStatus">
+		UPDATE MEMBER
+		SET MEMBER_STATUS = #{ memberStatus }
+		WHERE MEMBER_NO = #{ memberNo }
+	</update>
+
+	<update id="updateAdmin">
+		UPDATE EMPLOYEE
+		SET EMPLOYEE_STATUS = #{ adminStatus }
+		WHERE EMPLOYEE_NO = #{ adminNo }
+	</update>
+
+	<insert id="insertAdmin">
+		INSERT INTO EMPLOYEE
+		VALUES(SEQ_EMPLOYEE_NO.NEXTVAL, #{ adminId }, #{ adminPwd }, #{ adminName }, #{ adminPhone }, DEFAULT)
+	</insert>
+
+	<select id="checkAdminId" resultType="_int">
+		SELECT COUNT(*)
+		FROM EMPLOYEE
+		WHERE EMPLOYEE_ID = #{ adminId }
+	</select>
+
+	<select id="checkAdminPhone" resultType="_int">
+		SELECT COUNT(*)
+		FROM EMPLOYEE
+		WHERE EMPLOYEE_PHONE = #{ adminPhone }
+	</select>
+
+	<update id="updateAdminPwd">
+		UPDATE EMPLOYEE
+		SET EMPLOYEE_PWD = #{ adminPwd }
+		WHERE EMPLOYEE_PHONE = #{ adminPhone }
+	</update>
+
+	<select id="findAdminId" resultMap="adminResultSet">
+		SELECT EMPLOYEE_ID
+		FROM EMPLOYEE
+		WHERE EMPLOYEE_PHONE = #{ adminPhone }
+	</select>
+
+	<select id="memberDetail" resultMap="memberResultSet">
+		SELECT *
+		FROM MEMBER
+		WHERE MEMBER_NO = #{ memberNo }
+	</select>
+
+	<select id="adminDetail" resultMap="adminResultSet">
+		SELECT *
+		FROM EMPLOYEE
+		WHERE EMPLOYEE_NO = #{ adminNo }
+	</select>
+
+    <resultMap type="Member" id="memberResultSet">
+		<id property="memberNo" column="MEMBER_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="memberPassword" column="MEMBER_PASSWORD"/>
+		<result property="memberNickname" column="MEMBER_NICKNAME"/>
+		<result property="memberName" column="MEMBER_NAME"/>
+		<result property="memberPhone" column="MEMBER_PHONE"/>
+		<result property="memberEnrollDate" column="MEMBER_ENROLL_DATE"/>
+		<result property="memberStatus" column="MEMBER_STATUS"/>
+		<result property="memberIsBlacklist" column="MEMBER_IS_BLACKLIST"/>
+		<result property="memberAddr" column="MEMBER_ADDR"/>
+		<result property="memberDetailAddr" column="MEMBER_DETAIL_ADDR"/>
+	</resultMap>
+
+	<resultMap type="Admin" id="adminResultSet">
+		<id property="adminNo" column="EMPLOYEE_NO"/>
+		<result property="adminId" column="EMPLOYEE_ID"/>
+		<result property="adminPwd" column="EMPLOYEE_PWD"/>
+		<result property="adminName" column="EMPLOYEE_NAME"/>
+		<result property="adminPhone" column="EMPLOYEE_PHONE"/>
+		<result property="adminStatus" column="EMPLOYEE_STATUS"/>
+	</resultMap>
+</mapper>

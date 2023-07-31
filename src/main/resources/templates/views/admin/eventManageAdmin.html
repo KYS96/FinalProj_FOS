@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="kor" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <script>
+        function priceToString(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        };
+    </script>
+
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+        
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+            
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+
+            <!-- MAIN CONTENT-->
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid" id="mainContentAdmin">
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-search"></i>이벤트 검색</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div style="text-align: center;">
+                                            <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto;">
+                                                <colgroup>
+                                                    <col style="width:154px;">
+                                                    <col style="width:450px;">
+                                                </colgroup>
+                                                <tbody>
+                                                    <tr>
+                                                        <th style="min-width: 120px;">검색분류</th>
+                                                        <td style="min-width: 400px;">
+                                                            <span>
+                                                                <select id="category">
+                                                                    <option value="event_title">이벤트명</option>
+                                                                    <option value="event_no">이벤트번호</option>
+                                                                    <option value="event_content">이벤트내용</option>
+                                                                </select>
+                                                            </span>
+                                                            <span>
+                                                                <input type="text" id="query">
+                                                            </span>    
+                                                            <button class="btn btn-primary btn-sm" onclick="check();"><i class="bi bi-search"></i>검색</button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>이벤트시작일</th>
+                                                        <td>
+                                                            <select id="selectEventStartDate" onchange="chooseEventStartDate(this)">
+                                                                <option value="all" >전체 기간</option>
+                                                                <option value="choose" >기간 선택</option>
+                                                            </select>
+                                                            <span style="display: none;">
+                                                                <input type="date" id="eventStartDateStart" > ~
+                                                                <input type="date" id="eventStartDateEnd" >
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>이벤트종료일</th>
+                                                        <td>
+                                                            <select id="selectEventEndDate" onchange="chooseEventEndDate(this)">
+                                                                <option value="all" >전체 기간</option>
+                                                                <option value="choose" >기간 선택</option>
+                                                            </select>
+                                                            <span style="display: none;">
+                                                                <input type="date" id="eventEndDateStart" > ~
+                                                                <input type="date" id="eventEndDateEnd" >
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>이벤트활성여부</th>
+                                                        <td>
+                                                            <label><input type="radio" name="selectEventActivity" value="all" checked> 전체</label>
+                                                            <label><input type="radio" name="selectEventActivity" value="Y"> 활성</label>
+                                                            <label><input type="radio" name="selectEventActivity" value="N"> 비활성</label>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>정렬순서</th>
+                                                        <td>
+                                                            <div>
+                                                                <select id="order">
+                                                                    <option value="event_no desc" >최근 등록순</option> 
+                                                                    <option value="event_no asc" >이전 등록순</option> 
+                                                                    <option value="event_start_date asc" >시작일 빠른순</option> 
+                                                                    <option value="event_start_date desc" >시작일 늦은순</option> 
+                                                                    <option value="event_end_date asc" >종료일 빠른순</option> 
+                                                                    <option value="event_end_date desc" >종료일 늦은순</option> 
+                                                                </select> 
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr></tr>
+                                                </tbody>
+                                            </table>
+                                            <br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2"></div> 
+                        </div>
+                        <div class="row" >
+                            <div class="col-1"></div>
+                            <div class="col-10">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40" id="searchedEventList">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-pencil-square"></i>이벤트 빠른 수정</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <h3>검색된 이벤트가 없습니다.</h3>
+                                    </div>
+                                    <div><table><tr><td></td></tr></table></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var msg = /*[[${msg}]]*/ null;
+
+        var selectEventStartDate = document.getElementById("selectEventStartDate");
+        function chooseEventStartDate(element){
+            if(selectEventStartDate.value == 'choose'){
+                element.nextElementSibling.style.display = 'inline';
+            } else{
+                element.nextElementSibling.style.display = 'none';
+            }
+        }
+
+        var selectEventEndDate = document.getElementById("selectEventEndDate");
+        function chooseEventEndDate(element){
+            if(selectEventEndDate.value == 'choose'){
+                element.nextElementSibling.style.display = 'inline';
+            } else{
+                element.nextElementSibling.style.display = 'none';
+            }
+        }
+
+        var eventStartDateStart = document.getElementById("eventStartDateStart");
+        var eventStartDateEnd = document.getElementById("eventStartDateEnd");
+        var eventEndDateStart = document.getElementById("eventEndDateStart");
+        var eventEndDateEnd = document.getElementById("eventEndDateEnd");
+        const check = () =>{
+            if(selectEventStartDate.value != 'all' && (eventStartDateStart.value == '' || eventStartDateEnd.value == '')){
+                Swal.fire({
+                    icon: 'error',
+                    title: '시작 기간또는 종료 기간이 비어있습니다.',
+                    text: '시작 기간과 종료 기간을 모두 입력해주세요'
+                });
+            }else if(selectEventEndDate.value != 'all' && (eventEndDateStart.value == '' || eventEndDateEnd.value == '')){
+                Swal.fire({
+                    icon: 'error',
+                    title: '시작 기간또는 종료 기간이 비어있습니다.',
+                    text: '시작 기간과 종료 기간을 모두 입력해주세요'
+                });
+            }else{
+                getSearchEventList()
+            }
+        }
+        
+        var page = 1;
+        const getSearchEventList = () =>{
+            var searchedEventList = document.getElementById("searchedEventList");
+            var category = document.getElementById("category").value; 
+            var query = document.getElementById("query").value; 
+            var selectEventStartDate = document.getElementById("selectEventStartDate").value; 
+            var eventStartDateStart = document.getElementById("eventStartDateStart").value; 
+            var eventStartDateEnd = document.getElementById("eventStartDateEnd").value; 
+            var selectEventEndDate = document.getElementById("selectEventEndDate").value; 
+            var eventEndDateStart = document.getElementById("eventEndDateStart").value; 
+            var eventEndDateEnd = document.getElementById("eventEndDateEnd").value; 
+            var selectEventActivities = document.getElementsByName("selectEventActivity");
+            var selectEventActivity = 'all';
+            for(let i = 0; i< selectEventActivities.length; i++){
+                if(selectEventActivities[i].checked){
+                    selectEventActivity = selectEventActivities[i].value;
+                }
+            }
+            var order = document.getElementById("order").value; 
+
+            $.ajax({
+                type: 'get',
+                url: 'getSearchEventList.admin',
+                dataType: 'html',
+                data: {
+                    "page" : page,
+                    "category" : category,
+                    "query" : query,
+                    "selectEventStartDate" : selectEventStartDate,
+                    "eventStartDateStart" : eventStartDateStart,
+                    "eventStartDateEnd" : eventStartDateEnd,
+                    "selectEventEndDate" : selectEventEndDate,
+                    "eventEndDateStart" : eventEndDateStart,
+                    "eventEndDateEnd" : eventEndDateEnd,
+                    "selectEventActivity" : selectEventActivity,
+                    "order" : order
+                },
+                success: data =>{
+                    searchedEventList.innerHTML = data;
+                }
+            });
+        }
+        $(document).on('click', '.page-link', function () {
+            page = $(this).attr('data-page');
+            getSearchEventList(); 
+        });
+
+
+
+        const changeEvent = (element) =>{
+            var eventType = element.getAttribute('data-type');
+            var eventNo = element.parentElement.parentElement.children[0].innerText;
+            var selectedEventStartDate = element.parentElement.parentElement.children[3].children[0].value;
+            var selectedEventEndDate = element.parentElement.parentElement.children[4].children[0].value;
+            var selectedValue = '';
+            if(element.tagName == 'BUTTON'){
+                selectedValue = element.innerText;
+                $.ajax({
+                    type: "GET",
+                    url: 'changeEvent.admin',
+                    data: {selectedValue: selectedValue, 
+                            eventNo: eventNo, 
+                            eventType: eventType, 
+                            selectedEventStartDate: selectedEventStartDate, 
+                            selectedEventEndDate: selectedEventEndDate},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '이벤트 수정이 실패했습니다.',
+                                text: '동일기간 하나의 상품에 한가지 이벤트만 적용 가능합니다. 중복된 상품번호 : ' + data.errorMsg
+                            });
+                        }else if(data.error == 'error2'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '이벤트 수정이 실패했습니다.'
+                            });
+                        }else{
+                            element.innerText = data.changedValue;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '이벤트 변경 완료'
+                            });
+                        }
+                    }
+                });
+            }else{
+                selectedValue = element.value;
+                var hiddenValue = element.nextElementSibling;
+                if(hiddenValue.value != selectedValue && selectedValue != ""){
+                    $.ajax({
+                        type: "GET",
+                        url: 'changeEvent.admin',
+                        data: {selectedValue: selectedValue, 
+                                eventNo: eventNo, 
+                                eventType: eventType,
+                                selectedEventStartDate: selectedEventStartDate, 
+                                selectedEventEndDate: selectedEventEndDate},
+                        dataType: 'json',
+                        success: data =>{
+                            if(data.error == 'error'){
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '이벤트 수정이 실패했습니다.',
+                                    text: '동일기간 하나의 상품에 한가지 이벤트만 적용 가능합니다. 중복된 상품번호 : ' + data.errorMsg
+                                });
+                            }else{
+                                selectedValue = data.changedValue;
+                                hiddenValue.value = data.changedValue;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '이벤트 변경 완료'
+                            });
+                            }
+                        }
+                    });
+                }
+            }
+        }
+        
+        $(document).ready(function(){
+            if(msg == 'success'){
+                Swal.fire({
+                    icon: 'success',
+                    title: '이벤트 수정에 성공했습니다.'
+                })
+            }
+        });
+        /*]]>*/
+    </script>    
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    
+</body>
+
+</html>

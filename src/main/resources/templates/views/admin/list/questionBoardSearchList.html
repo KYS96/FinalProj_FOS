@@ -1,0 +1,47 @@
+<th:block th:if="${list == null}">
+    <h3>검색 결과가 없습니다.</h3>
+</th:block>
+<th:block th:if="${list != null}">
+    <table class="table">
+        <thead class="bg-light">
+            <tr>
+                <th style="min-width: 150px; max-width: 200px;">상품명</th>
+                <th style="min-width: 150px; max-width: 200px;">제목</th>
+                <th style="min-width: 150px; max-width: 200px;">작성자</th>
+                <th style="min-width: 150px; max-width: 200px;">작성일</th>
+                <th style="min-width: 150px; max-width: 200px;">상태</th>
+            </tr>
+        </thead>
+        <tbody th:each="a : ${list}">
+            <tr onclick="questionBoardDetail(this)" style="cursor: pointer;">
+                <input type="hidden" th:value="${a.questionNo}">
+                <input type="hidden" th:value="${a.memberNo}">
+                <input type="hidden" th:value="${a.productNo}">
+                <td>[[${a.productName}]]</td>
+                <td>[[${a.questionTitle}]]</td>
+                <td>[[${a.memberName}]]</td>
+                <td>[[${a.questionUpdateDate}]]</td>
+                <td>
+                    <th:block  th:text="${a.questionAnswer == null ? '답변대기' : '답변완료'}"></th:block>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="mx-auto bg-white" th:if="${pi != null}">
+        <ul class="pagination mx-auto justify-content-center p-3">
+            <li class="page-item" th:if="${pi.currentPage > 1}">
+                <span class="page-link" th:data-page="${pi.currentPage - 1}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </span>
+            </li>
+            <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}">
+                <span class="page-link" th:data-page="${p}" th:text="${p}"></span>
+            </li>
+            <li class="page-item" th:if="${pi.currentPage &lt pi.maxPage}">
+                <span class="page-link" th:data-page="${pi.currentPage + 1}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </span>
+            </li>
+        </ul>
+    </div> 
+</th:block>

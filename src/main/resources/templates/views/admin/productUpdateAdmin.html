@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="kor" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <script>
+        function priceToString(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        };
+    </script>
+
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+        
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+            
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+
+            <!-- MAIN CONTENT-->
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col-9">
+                        <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                            <div class="au-card-title">
+                                <div class="bg-overlay bg-overlay--blue"></div>
+                                <h3><i class="bi bi-search"></i>상품 검색</h3>
+                            </div>
+                            <div class="au-task js-list-load cardInnerText">
+                                <form action="searchProduct.admin" method="get">
+                                    <div style="text-align: center;">
+                                        <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto;">
+                                            <colgroup>
+                                                <col style="width:154px;">
+                                                <col style="width:450px;">
+                                            </colgroup>
+                                            <tbody>
+                                                <tr>
+                                                    <th style="min-width: 100px;">검색분류</th>
+                                                    <td style="min-width: 400px;">
+                                                        <span>
+                                                            <select name="category">
+                                                                <option value="product_name" th:selected="${sc.category == null || sc.category == 'product_name'}">상품명</option>
+                                                                <option value="product_no" th:selected="${sc.category == 'product_no'}">상품번호</option>
+                                                                <option value="product_explain" th:selected="${sc.category == 'product_explain'}">상품설명</option>
+                                                            </select>
+                                                        </span>
+                                                        <span>
+                                                            <input type="text" name="query" th:value="${sc.query}">
+                                                        </span>    
+                                                        <button class="btn btn-primary btn-sm" onclick="return check()"><i class="bi bi-search"></i>검색</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>상품분류</th>
+                                                    <td>
+                                                        <div>
+                                                            <label>
+                                                                <input type="checkbox" name="productCategoryNoList" value="all" th:checked="${sc.productCategoryNoList == null}" onchange="checkBoxesAllCheck()"> 전체
+                                                            </label>
+                                                            <label>
+                                                                <input type="checkbox" name="productCategoryNoList" value="P01" th:checked="${sc.productCategoryNoList != null && sc.productCategoryNoList.contains('P01')}" onchange="checkBoxesCheck()"> 침대
+                                                            </label>
+                                                            <label>
+                                                                <input type="checkbox" name="productCategoryNoList" value="P02" th:checked="${sc.productCategoryNoList != null && sc.productCategoryNoList.contains('P02')}" onchange="checkBoxesCheck()"> 베개
+                                                            </label>
+                                                            <label>
+                                                                <input type="checkbox" name="productCategoryNoList" value="P03" th:checked="${sc.productCategoryNoList != null && sc.productCategoryNoList.contains('P03')}" onchange="checkBoxesCheck()"> 이불
+                                                            </label>
+                                                            <label>
+                                                                <input type="checkbox" name="productCategoryNoList" value="P04" th:checked="${sc.productCategoryNoList != null && sc.productCategoryNoList.contains('P04')}" onchange="checkBoxesCheck()"> 의류
+                                                            </label>
+                                                            <label>
+                                                                <input type="checkbox" name="productCategoryNoList" value="P05" th:checked="${sc.productCategoryNoList != null && sc.productCategoryNoList.contains('P05')}" onchange="checkBoxesCheck()"> 건강
+                                                            </label>
+                                                            <label>
+                                                                <input type="checkbox" name="productCategoryNoList" value="P06" th:checked="${sc.productCategoryNoList != null && sc.productCategoryNoList.contains('P06')}" onchange="checkBoxesCheck()"> 굿즈
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>상품등록일</th>
+                                                    <td>
+                                                        <select name="selectResistDate" id="selectResistDate" onchange="chooseResistDate()">
+                                                            <option value="all" th:selected="${sc.selectResistDate == null || sc.selectResistDate == 'all'}">전체 기간</option>
+                                                            <option value="choose" th:selected="${sc.selectResistDate == 'choose'}">기간 선택</option>
+                                                        </select>
+                                                        <span id="chooseProductResistDate" th:style="${sc.selectResistDate == 'choose' ? 'display:inline' : 'display:none'}">
+                                                            <input type="date" name="productResistDateStart" th:value="${sc.productResistDateStart == null ? '' : sc.productResistDateStart}"> ~
+                                                            <input type="date" name="productResistDateEnd" th:value="${sc.productResistDateEnd == null ? '' : sc.productResistDateEnd}">
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>상품수정일</th>
+                                                    <td>
+                                                        <select name="selectUpdate" id="selectUpdate" onchange="chooseUpDate()">
+                                                            <option value="all" th:selected="${sc.selectUpdate == null || sc.selectUpdate == 'all'}">전체 기간</option>
+                                                            <option value="choose" th:selected="${sc.selectUpdate == 'choose'}">기간 선택</option>
+                                                        </select>
+                                                        <span id="chooseProductUpDate" th:style="${sc.selectUpdate == 'choose' ? 'display:inline' : 'display:none'}">
+                                                            <input type="date" name="productUpdateStart" th:value="${sc.productUpdateStart == null ? '' : sc.productUpdateStart}"> ~
+                                                            <input type="date" name="productUpdateEnd" th:value="${sc.productUpdateEnd == null ? '' : sc.productUpdateEnd}">
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>진열상태</th>
+                                                    <td>
+                                                        <label><input type="radio" name="selectProductStatus" value="all" th:checked="${sc.selectProductStatus == null || sc.selectProductStatus == 'all'}"> 전체</label>
+                                                        <label><input type="radio" name="selectProductStatus" value="Y" th:checked="${sc.selectProductStatus == 'Y'}"> 진열함</label>
+                                                        <label><input type="radio" name="selectProductStatus" value="N" th:checked="${sc.selectProductStatus == 'N'}"> 진열안함</label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>정렬순서</th>
+                                                    <td>
+                                                        <div>
+                                                            <select name="order"> 
+                                                                <option value="product_sales desc" th:selected="${sc.order == null || sc.order == 'product_sales desc'}">판매량 많은순</option> 
+                                                                <option value="product_sales asc" th:selected="${sc.order == 'product_sales asc'}">판매량 적은순</option> 
+                                                                <option value="product_price desc" th:selected="${sc.order == 'product_price desc'}">가격 높은순</option> 
+                                                                <option value="product_price asc" th:selected="${sc.order == 'product_price asc'}">가격 낮은순</option> 
+                                                                <option value="product_resist_date asc" th:selected="${sc.order == 'product_resist_date desc'}">등록일 빠른순</option> 
+                                                                <option value="product_resist_date desc" th:selected="${sc.order == 'product_resist_date asc'}">등록일 늦은순</option> 
+                                                                <option value="product_update asc" th:selected="${sc.order == 'product_update desc'}">수정일 빠른순</option> 
+                                                                <option value="product_update desc" th:selected="${sc.order == 'product_update asc'}">수정일 늦은순</option> 
+                                                            </select> 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr></tr>
+                                            </tbody>
+                                        </table>
+                                        <br>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2"></div> 
+                </div>
+                <div class="row" >
+                    <div class="col-1"></div>
+                    <div class="col-10">
+                        <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                            <div class="au-card-title">
+                                <div class="bg-overlay bg-overlay--blue"></div>
+                                <h3><i class="bi bi-pencil-square"></i>상품 빠른 수정</h3>
+                            </div>
+                            <div class="au-task js-list-load cardInnerText" th:if="${list == null || list.size == 0}">
+                                <h3>검색된 상품이 없습니다.</h3>
+                            </div>
+                            <div class="au-task js-list-load cardInnerText" th:if="${!(list == null || list.size == 0)}">
+                                ※상품번호를 누르면 판매 페이지로 이동합니다.
+                                <br><br>
+                                <div style="text-align: center; overflow-x: scroll;">
+                                    <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto;">
+                                        <thead>
+                                            <tr>
+                                                <th>상품 번호</th>
+                                                <th>이미지</th>
+                                                <th>분류</th>
+                                                <th>이름</th>
+                                                <th>가격</th>
+                                                <th>상품 재고</th>
+                                                <th>등록일/수정일</th>
+                                                <th>진열 상태</th>
+                                                <th>상세 수정</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <th:block th:each="p, pStat : ${list}">
+                                                <tr>
+                                                    <td><a th:href="@{productDetail(productNo=${p.productNo})}">[[${p.productNo}]]</a></td>
+                                                    <td style="min-width: 150px;">
+                                                        <img th:src="${p.productImage}" width="150px" height="150px">
+                                                    </td>
+                                                    <td>
+                                                        <select name="productCategoryNo" onchange="changeProductCategory(this)" th:data-productNo="${p.productNo}">
+                                                            <option value="P01" th:selected="${p.productCategoryNo == 'P01'}">침대</option>
+                                                            <option value="P02" th:selected="${p.productCategoryNo == 'P02'}">배게</option>
+                                                            <option value="P03" th:selected="${p.productCategoryNo == 'P03'}">이불</option>
+                                                            <option value="P04" th:selected="${p.productCategoryNo == 'P04'}">의류</option>
+                                                            <option value="P05" th:selected="${p.productCategoryNo == 'P05'}">건강</option>
+                                                            <option value="P06" th:selected="${p.productCategoryNo == 'P06'}">굿즈</option>
+                                                        </select>
+                                                    </td>
+                                                    <td style="width: 300px;">
+                                                        <input th:value="${p.productName}" onblur="changeProductName(this)" th:data-productNo="${p.productNo}" th:data-pCount="${pStat.count}" style="width: 300px;">
+                                                        <input type="hidden" th:value="${p.productName}" th:id="'hiddenProductName' + ${pStat.count}"> 
+                                                    </td>
+                                                    <td style="width: 100px;">
+                                                        <input type="number" th:value="${p.productPrice}" onchange="changePriceToString(this);" onblur="changeProductPrice(this);" th:data-productNo="${p.productNo}" th:data-pCount="${pStat.count}" style="width: 100px;"><br>
+                                                        <span th:id="'changedPriceToString' + ${pStat.count}" th:text="${#numbers.formatInteger(p.productPrice, 1, 'COMMA') + '원'}"></span>
+                                                        <input type="hidden" th:value="${p.productPrice}" th:id="'hiddenProductPrice' + ${pStat.count}"> 
+                                                    </td>
+                                                    <td style="width: 100px;">
+                                                        <input type="number" th:value="${p.productStock}" onchange="changeStockToString(this)" onblur="changeProductStock(this);" th:data-productNo="${p.productNo}" th:data-pCount="${pStat.count}" style="width: 80px;"><br>
+                                                        <span th:id="'changedStockToString' + ${pStat.count}" th:text="${#numbers.formatInteger(p.productStock, 1, 'COMMA') + '개'}"></span>
+                                                        <input type="hidden" th:value="${p.productStock}" th:id="'hiddenProductStock' + ${pStat.count}"> 
+                                                    </td>
+                                                    <td>
+                                                        <div th:if="${p.productResistDate != null}" style="min-width: 100px;">[[${p.productResistDate}]]</div>
+                                                        <hr>
+                                                        <div th:if="${p.productUpdate != null}" style="min-width: 100px;">[[${p.productUpdate}]]</div>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-primary btn-sm" th:data-productNo="${p.productNo}" th:text="${p.productStatus} == 'Y' ? '진열 중' : '미진열'" onclick="changeProductStatus(this)">
+                                                        </button>
+                                                    </td>
+                                                    <td>
+                                                        <form method="post" action="productUpdateDetail.admin">
+                                                            <button class="btn btn-warning btn-sm" onclick="">수정 페이지</button>
+                                                            <input type="hidden" name="selectProductNo" th:value="${p.productNo}">
+                                                            <input type="hidden" name="page" th:value="${pi.currentPage}">
+                                                            <input type="hidden" name="category" th:value="${sc.category}">
+                                                            <input type="hidden" name="query" th:value="${sc.query}">
+                                                            <input type="hidden" name="order" th:value="${sc.order}">
+                                                            <input type="hidden" name="productCategoryNoList" th:value="${sc.productCategoryNoList}">
+                                                            <input type="hidden" name="selectResistDate" th:value="${sc.selectResistDate}">
+                                                            <input type="hidden" name="selectProductStatus" th:value="${sc.selectProductStatus}">
+                                                            <input type="hidden" name="productResistDateStart" th:value="${sc.productResistDateStart}">
+                                                            <input type="hidden" name="productResistDateEnd" th:value="${sc.productResistDateEnd}">
+                                                            <input type="hidden" name="selectUpdate" th:value="${sc.selectUpdate}">
+                                                            <input type="hidden" name="productUpdateStart" th:value="${sc.productUpdateStart}">
+                                                            <input type="hidden" name="productUpdateEnd" th:value="${sc.productUpdateEnd}">
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            </th:block>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mx-auto bg-white" th:if="${pi != null}">
+                                    <ul class="pagination mx-auto justify-content-center p-3">
+                                        <li class="page-item" th:if="${pi.currentPage > 1}">
+                                            <a class="page-link" th:href="@{${loc}(page=${pi.currentPage - 1}, category=${sc.category}, query=${sc.query}, order=${sc.order}
+                                                                            , productCategoryNoList=${sc.productCategoryNoList}, selectResistDate=${sc.selectResistDate}, selectProductStatus=${sc.selectProductStatus}
+                                                                            , productResistDateStart=${sc.productResistDateStart}, productResistDateEnd=${sc.productResistDateEnd}
+                                                                            , selectUpdate=${sc.selectUpdate}, productUpdateStart=${sc.productUpdateStart}, productUpdateEnd=${sc.productUpdateEnd}
+                                                                            )}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}">
+                                            <a class="page-link" th:href="@{${loc}(page=${p}, category=${sc.category}, query=${sc.query}, order=${sc.order}
+                                                                            , productCategoryNoList=${sc.productCategoryNoList}, selectResistDate=${sc.selectResistDate}, selectProductStatus=${sc.selectProductStatus}
+                                                                            , productResistDateStart=${sc.productResistDateStart}, productResistDateEnd=${sc.productResistDateEnd}
+                                                                            , selectUpdate=${sc.selectUpdate}, productUpdateStart=${sc.productUpdateStart}, productUpdateEnd=${sc.productUpdateEnd}
+                                                                            )}" th:text="${p}"></a>
+                                        </li>
+
+                                        <li class="page-item" th:if="${pi.currentPage &lt pi.maxPage}">
+                                            <a class="page-link" th:href="@{${loc}(page=${pi.currentPage + 1}, category=${sc.category}, query=${sc.query}, order=${sc.order}
+                                                                            , productCategoryNoList=${sc.productCategoryNoList}, selectResistDate=${sc.selectResistDate}, selectProductStatus=${sc.selectProductStatus}
+                                                                            , productResistDateStart=${sc.productResistDateStart}, productResistDateEnd=${sc.productResistDateEnd}
+                                                                            , selectUpdate=${sc.selectUpdate}, productUpdateStart=${sc.productUpdateStart}, productUpdateEnd=${sc.productUpdateEnd}
+                                                                            )}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var msg = /*[[${msg}]]*/ null;
+
+        var checkBoxes = document.getElementsByName("productCategoryNoList");
+        const checkBoxesCheck = () =>{
+            var checkAll = 0;
+            for(let i = 1; i < checkBoxes.length; i++){
+                if(checkBoxes[i].checked){
+                    checkBoxes[0].checked = false;
+                    checkAll++;
+                }
+            }
+            if(checkAll == 6){
+                checkBoxes[0].checked = true;
+                for(let i = 1; i < checkBoxes.length; i++){
+                    checkBoxes[i].checked = false;
+                }
+            }
+        }
+
+        const checkBoxesAllCheck = () =>{
+            if(checkBoxes[0].checked){
+                for(let i = 1; i < checkBoxes.length; i++){
+                    checkBoxes[i].checked = false;
+                }
+            }
+        }
+
+        var selectResistDate = document.getElementById("selectResistDate");
+        function chooseResistDate(){
+            var chooseProductResistDate = document.getElementById("chooseProductResistDate");
+            if(selectResistDate.value == 'choose'){
+                chooseProductResistDate.style.display = 'inline';
+            } else{
+                chooseProductResistDate.style.display = 'none';
+            }
+        }
+
+        var selectUpdate = document.getElementById("selectUpdate");
+        function chooseUpDate(){
+            var chooseProductUpDate = document.getElementById("chooseProductUpDate");
+            if(selectUpdate.value == 'choose'){
+                chooseProductUpDate.style.display = 'inline';
+            } else{
+                chooseProductUpDate.style.display = 'none';
+            }
+        }
+
+        var productResistDateStart = document.getElementsByName("productResistDateStart")[0];
+        var productResistDateEnd = document.getElementsByName("productResistDateEnd")[0];
+        var productUpdateStart = document.getElementsByName("productUpdateStart")[0];
+        var productUpdateEnd = document.getElementsByName("productUpdateEnd")[0];
+        const check = () =>{
+            var checkAll = 0;
+            for(let i = 0; i < checkBoxes.length; i++){
+                if(checkBoxes[i].checked){
+                    checkAll++;
+                }
+            }
+            if(checkAll <= 0){
+                Swal.fire({
+                    icon: 'error',
+                    title: '선택된 상품 분류가 없습니다.',
+                    text: '최소 한 개의 상품 분류를 선택해주세요'
+                });
+                return false;
+            }
+            
+            if(selectResistDate.value != 'all' && (productResistDateStart.value == '' || productResistDateEnd.value == '')){
+                Swal.fire({
+                    icon: 'error',
+                    title: '시작 기간또는 종료 기간이 비어있습니다.',
+                    text: '시작 기간과 종료 기간을 모두 입력해주세요'
+                });
+                return false;
+            }
+
+            if(selectUpdate.value != 'all' && (productUpdateStart.value == '' || productUpdateEnd.value == '')){
+                Swal.fire({
+                    icon: 'error',
+                    title: '시작 기간또는 종료 기간이 비어있습니다.',
+                    text: '시작 기간과 종료 기간을 모두 입력해주세요'
+                });
+                return false;
+            }
+
+            return true;
+            
+        }
+
+        const changeProductStatus = (element) =>{
+            var productNo = "" + element.getAttribute('data-productNo');
+            var productStatus = element.innerText;
+            $.ajax({
+                type: "GET",
+                url: 'changeProductStatus.admin',
+                data: {productStatus: productStatus, productNo: productNo},
+                dataType: 'json',
+                success: data =>{
+                    if(data.error != null && data.error == 'error'){
+                        Swal.fire({
+                            icon: 'error',
+                            title: '진열여부 변경 실패'
+                        });
+                    }else{
+                        element.innerText = data.changedProductStatus;
+                        Swal.fire({
+                            icon: 'success',
+                            title: '진열여부 변경 완료'
+                        });
+                    }
+                }
+                });
+        }
+
+        const changeProductCategory = (element) =>{
+            var productNo = "" + element.getAttribute('data-productNo');
+            var selectedProductCategory = element.value;
+            $.ajax({
+                type: "GET",
+                url: 'changeProductCategory.admin',
+                data: {selectedProductCategory: selectedProductCategory, productNo: productNo},
+                dataType: 'json',
+                success: data =>{
+                    if(data.error != null && data.error == 'error'){
+                        element.value = data.changedProductCategory;
+                        Swal.fire({
+                            icon: 'error',
+                            title: '카테고리 변경 실패'
+                        });
+                    }else{
+                        element.value = data.changedProductCategory;
+                        Swal.fire({
+                            icon: 'success',
+                            title: '카테고리 변경 완료'
+                        });
+                    }
+                }
+            });
+        }
+
+        const changeProductName = (element) =>{
+            var pCount = "" + element.getAttribute('data-pCount');
+            var productNo = "" + element.getAttribute('data-productNo');
+            var selectedProductName = element.value;
+            var hiddenProductNameId = 'hiddenProductName' + pCount;
+            var hiddenProductName = document.getElementById(hiddenProductNameId);
+            if(hiddenProductName.value != selectedProductName && selectedProductName != ""){
+                $.ajax({
+                    type: "GET",
+                    url: 'changeProductName.admin',
+                    data: {selectedProductName: selectedProductName, productNo: productNo},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '상품명 변경 실패'
+                            });
+                        }else{
+                            selectedProductName = data.changedProductName;
+                            hiddenProductName.value = data.changedProductName;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '상품명 변경 완료'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        const changePriceToString = (element) =>{
+            var pCount = "" + element.getAttribute('data-pCount');
+            var changedPriceToStringId = 'changedPriceToString' + pCount;
+            var changedPriceToString = document.getElementById(changedPriceToStringId);
+            if(element.value != element.getAttribute('data-productPrice')){
+                var changedPriceToStringText = element.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
+                changedPriceToString.innerText = changedPriceToStringText;
+            }
+        }
+
+        const changeStockToString = (element) =>{
+            var pCount = "" + element.getAttribute('data-pCount');
+            var changedStockToStringId = 'changedStockToString' + pCount;
+            var changedStockToString = document.getElementById(changedStockToStringId);
+            if(element.value != element.getAttribute('data-productPrice')){
+                var changedStockToStringText = element.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '개';
+                changedStockToString.innerText = changedStockToStringText;
+            }
+        }
+
+        const changeProductPrice = (element) =>{
+            var pCount = "" + element.getAttribute('data-pCount');
+            var productNo = "" + element.getAttribute('data-productNo');
+            var selectedProductPrice = element.value;
+            var hiddenProductPriceId = 'hiddenProductPrice' + pCount;
+            var hiddenProductPrice = document.getElementById(hiddenProductPriceId);
+            if(hiddenProductPrice.value != selectedProductPrice && selectedProductPrice != "" && Number(selectedProductPrice) > 0){
+                $.ajax({
+                    type: "GET",
+                    url: 'changeProductPrice.admin',
+                    data: {selectedProductPrice: selectedProductPrice, productNo: productNo},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '상품가격 변경 실패'
+                            });
+                        }else{
+                            selectedProductPrice = data.changedProductPrice;
+                            hiddenProductPrice.value = data.changedProductPrice;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '상품가격 변경 완료'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        const changeProductStock = (element) =>{
+            var pCount = "" + element.getAttribute('data-pCount');
+            var productNo = "" + element.getAttribute('data-productNo');
+            var selectedProductStock = element.value;
+            var hiddenProductStockId = 'hiddenProductStock' + pCount;
+            var hiddenProductStock = document.getElementById(hiddenProductStockId);
+            if(hiddenProductStock.value != selectedProductStock && selectedProductStock != "" && Number(selectedProductStock) >= 0){
+                $.ajax({
+                    type: "GET",
+                    url: 'changeProductStock.admin',
+                    data: {selectedProductStock: selectedProductStock, productNo: productNo},
+                    dataType: 'json',
+                    success: data =>{
+                        if(data.error != null && data.error == 'error'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: '상품재고 변경 실패'
+                            });
+                        }else{
+                            selectedProductStock = data.changedProductStock;
+                            hiddenProductStock.value = data.changedProductStock;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '상품재고 변경 완료'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function(){
+            if(msg == 'success'){
+                Swal.fire({
+                    icon: 'success',
+                    title: '상품 수정에 성공했습니다..'
+                })
+            }
+        });
+        /*]]>*/
+    </script>    
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    
+</body>
+
+</html>

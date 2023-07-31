@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+
+<body>
+    <div class="container-fluid mb-0" th:fragment="mainTop">
+        <div class="row bg-teamcolor1 py-2 px-xl-5 border-teamcolor">
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="d-inline-flex align-items-center">
+                    <a href="FAQ.faq"><b>FAQ</b></a>
+                    <span class="text-muted px-2">|</span>
+                    <a href="notice.no"><b>공지사항</b></a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center text-lg-right">
+                <div class="d-inline-flex align-items-center">
+                    <a class="text-teamcolor px-2" id="alarm"></a>
+                    <a class="text-teamcolor px-2">
+                        <a class="text-teamcolor pr-1" href="myCart"><i class="fas fa-shopping-cart"></i></a>
+                        <span class="badge text-teamcolor-nh pr-3" id="cartNum"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center bg-teamcolor1 py-3 px-xl-5">
+            <div class="col-lg-3 d-none d-lg-block">
+                <a href="/" class="text-decoration-none">
+                    <h1 class="m-0 display-5 font-weight-semi-bold text-white text-decoration-none">
+                        <span><img class="border-4" src="market_assets/img/logo.png" width="55" height="55"/></span>
+                        &nbsp;수면의 숲
+                    </h1>
+                </a>
+            </div>
+            <div class="col-lg-6 col-6 text-left">
+                <!-- <form action="shop" id="searchForm">
+                    <div class="input-group border-1">
+                        <input type="text" name="keyword" class="form-control" placeholder="검색어를 입력해주세요">
+                        <a id="searchBtn" class="input-group-append bg-teamcolor1">
+                            <span class="input-group-text bg-transparent text-teamcolor">
+                                <i class="fa fa-search"></i>
+                            </span>
+                        </a>
+                    </div>
+                </form> -->
+            </div>
+            <div class="col-lg-3 col-6 d-none d-lg-block text-right pr-0" th:if="${session.loginUser == null}">
+                <div class="d-inline-flex align-items-center">
+                    <a href="loginView.me" class="nav-item nav-link"><b>로그인</b></a>
+                    <a href="enroll.me" class="nav-item nav-link"><b>회원가입</b></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6 d-none d-lg-block text-right pr-0" th:unless="${session.loginUser == null}">
+                <div class="d-inline-flex align-items-center">
+                    <a href="myPage.me" class="nav-item nav-link" th:unless="${session.loginUser.memberNickname == '관리자'}"><b>[[${ session.loginUser.memberNickname }]] 님 마이페이지</b></a>
+                    <a href="statisticMain.admin" class="nav-item nav-link" th:if="${session.loginUser.memberNickname == '관리자'}"><b>관리자 페이지</b></a>
+                    <a href="logout.me" class="nav-item nav-link"><b>로그아웃</b></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

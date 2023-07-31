@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+</head>
+<body style="width: 100%; height: 100%; margin: 0;" th:if="${key == null}">
+    <div style="width: 100%; height: 50px; display: flex; justify-content: flex-start; align-items: center; font-size: 18px; background-color: #1C3761; color:white; margin-bottom: 1rem; text-indent: 1.5rem;">상품 Q&A작성하기</div>
+    <div style="width: 90%; margin-left: 5%; margin-top: 2rem; margin-bottom: 2rem;">
+        <form action="writeQnA" method="POST" id="QnAForm">
+            <input type="hidden" name="productNo" th:value="${productNo}">
+            <div style="width: 100%; border: 1px solid lightgray; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <input type="text" name="QnATitle" placeholder="문의 제목을 입력해주세요" style="width:95%; border: none; outline: none;">
+            </div>
+            <div style="width: 100%; border: 1px solid lightgray; height: 200px; display: flex; justify-content: center; align-items: center; margin-top: 1.5rem;">
+                <textarea name="QnAContent" placeholder="문의하실 내용을 입력하세요" style="width: 95%; height: 95%; resize: none; border: none; outline: none;"></textarea>
+            </div>
+        </form>
+    </div>
+    <hr>
+    <div style="width: 90%; margin-left: 5%; margin-bottom: 2rem;">
+        <div style="font-size: 15px;">문의하신 내용에 대한 답변은 해당 상품의 상세페이지 또는 마이페이지에서 확인하실 수 있습니다. </div>
+    </div>
+    <div style="display: flex; justify-content: center; align-items: center; margin-top: 1rem;">
+        <button style="border: 1px solid lightgray; outline:none; width: 45%; height: 50px; background-color: white;">취소</button>
+        <button type="button" onclick="sumbit()" style="border: 1px solid lightgray; outline:none; width: 45%; height: 50px; background-color: white;">등록</button>
+    </div>
+    <div style="width: 100%; height: auto; background-color: rgb(240, 240, 240); margin-top: 2rem;">
+        <div style="width: 90%; margin-left: 5%; display: flex;">
+            <div style="color:black; margin-top: 1rem;">상품Q&A작성 유의사항</div>
+        </div>
+        <hr>
+        <div style="width: 90%; margin-left: 5%;">
+            <div style="color:gray; font-size:14px;">상품 Q&A는 상품 및 상품 구매 과정(배송, 반품/취소, 교환/변경)에 대해 판매자에게 문의하는 게시판입니다.</div>
+            <div style="color:gray; font-size:14px;">상품 및 상품 구매 과정과 관련 없는 비방/욕설/명예훼손성 게시글 및 상품과 관련 없는 광고글 등 부적절한 게시글 등록 시 글쓰기 제한 및 게시글이 삭제 조치 될 수 있습니다.</div>
+            <div style="color:gray; font-size:14px;">전화번호, 이메일 등 개인 정보가 포함된 글 작성이 필요한 경우 판매자만 볼 수 있도록 비밀글로 문의해 주시기 바랍니다.</div>
+            <div style="color:gray; font-size:14px; height: 50px;">상품에 대한 이용 후기는 리뷰에 남겨 주세요.</div>
+        </div>
+    </div>
+</body>
+
+
+<body style="width: 100%; height: 100%; margin: 0;" th:if="${key != null}">
+    <div style="width: 100%; height: 50px; display: flex; justify-content: flex-start; align-items: center; font-size: 18px; background-color: #1C3761; color:white; margin-bottom: 1rem; text-indent: 1.5rem;">상품 Q&A작성하기</div>
+    <div style="width: 90%; margin-left: 5%; margin-top: 2rem; margin-bottom: 2rem; display: flex; justify-content: center; align-items: center; height: 340px;">
+        <!-- <form action="writeQnA" id="QnAForm">
+            <input type="hidden" name="productNo" th:value="${productNo}">
+            <div style="width: 100%; border: 1px solid lightgray; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <input type="text" name="QnATitle" placeholder="문의 제목을 입력해주세요" style="width:95%; border: none; outline: none;">
+            </div>
+            <div style="width: 100%; border: 1px solid lightgray; height: 200px; display: flex; justify-content: center; align-items: center; margin-top: 1.5rem;">
+                <textarea name="QnAContent" placeholder="문의하실 내용을 입력하세요" style="width: 95%; height: 95%; resize: none; border: none; outline: none;"></textarea>
+            </div>
+        </form> -->
+        <h1>문의 등록에 성공하였습니다.</h1>
+    </div>
+    <hr>
+    <!-- <div style="width: 90%; margin-left: 5%; margin-bottom: 2rem;">
+        <div style="font-size: 15px;">문의하신 내용에 대한 답변은 해당 상품의 상세페이지 또는 마이페이지에서 확인하실 수 있습니다. </div>
+    </div> -->
+    <div style="display: flex; justify-content: center; align-items: center; margin-top: 1rem;">
+        <button onclick="popupClose()" style="border: 1px solid lightgray; outline:none; width: 90%; height: 50px; background-color: white;">닫기</button>
+        <!-- <button type="button" onclick="sumbit()" style="border: 1px solid lightgray; outline:none; width: 45%; height: 50px; background-color: white;">등록</button> -->
+    </div>
+    <div style="width: 100%; height: auto; background-color: rgb(240, 240, 240); margin-top: 2rem;">
+        <div style="width: 90%; margin-left: 5%; display: flex;">
+            <div style="color:black; margin-top: 1rem;">상품Q&A작성 유의사항</div>
+        </div>
+        <hr>
+        <div style="width: 90%; margin-left: 5%;">
+            <div style="color:gray; font-size:14px;">상품 Q&A는 상품 및 상품 구매 과정(배송, 반품/취소, 교환/변경)에 대해 판매자에게 문의하는 게시판입니다.</div>
+            <div style="color:gray; font-size:14px;">상품 및 상품 구매 과정과 관련 없는 비방/욕설/명예훼손성 게시글 및 상품과 관련 없는 광고글 등 부적절한 게시글 등록 시 글쓰기 제한 및 게시글이 삭제 조치 될 수 있습니다.</div>
+            <div style="color:gray; font-size:14px;">전화번호, 이메일 등 개인 정보가 포함된 글 작성이 필요한 경우 판매자만 볼 수 있도록 비밀글로 문의해 주시기 바랍니다.</div>
+            <div style="color:gray; font-size:14px; height: 50px;">상품에 대한 이용 후기는 리뷰에 남겨 주세요.</div>
+        </div>
+    </div>
+</body>
+
+
+<script>
+    const QnAForm = document.getElementById('QnAForm');
+
+    function sumbit(){
+        QnAForm.submit();
+    }
+
+    function popupClose(){
+        opener.parent.location.reload();
+        window.close();
+    }
+</script>
+</html>

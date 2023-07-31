@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+</head>
+
+<body>
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+    <script>
+        if('[[${ type }]]' == 1) {
+            Swal.fire({
+                icon: 'error',
+                title: '접근 실패',
+                text: '로그인 후 이용해주세요.',
+            }).then(() => {
+                window.location.href='loginView.me';
+            });
+        }
+
+        if('[[${ type }]]' == 2) {
+            Swal.fire({
+                icon: 'error',
+                title: '접근 실패',
+                text: '허용되지 않은 접근입니다.',
+            }).then(() => {
+                window.location.href='/';
+            });
+        }
+
+        if('[[${ type }]]' == 3) {
+            Swal.fire({
+                icon: 'error',
+                title: '접근 실패',
+                text: '관리자 계정으로 접근이 불가합니다.',
+            }).then(() => {
+                window.location.href='/';
+            });
+        }
+    </script>
+</body>
+</html>

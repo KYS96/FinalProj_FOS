@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" > <!--data-bs-theme="dark"-->
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+
+    <style>
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        .input-group .input-label {
+            display: inline-block;
+            width: 100px;
+            margin-top: 20px;
+        }
+
+        .input-group .input-field {
+            display: inline-block;
+            width: 200px;
+            margin-top: 10px;
+        }
+
+        .input-group .input-field-small {
+            width: 190px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+
+    <!--메인 시작-->
+    <div class="container-fluid bg-secondary my-5">
+        <div class="row justify-content-md-center py-5 px-xl-5">
+            <div class="col-md-4 col-12 py-5">
+                <div class="text-center mb-2 pb-2">
+                    <h1 class="section-title px-5 mb-3"><span class="bg-secondary px-2">아이디 찾기 결과</span></h1><br/><br/>
+                </div>
+                
+                    <div class="text-center col-sm-12">
+                        <br/>
+                        <h4> 입력하신 정보를 가진 회원이 없습니다.</h4>
+                        <br/><br/>
+                        <h4> 아직 회원이 아니시라면 회원가입을 먼저 해주세요.</h4>
+                        <br/><br/><br/>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button class="w-20 btn btn-primary btn-lg" type="button" onclick="enrollViewFunction()">회원가입</button>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <button class="w-20 btn btn-primary btn-lg" type="button" onclick="findIdViewFunction()">다시 아이디 찾기</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function enrollViewFunction() {
+            var redirectUrl = '/enroll.me';
+            window.location.href = redirectUrl;
+        }
+    
+        function findIdViewFunction() {
+            var redirectUrl = '/findIdView.me';
+            window.location.href = redirectUrl;
+        }
+    </script>
+
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+    
+</body>
+
+</html>

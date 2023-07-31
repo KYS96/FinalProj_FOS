@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <!--common mainHead-->
+  <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+
+  <!-- ======== summernote link ======== -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
+  <!--sweet alert-->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body style="background-color: #eeeeee;">
+  <!--header start-->
+  <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+  <!--header end-->
+
+  <!-- ====== 공지사항 작성 Start ====== -->
+  <div class="row mt-5 mb-5">
+    <div class="col-2"></div>
+    <div class="col-8"
+      style="height: auto; margin: 0; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+      <ul class="ms-4 mb-3" style="list-style-type: circle;">
+        <li>공지사항 수정하기</li>
+      </ul>
+
+      <form action="notificationUpdateConfirm.no" method="post" id="noticeForm">
+        <div class="input-group flex-nowrap mb-2">
+          <span class="input-group-text" id="addon-wrapping">제목</span>
+          <!--글 제목-->
+          <input type="text" class="form-control" placeholder="제목을 입력하세요." name="employeeBoardTitle"
+            id="employeeBoardTitle" aria-describedby="addon-wrapping" th:value="${n.employeeBoardTitle}" required>
+        </div>
+
+        <!--내용이 들어갈 공간-->
+        <textarea id="summernote" name="employeeBoardContent"></textarea>
+
+        <!--글 번호 hidden -->
+        <input type="hidden" th:value="${n.employeeBoardNo}" name="employeeBoardNo" />
+        <!-- 글 내용 hidden-->
+        <input type="hidden" id="employeeBoardContent" th:value="${n.employeeBoardContent}" />
+
+        <!--취소 및 작성완료-->
+        <div class="container mt-4 mb-2">
+          <div class="row-cols-sm-12 d-flex">
+
+            <!--목록으로 돌아가기-->
+            <button type="button" id="goBackToList" class="badge-dark p-1"
+              onclick="location.href='notice.no'">취소</button>
+
+            <div class="mx-2">
+              <button type="button" id="addAttmBtn" class="badge-dark p-2" onclick="addAttmArea()">첨부파일 추가</button>
+            </div>
+            <button id="noticeUpdateBtn" type="button" class="btn-teamcolor" onclick="noticeUpdate()">수정완료</button>
+            <!--올릴 사진 저장 -->
+            <button type="button" class="badge-dark mx-2" id="uploadImagesBtn" onclick="showLocalImages()">저장</button>
+            <span id="content-length">입력 길이 :
+              0/100000</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span id="content-image-count">첨부 된 사진 수 : 0/5</span>
+          </div>
+        </div>
+      </form>
+
+      <!--첨부파일 버튼 -->
+      <div id="fileArea"></div>
+
+    </div>
+    <div class="col-2"></div>
+  </div>
+
+  <script>
+    //공통 alert 창
+    function loadAlert(msg) {
+      Swal.fire({
+        icon: 'error',
+        title: msg,
+      })
+    }
+
+    //전역변수
+    const employeeBoardTitle = document.getElementById('employeeBoardTitle');//공지사항 제목
+    const addImages = document.getElementsByName("addImages");//파일첨부 input
+    let imageCount; //이미지 개수
+
+    //실행 함수들
+
+    //src 고유 아이디 부여 함수
+    function generateUniqueId() {
+      const time = new Date().getTime();
+      const randomNum = Math.floor(Math.random() * 10000);
+      const uniqueId = `${time}-${randomNum}`;
+      return uniqueId;
+    }
+
+    //deleteSummernoteImageFile()
+    function deleteSummernoteImageFile(deletedImageUrl) { //서머노트 영역에 있는 사진 '휴지통 아이콘' 눌러서 삭제 시
+      const escapedImageUrl = $.escapeSelector(deletedImageUrl);//이미지 URL을 선택자로 사용하기 전에 $.escapeSelector() 함수를 사용하여 이스케이프하는 것이 안전하고 권장되는 방법
+      const imgElement = $('#summernote').siblings('.note-editor').find('.note-editable').find('img[src="' + escapedImageUrl + '"]');
+      imageCount--;
+      if (imageCount < 0) {
+        imageCount = 0;
+      }
+      console.log("imageCount : deleteSummernoteImageFile " + imageCount)
+      $('#content-image-count').text("첨부 된 사진 수 : " + imageCount + "/5")
+    }
+
+    //getUploadedImageFiles()
+    function getUploadedImageFiles() {//현재 서머노트 영역에 올라가있는 이미지들 구하기(배열)
+      return $('#summernote').siblings('.note-editor').find('.note-editable').find('img');
+    }
+
+    //getUploadedImagesCount()
+    function getUploadedImagesCount() {//현재 로컬 서머노트 영역에 있는 이미지 개수들 구하기
+      const imgElements = getUploadedImageFiles();
+      return imgElements.length;
+    }
+
+    //isImageAlreadyUploaded()
+    function isImageAlreadyUploaded(newImage) {//똑같은 파일이 또 업로드는 안되게 끔
+      const existingImages = getUploadedImageFiles();
+      let isUploaded = false;
+      existingImages.each(function () {
+        const existingImage = $(this);
+        if (existingImage.attr('src') === newImage.src) {
+          isUploaded = true;
+          return false;
+        }
+      });
+      return isUploaded;
+    }
+
+    //contentLengthOnKeydown()
+    function contentLengthOnKeydown(e) {
+      var contentLength = $('#summernote').summernote("code").length;
+      if (contentLength >= 100000 && e.key !== 'Backspace' && e.key !== 'Delete') {
+        e.preventDefault();
+        loadAlert("글자 입력 제한을 초과하였습니다.");
+      }
+      console.log("content.length : onKeydown " + contentLength);
+    }
+
+    //contentLengthOnKeyup()
+    function contentLengthOnKeyup() {
+      var content = $('#summernote').summernote("code");
+      if (content.length > 100000) {
+        content = content.substring(0, 100000);
+        $('#summernote').summernote("code", content);
+      }
+      $("#content-length").text("입력 길이 : " + content.length + "/100000");
+      console.log("content.length : onKeyup " + content.length);
+    }
+
+    //contentImageOnPaste()
+    function contentImageOnPaste(e) {
+      var pastedData = e.originalEvent.clipboardData;
+      var pastedHTML = pastedData.getData('text/html');
+      var pastedImageCount = 0;
+
+      console.log("imageCount : contentImageOnPaste " + imageCount);
+      console.log("getUploadedImagesCount() : contentImageOnPaste " + getUploadedImagesCount())
+
+      if (pastedHTML) {
+        var tempElement = document.createElement('div');
+        tempElement.innerHTML = pastedHTML;
+        pastedImageCount = tempElement.querySelectorAll('img').length;
+      }
+
+      if (pastedImageCount + getUploadedImagesCount() > 5) {
+        e.preventDefault();
+        loadAlert("(붙여넣기 제한) 사진은 5장 까지만 올릴 수 있습니다.");
+      } else if (Array.from(pastedData.items).some(item => item.type === 'file') && pastedData.files.length > 0) {
+        var imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+
+        if (imageFiles.length + getUploadedImagesCount() > 5) {
+          e.preventDefault();
+          loadAlert("(붙여넣기 제한) 사진은 5장 까지만 올릴 수 있습니다.");
+        }
+      } else {
+        imageCount += pastedImageCount;
+        $('#content-image-count').text("첨부 된 사진 수 : " + imageCount + "/5");
+      }
+    }
+
+    // 서머노트 영역
+    window.onload = function () {
+      $('#summernote').summernote({
+        toolbar: [
+          ["fontname", ["fontname"]],
+          ['fontsize', ['fontsize']],
+          ['style', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+          ['color', ['forecolor', 'color']],
+          ['para', ['ul', 'ol', 'paragraph']],
+        ],
+        fontSizes: ["10", "11", "12", "14", "16", "18", "20", "22", "24", "28", "30", "36", "50", "72"],
+        fontNames: ["Arial", "Comic Sans MS", "Courier New", "맑은 고딕", "궁서", "굴림체", "굴림", "돋움체", "바탕체"],
+        lang: "ko-KR",
+        placeholder: '입력해 주세요',
+        focus: true,
+        tabsize: 4,
+        height: 600,
+        disableDragAndDrop: true,
+        callbacks: {
+          onInit: function () {//초기화 됐을 때
+            var contentValue = $('#employeeBoardContent').val();//글 길이 구하기
+            $('#summernote').summernote('code', contentValue);
+            $('#content-length').text("입력 길이 : " + contentValue.length + "/100000");
+            var contentImages = getUploadedImageFiles();//첨부된 사진 구하기 <img> 태그
+            imageCount = contentImages.length;
+            $('#content-image-count').text("첨부 된 사진 수 : " + imageCount + "/5")
+            console.log("imageCount : onInit " + imageCount);
+          },
+          onMediaDelete: function ($target, editor, $editable) { //이미지 삭제 시
+            var deletedImageUrl = $target.attr('src');
+            deleteSummernoteImageFile(deletedImageUrl);
+          },
+          onKeyup: function () { //글 입력 길이 계산
+            contentLengthOnKeyup();
+          },
+          onKeydown: function (e) { //키보드 누를 때
+            contentLengthOnKeydown(e)
+          },
+          onPaste: function (e) { //붙여넣기 할 때 (이미지 처리만 해주면 될 듯)
+            contentImageOnPaste(e);
+          },
+          onChange: function () { //에디터 상태 변화 (이미지 삭제 처리)
+            let currentImages = getUploadedImageFiles();
+            let initialImageCount = imageCount; //변경 전 이미지 개수
+            imageCount = currentImages.length; //현재 이미지 개수
+            let deletedImageCount = initialImageCount - imageCount; //삭제 된 사진의 개수
+
+            if (imageCount < initialImageCount) { //사진이 지워지면..
+              $('#content-image-count').text("첨부 된 사진 수 : " + (initialImageCount - deletedImageCount) + "/5");
+            }
+
+          }
+        }
+      });
+    }
+
+    //제목 글자 제한 
+    employeeBoardTitle.addEventListener('input', function (e) {
+      if (e.target.value.length > 250) {
+        e.target.value = e.target.value.substring(0, 250);
+        loadAlert("제목은 최대 250글자까지 입력할 수 있습니다.");
+      }
+    });
+
+    //로컬 영역에 사진 올려놓는 기능
+    function showLocalImages() {
+      for (let i = 0; i < addImages.length; i++) {
+        const input = addImages[i]; //특정 input요소 선택
+        const dataId = generateUniqueId();
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.width = "175px";
+
+            if (imageCount < 5 && getUploadedImagesCount() < 5 && !isImageAlreadyUploaded(img)) {
+              $("#summernote").summernote('insertNode', img);
+              input.setAttribute('data-id', dataId);
+              img.setAttribute('data-id', dataId);
+              console.log("imageCount : showLocalImages " + imageCount);
+              $('#content-image-count').text("첨부 된 사진 수 : " + imageCount + "/5")
+            } else {
+              if (imageCount >= 5 && getUploadedImagesCount() >= 5) {
+                loadAlert("더이상 사진을 올릴 수 없습니다.");
+              }
+            }
+          }
+          reader.readAsDataURL(input.files[0]);
+        } else if (imageCount == 0) {
+          loadAlert("사진을 첨부해 주세요.");
+        }
+      }
+    }
+
+    //첨부 파일칸 추가하기
+    const fileArea = document.getElementById('fileArea');
+    const addAttmBtn = document.getElementById('addAttmBtn');
+
+    function addAttmArea() {
+      const newDiv = document.createElement('div');
+      newDiv.classList.add('mt-3', 'w-50', 'border', 'border-1', "text-center");
+      newDiv.innerHTML = '<input type="file" accept="image/*" name="addImages" class="p-1 form-control form-control-lg"/>';
+
+      const newSpan = document.createElement('span');
+      newSpan.innerHTML = '<a class="deleteBtn text-danger" href="javascript:void()">삭제</a>';
+      newDiv.appendChild(newSpan);
+
+      if (fileArea.childElementCount == 5) {
+        Swal.fire('사진은 최대 5개 올릴 수 있습니다.');
+        this.remove();
+        console.log(imageCount);
+      }
+      fileArea.appendChild(newDiv);
+    }
+
+    //첨부파일 옆 삭제 버튼 누르면 삭제되는 기능
+    $(document).on('click', '.deleteBtn', function () {
+      const inputElement = $(this).parent().parent().find('input');
+      const inputId = inputElement.attr('data-id');
+      const imgElement = $('#summernote').siblings('.note-editor').find('.note-editable').find('img[data-id="' + inputId + '"]')
+      const imageId = imgElement.attr('data-id');
+
+      console.log("inputId : " + inputId);
+      console.log("imageId : " + imageId);
+
+      //이미지 삭제 처리
+      imgElement.remove();
+      //input 삭제 처리
+      $(this).parent().parent().remove();
+
+      if (inputId !== undefined && imageId !== undefined) {
+        imageCount--;
+        if (imageCount < 0) {
+          imageCount = 0;
+        }
+      }
+      $('#content-image-count').text("첨부 된 사진 수 : " + imageCount + "/5");
+    });
+
+
+    //업로드할 이미지의 URL 받아오기
+    //서머노트 영역에 올라온 사진의 src 속성에 s3 주소 넣기
+    //로컬에 올라간 사진의 src를 바꿀거임.
+    //등록하기 버튼을 눌렀을 때.
+    function uploadImages() {
+      var formData = new FormData();
+      var formDataCount = 0;
+      var imageIndex = 0; // 이미지 인덱스
+
+      for (let i = 0; i < addImages.length; i++) {
+        if (addImages[i].files && addImages[i].files[0] != null) {
+          formDataCount++;
+          formData.append('multipartFileList', addImages[i].files[0]);
+        }
+      }
+
+      if (formDataCount > 0) {
+        $.ajax({
+          type: "POST",
+          url: 'upload',
+          data: formData,
+          dataType: 'json',
+          contentType: false,
+          processData: false,
+          success: function (data) {
+            console.log(data); //주소 받기
+
+            //이미지 URL 업데이트
+            const imgElements = $('img[data-id]');
+            imgElements.each(function () {
+              const imgElement = $(this);
+              const imageUrl = data[imageIndex]; // 해당 이미지 인덱스에 대한 URL
+
+              imgElement.attr('src', imageUrl);
+              imgElement.attr('data-updated', true); // 업데이트 처리된 이미지에 속성 추가
+              imageIndex++; // 다음 이미지 인덱스로 이동
+
+              if (imageIndex >= data.length) {
+                // 이미지 인덱스가 URL 개수를 초과하면 루프 종료
+                return false;
+              }
+            });
+          },
+          error: data => {
+            console.log(data);
+          }
+        });
+      }
+    }
+
+    //제출 전 서머노트 영역에 공백을 추가
+    function summernoteInit() {
+      $('#summernote').summernote('insertText', " ");
+    }
+
+    //수정 완료 확인 버튼
+    const noticeForm = document.querySelector('#noticeForm');
+    let imagesUploaded = false; //업로드 된 사진이 이미 있다면 s3 서버에 요청 보내지 않음.
+    const noticeUpdate = () => {
+      Swal.fire({
+        title: '등록하시겠습니까?',
+        showCancelButton: true,
+        confirmButtonText: '네',
+        cancelButtonText: '아니요',
+        preConfirm: () => {
+          if (employeeBoardTitle.value.trim() === '') {
+            loadAlert("제목을 입력해 주세요.");
+            return false;
+          }
+          return true;
+        }
+      }).then(result => {
+        if (result.isConfirmed) {
+          if (!imagesUploaded) {
+            uploadImages();
+            imagesUploaded = true;
+          }
+          Swal.fire('등록완료!', '', 'success').then(() => {
+            summernoteInit();
+            setTimeout(() => {
+              noticeForm.submit();
+            }, 100);
+          });
+        }
+      });
+    }
+
+
+  </script>
+
+
+</body>
+
+</html>

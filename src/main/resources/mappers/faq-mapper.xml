@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kh.slumber.yongseong.faq.model.dao.FaqDAO">
+
+  <!--FAQ 전체 개수 가져오기-->
+  <select id="selectFaqListCount">
+    SELECT COUNT(*)
+    FROM BOARD_FAQ
+  </select>
+
+  <!--FAQ전체 조회-->
+  <select id="selectFaqList">
+    SELECT *
+    FROM BOARD_FAQ
+    ORDER BY FAQ_ENROLL_DATE DESC
+  </select>
+
+  <!--FAQ resultmap-->
+  <resultMap type="MarketFAQ" id="faqResultSet">
+    <id property="faqNo" column="FAQ_NO"/>
+    <result property="faqTitle" column="FAQ_TITLE"/>
+    <result property="faqContent" column="FAQ_CONTENT"/>
+    <result property="faqEnrollDate" column="FAQ_ENROLL_DATE"/>
+    <!-- <result property="faqModifyDate" column="FAQ_MODIFY_DATE"/> -->
+  </resultMap>
+
+
+  <!--FAQ 등록-->
+  <insert id="faqInsert">
+    INSERT INTO BOARD_FAQ
+    VALUES(SEQ_BOARD_NO.NEXTVAL, #{faqTitle}, #{faqContent}, sysdate, null)
+  </insert>
+
+  <!-- FAQ 삭제 -->
+  <delete id="faqDelete">
+    DELETE FROM BOARD_FAQ
+    WHERE FAQ_NO = ${fNo}
+  </delete>
+
+  <!-- 검색어에 해당하는 FAQ가 총 몇 개 있는지 -->
+  <select id="selectFaqSearchListCount">
+    SELECT COUNT(*)
+    FROM BOARD_FAQ
+    WHERE FAQ_TITLE LIKE '%${faqSearchBar}%'
+      OR FAQ_CONTENT LIKE '%${faqSearchBar}%'
+    ORDER BY FAQ_ENROLL_DATE DESC
+  </select>
+
+  <!--FAQ 검색 리스트 받아오기-->
+  <select id="selectFaqSearchList" resultMap="faqResultSet">
+    SELECT *
+    FROM BOARD_FAQ
+    WHERE FAQ_TITLE LIKE '%${faqSearchBar}%'
+      OR FAQ_CONTENT LIKE '%${faqSearchBar}%'
+    ORDER BY FAQ_ENROLL_DATE DESC
+  </select>
+
+  <!--FAQ 수정할 글의 정보 받아오기-->
+  <select id="faqUpdate" resultMap="faqResultSet">
+    SELECT *
+    FROM BOARD_FAQ
+    WHERE FAQ_NO = #{faqNo}
+  </select>
+
+  <!--FAQ 찐 수정-->
+  <update id="faqUpdateConfirm">
+    UPDATE BOARD_FAQ
+    SET FAQ_TITLE = #{faqTitle}, FAQ_CONTENT = #{faqContent}
+    WHERE FAQ_NO = ${faqNo}
+  </update>
+
+</mapper>

@@ -1,0 +1,13 @@
+<h5 class="font-weight-medium mb-3">상품</h5>
+<div class="d-flex justify-content-between productSummary" th:each="s:${summaryList}">
+    <input type="hidden" class="hideName" th:value="${s.productName}">
+    <input type="hidden" class="hideAmount" th:value="${s.amount}">
+    <input type="hidden" class="hidePrice" th:value="${s.productPrice}">
+    <p>
+        <span th:text="|[${s.productName}]|"></span>
+        <span>x</span
+        ><span th:text="${s.amount}"></span>
+    </p>
+    <p th:text="${#numbers.formatInteger(s.productPrice, 3, 'COMMA') + '원'}"></p>
+    <input type="hidden" class="smPrice" th:value="${s.productPrice}">
+</div>

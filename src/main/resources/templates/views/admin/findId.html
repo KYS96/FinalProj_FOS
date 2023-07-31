@@ -1,0 +1,194 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>수면의숲</title>
+
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+</head>
+<body>
+    <div class="col-lg-6">
+        <div class="top-campaign p-b-30">
+            <h3 class="title-3 m-b-30">아이디 찾기</h3>
+            <div class="table-responsive">
+                <form method="POST" action="findAdminId.admin" id="form">
+                    <table class="table table-top-campaign">
+                        <tbody>
+                            <tr>
+                                <td class="text-left align-middle">핸드폰번호 : </td>
+                                <td>
+                                    <input type="text" name="adminPhone" maxlength="13" oninput="autoHyphen(this)" placeholder="숫자 11자리" class="form-control">
+                                    <i style="position: absolute; top: 39.7%; right: 120px; transform: translateY(-50%); font-size: 25px;"></i>
+                                    <button type="button" style="display: none;" name="phoneBtn" onclick="sendCode()">
+                                        <i style="position: absolute; top: 39.7%; right: 80px; transform: translateY(-50%);">인증</i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-left align-middle">인증번호 : </td>
+                                <td>
+                                    <input type="text" name="adminPhoneCheck" oninput="phoneCheckRule(this)" placeholder="숫자 4자리" maxlength="4" class="form-control">
+                                    <i style="position: absolute; top: 58.5%; right: 120px; transform: translateY(-50%); font-size: 25px;"></i>
+                                    <button type="button" style="display: none;" name="phoneBtn" onclick="confirmCode()">
+                                        <i style="position: absolute; top: 58.5%; right: 80px; transform: translateY(-50%);">확인</i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <button id="confirm" class="form-control mt-5 role member">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    <script>
+        const phoneBtn = document.getElementsByName("phoneBtn");
+        const confirm = document.getElementById("confirm");
+        const form = document.getElementById("form");
+        const adminPhone = document.getElementsByName("adminPhone")[0];
+        const adminPhoneCheck = document.getElementsByName("adminPhoneCheck")[0];
+
+        let code = "";
+
+        const autoHyphen = (target) => {
+            target.value = target.value.replace(/[^0-9]/gi, '').replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+        }
+
+        const phoneCheckRule = (target) => {
+            target.value = target.value.replace(/[^0-9]/gi, '');
+        }
+
+        const sendCode = () => {
+            $.ajax({
+                type: "POST",
+                url: "sendCode.me",
+                data: { "memberPhone" : adminPhone.value },
+                cache: false,
+                success: (data) => {
+                    if(data == "fail") {
+                        errorModal('발송 실패', '다시 시도해주세요.');
+                    } else {
+                        successModal('발송 완료', '휴대폰 문자 인증번호를 확인해주세요.');
+                        adminPhone.readOnly = true;
+                        phoneBtn[1].style.display = 'inline-block';
+                        code = data;
+                    }
+                }
+            });
+        }
+
+        const confirmCode = () => {
+            if(adminPhoneCheck.value == code && code != "") {
+                successModal('인증 성공', '휴대폰 인증이 완료되었습니다.');
+                adminPhoneCheck.readOnly = true;
+                phoneBtn[0].style.display = 'none';
+                phoneBtn[1].style.display = 'none';
+                success(adminPhoneCheck);
+            } else {
+                errorModal('인증 실패', '인증 번호를 다시 확인해주세요.');
+                error(adminPhoneCheck);
+            }
+        }
+
+        const errorModal = (title, message) => {
+            Swal.fire({
+                icon: 'error',
+                title: title,
+                text: message
+            });
+        }
+
+        const successModal = (title, message) => {
+            Swal.fire({
+                icon: 'success',
+                title: title,
+                text: message
+            });
+        }
+
+        const none = (result) => {
+            result.parentElement.querySelector('i').className = '';
+            result.parentElement.querySelector('i').style.color = 'none';
+        }
+
+        const success = (result) => {
+            result.parentElement.querySelector('i').className = 'bi bi-check';
+            result.parentElement.querySelector('i').style.color = 'yellowgreen';
+        }
+
+        const error = (result) => {
+            result.parentElement.querySelector('i').className = 'bi bi-x';
+            result.parentElement.querySelector('i').style.color = 'red';
+        }
+
+        window.onload = () => {
+            confirm.addEventListener('click', () => {
+                if(adminPhone.parentElement.querySelector('i').className != 'bi bi-check') {
+                    return adminPhone.focus();
+                }
+
+                if(adminPhoneCheck.parentElement.querySelector('i').className != 'bi bi-check') {
+                    return adminPhoneCheck.focus();
+                }
+
+                form.submit();
+            });
+
+            if('[[${ msg }]]' == 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '아이디 찾기',
+                    text: '아이디는 ' + '[[${ adminId }]]' + ' 입니다.'
+                }).then(() => {
+                    self.close();
+                });
+                
+            }
+
+            if('[[${ msg }]]' == 'fail') {
+                errorModal('아이디 찾기', '수정에 실패했습니다. 다시 시도해주세요.');
+            }
+
+            adminPhone.addEventListener('focusout', () => {
+                if(adminPhone.value == '') {
+                    none(adminPhone);
+                    adminPhone.placeholder = '숫자 11자리';
+                    return;
+                } 
+
+                if(adminPhone.value.length != 13) {
+                    error(adminPhone);
+                    adminPhone.placeholder = '11자리를 모두 입력해주세요.';
+                    adminPhone.value = '';
+                    return;
+                } 
+
+                if(adminPhone.value != '') {
+                    success(adminPhone);
+                    adminPhone.placeholder = '숫자 11자리';
+                    return;
+                }
+            });
+
+            adminPhone.addEventListener('keyup', () => {
+                if(adminPhone.value.length == 13) {
+                    phoneBtn[0].style.display = 'inline-block';
+                } else {
+                    phoneBtn[0].style.display = 'none';
+                }
+            });
+
+            adminPhoneCheck.addEventListener('keyup', () => {
+                if(adminPhoneCheck.value == '') {
+                    none(adminPhoneCheck);
+                    return;
+                } 
+            });
+        }
+    </script>
+</body>

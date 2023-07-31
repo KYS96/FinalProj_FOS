@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+    <link href="market_assets/css/hwayi.css" rel="stylesheet">
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+</head>
+<body style="min-width: 1920px;">
+    <!-- 메인 헤더 -->
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+    <div class="row">
+        <div class="col-2" style="min-height: 1300px;"></div>
+        <div class="col-8">
+            <div th:replace="~{ views/common/mainNavbar :: mainNavbar }"></div>
+            <!-- Page Header Start -->
+            <div class="container-fluid bg-secondary mb-5" style="margin-top: -2rem;">
+                <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
+                    <h1 class="font-weight-semi-bold text-uppercase mb-3">Shop</h1>
+                    <div class="d-inline-flex">
+                        <p class="m-0"><a style="color:#6F6F6F;">Home</a></p>
+                        <p class="m-0 px-2">-</p>
+                        <p class="m-0">Shop</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Page Header End -->
+            <!-- Shop Start -->
+            <div class="container-fluid pt-5">
+                <div class="row">
+                    <!-- 사이드바 Start -->
+                    <div class="col-lg-3 col-md-12" style="flex: 0 0 20%; max-width: 20%;">
+                        <!-- 카테고리 Start -->
+                        <div class="border-bottom">
+                            <h5 class="font-weight-semi-bold mb-4 pb-4">카테고리</h5>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" onchange="fatherCheckBox(this)" class="custom-control-input changeOption" id="product-all">
+                                <label class="custom-control-label" for="product-all">전체상품</label>
+                            </div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" name="category" value="bed" class="custom-control-input changeOption" id="product-1">
+                                <label class="custom-control-label" for="product-1">침대</label>
+                            </div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" name="category" value="blanket" class="custom-control-input changeOption" id="product-2">
+                                <label class="custom-control-label" for="product-2">이불</label>
+                            </div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" name="category" value="pillow" class="custom-control-input changeOption" id="product-3">
+                                <label class="custom-control-label" for="product-3">베개</label>
+                            </div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" name="category" value="goods" class="custom-control-input changeOption" id="product-4">
+                                <label class="custom-control-label" for="product-4">굿즈</label>
+                            </div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" name="category" value="clothing" class="custom-control-input changeOption" id="product-5">
+                                <label class="custom-control-label" for="product-5">의류</label>
+                            </div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" name="category" value="health" class="custom-control-input changeOption" id="product-6">
+                                <label class="custom-control-label" for="product-6">건강</label>
+                            </div>
+                        </div>
+                        <!-- 카테고리 End -->
+                        
+                        <!-- 가격범위 Start -->
+                        <div class="border-bottom mb-4 pb-4">
+                            <h5 class="font-weight-semi-bold mb-4 pb-4" style="padding-top: 1.5rem;">가격</h5>
+                            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                                <input type="radio" name="priceRange" value="allPrice" class="custom-control-input changeOption" checked id="price-all">
+                                <label class="custom-control-label" for="price-all">가격 전체</label>
+                            </div>
+                            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                                <input type="radio" name="priceRange" value="2mLess" class="custom-control-input changeOption" id="price-1">
+                                <label class="custom-control-label" for="price-1">2만원 이하</label>
+                            </div>
+                            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                                <input type="radio" name="priceRange" value="2mTo10m" class="custom-control-input changeOption" id="price-2">
+                                <label class="custom-control-label" for="price-2">2만원~10만원</label>
+                            </div>
+                            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                                <input type="radio" name="priceRange" value="10mTo30m" class="custom-control-input changeOption" id="price-3">
+                                <label class="custom-control-label" for="price-3">10만원~30만원</label>
+                            </div>
+                            <div class="custom-control custom-radio d-flex align-items-center justify-content-between mb-3">
+                                <input type="radio" name="priceRange" value="30mTo100m" class="custom-control-input changeOption" id="price-4">
+                                <label class="custom-control-label" for="price-4">30만원~100만원</label>
+                            </div>
+                            <div class="custom-control custom-radio d-flex align-items-center justify-content-between">
+                                <input type="radio" name="priceRange" value="100mMore" class="custom-control-input changeOption" id="price-5">
+                                <label class="custom-control-label" for="price-5">100만원 이상</label>
+                            </div>
+                        </div>
+                        <!-- 가격범위 End -->
+                    </div>
+                    <!-- 사이드바 End -->
+        
+                    <!-- 상품 리스트 Start -->
+                    <div class="col-lg-9 col-md-12" style="margin: 0 auto;">
+                        <div class="row pb-3">
+                            <div class="col-12 pb-1">
+                                <div class="d-flex align-items-center mb-4" style="justify-content: space-between; margin-bottom: 1rem;">
+                                    <div style="display: flex;">
+                                        <div style="border: 1px solid lightgray; height: 30px;">
+                                            <input type="text" id="searchKeyword" placeholder="상품을 검색하세요" style="border:none; outline: none;">
+                                            <span style="margin-right: 0.5rem;">
+                                                <button id="searchBtn" style="background-color: white; border: none; outline: none;"><i class="fa fa-search"></i></button>
+                                            </span>
+                                        </div>
+                                        <button id="resetBtn" style="background-color: white; outline: none; border: none; color:gray;">초기화</button>
+                                    </div>
+                                    <div style="margin-left: 10px;">
+                                        <button class="w-btn1 changeOrderRule" style="outline: none;">최신순</button>
+                                        <button class="w-btn1 changeOrderRule" style="outline: none;">평점순</button>
+                                        <button class="w-btn1 changeOrderRule" style="outline: none;">판매량순</button>
+                                        <button class="w-btn1 changeOrderRule" style="outline: none;">낮은가격순</button>
+                                        <button class="w-btn1 changeOrderRule" style="outline: none;">높은가격순</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--각 상품 START-->
+                            <div id="areaForProduct" class="row col-12" style="display: flex;">
+                            </div>
+                            <!--각 상품 END-->
+                            <!--페이징 START-->
+                            <div class="col-12 pb-1">
+                                <!--페이징-->
+                                <nav aria-label="Page navigation">
+                                    <ul id="pagingArea" class="pagination justify-content-center mb-3">
+                                        <li class="page-item">
+                                            <a class="page-link" id="hrefPrevious" aria-label="Previous" style="cursor: pointer;">
+                                                <span aria-hidden="true" style="color: black;">«</span>
+                                            </a>
+                                        </li>
+                                        <div id="numPage" style="display: flex;">
+                                            <li class="page-item">
+                                                <a class="page-link" onclick="hrefPageNo(this)" style="cursor: pointer;"></a>
+                                            </li>
+                                        </div>
+                                        <li class="page-item">
+                                            <a class="page-link" id="hrefNextPage" aria-label="Next" style="cursor: pointer;">
+                                                <span aria-hidden="true" style="color: black;">»</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                <!--페이징-->
+                            </div>
+                            <!--페이징 END-->
+                        </div>
+                    </div>
+                    <!-- 상품 리스트 End -->
+                </div>
+            </div>
+            <!-- Shop END -->
+
+
+        </div>
+        <div class="col-2"></div>
+    </div>
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+    <!-- Back to Top -->
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+    <script>
+        let orderRule = 'PRODUCT_UPDATE desc';
+        window.onload = () =>{
+            // getCartNums();
+            
+            //화면 로드 시 갖고 온 파라미터에 해당 하는 체크박스가 체크된 체로 시작
+            if('[[${category}]]'=='bed'){
+                document.getElementById('product-1').checked = true;
+            }else if('[[${category}]]'=='blanket'){
+                document.getElementById('product-2').checked = true;
+            }else if('[[${category}]]'=='pillow'){
+                document.getElementById('product-3').checked = true;
+            }else if('[[${category}]]'=='goods'){
+                document.getElementById('product-4').checked = true;
+            }else if('[[${category}]]'=='clothing'){
+                document.getElementById('product-5').checked = true;
+            }else if('[[${category}]]'=='health'){
+                document.getElementById('product-6').checked = true;
+            }else if('[[${category}]]'=='all'){
+                document.getElementById('product-all').checked = true;
+                document.getElementById('product-1').checked = true;
+                document.getElementById('product-2').checked = true;
+                document.getElementById('product-3').checked = true;
+                document.getElementById('product-4').checked = true;
+                document.getElementById('product-5').checked = true;
+                document.getElementById('product-6').checked = true;
+            }
+
+            //화면 로드 시 갖고 온 파라미터를 ajax로 넘겨 해당하는 상품을 불러옴
+            let category = '[[${category}]]';
+            var categoryArr = [];
+                categoryArr.push(category);
+
+            //화면 로드 시 가격 범위 디폴트 값 지정 (allPrice)
+            var priceRangeValue = 'allPrice';
+
+            //화면 로드 시 페이지 디폴트 값 지정 (1)
+            let page = 1;
+            // hrefNextPage를 위한 엔드페이지 변수
+            let endPageNum;
+            let searchEndPageNum;
+            let endpn;
+
+            //정렬조건 변수 선언, 초기 값은 최신순 (productUpdateDate)
+            
+            let searchOrderRule = 'PRODUCT_UPDATE desc';
+
+            //로드와 동시에 ajax함수 호출
+            loadProductList(categoryArr, priceRangeValue);
+
+            function loadProductList(categoryArr, priceRange){
+                //만약 categoryArr가 비어있을 경우 사이드바에서 체크된 값들을 불러옴
+                if(categoryArr == undefined){
+                    categoryArr = [];
+                    const categories = document.getElementsByName('category');
+                    for (let i = 0; i < categories.length; i++) {
+                        if (categories[i].checked) {
+                            categoryArr.push(categories[i].value);
+                        }
+                    }
+                }
+
+                //만약 priceRange가 비어있을 경우 사이드바에서 체크된 값을 가져옴 (라디오버튼)
+                if(priceRange == undefined){
+                    const priceRanges = document.getElementsByName('priceRange');
+                    for (let i = 0; i < priceRanges.length; i++) {
+                        if (priceRanges[i].checked) {
+                            priceRange = priceRanges[i].value;
+                        }
+                    }
+                }
+
+                //AJAX
+                $.ajax({
+                    method: "GET",
+                    url: "getProductList",
+                    data: {categoryArr:categoryArr,priceRange:priceRange,page:page,orderRule:orderRule},
+                    dataType: "json",
+                    success: function(data){
+                        const areaForProduct = document.getElementById('areaForProduct');
+                        areaForProduct.innerHTML = '';
+
+                        if(typeof(data[0]) == 'string'){
+                            document.getElementById('areaForProduct').style.justifyContent='center';
+                            let noproduct = '';
+                            noproduct += '<div style="text-align: center; margin-top: 2rem;">';
+                            noproduct += '<img src="market_assets/img/sample/sorry.png" style="height:50%;"><br><br>'
+                            noproduct += '<div style="color:black; font-weight:bold; font-size: 20px;">검색결과가 없습니다</div>';
+                            noproduct += '<div style="color:black; font-size:18px;">좌측 메뉴바에서 찾으시는 상품의 옵션을 선택해주세요</div>'
+                            noproduct += '</div>';
+
+                            areaForProduct.innerHTML = noproduct;
+                        }
+
+                        for(const p of data){
+                            //data에들어있는 pi를 빼주기위해 상품번호가 있는 p(즉 상품들)만 걸러주는 if문
+                            if(p.productNo != null || p.productNo != undefined){
+
+                                //InnerHTML으로 넣을 text
+                                let text = '';
+
+                                text += '<div class="col-lg-3 col-md-6 col-sm-12 pb-1 w-cp" onclick="selectProduct(this);">';
+                                text += '<form action="productDetail" method="get" class="submitForm">';
+                                text += '<input type="hidden" name="productNo" value="'+p.productNo+'">';
+                                text += '<div class="card product-item border-0 mb-4">';
+                                text += '<div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">';
+                                text += '<img class="img-fluid w-100" src="'+p.productImage+'" alt="이미지 불러오기 실패" style="height:230.23px"></div>';
+                                text += '<div class="card-body border-left border-right text-center p-0 pt-4 pb-3">';
+
+                                if(p.eventTitle == null || p.eventTitle == undefined){
+                                    text += '<h6 class="text-truncate mb-3">'+p.productName+'</h6>';
+                                }else if(p.eventTitle != null || p.eventTitle != undefined){
+                                    text += '<h6 class="text-truncate mb-3" style="color:#f5683c; font-size:15px;">['+p.eventTitle+']</h6>';
+                                    text += '<h6 class="text-truncate mb-3" style="color:black;">'+p.productName+'</h6>';
+                                }
+
+                                if(p.eventCode == null || p.eventCode == undefined || p.eventCode == 0){
+                                    text += '<div class="d-flex justify-content-center">';
+                                    text += '<h6>'+priceToString(p.productPrice)+'원</h6></div>';
+                                }else if(p.eventCode != null || p.eventCode != undefined || p.eventCode != 0){
+                                    text += '<div class="d-flex justify-content-center"><div class="eventPrice">';
+                                    if(p.eventCode >= 1000){
+                                        text += '<h6 style="color:#f5683c;font-size:17px;">'+priceToString(p.productPrice - p.eventCode)+'원</h6></div>';
+                                    }else if(p.eventCode >= 1 && p.eventCode <= 100){
+                                        text += '<h6 style="color:#f5683c;font-size:17px;">'+priceToString(Math.round(p.productPrice * (1 - p.eventCode / 100)))+'원</h6></div>';
+                                    }
+                                    text += '<h6 class="text-muted ml-2 oriPh6">';
+                                    text += '<del class="placeop" style="font-size:15px;">'+priceToString(p.productPrice)+'</del></h6></div>';
+                                }
+
+                                text += '<h6 class="text-truncate mb-3">';
+                                if(p.productPoint == 5){
+                                    text += '<span style="color:#ff4d47;">★★★★★</span>';
+                                }else if(p.productPoint == 4){
+                                    text += '<span style="color:#ff4d47;">★★★★</span><span style="color:rgb(190, 190, 190);">★</span>';
+                                }else if(p.productPoint == 3){
+                                    text += '<span style="color:#ff4d47;">★★★</span><span style="color:rgb(190, 190, 190);">★★</span>';
+                                }else if(p.productPoint == 2){
+                                    text += '<span style="color:#ff4d47;">★★</span><span style="color:rgb(190, 190, 190);">★★★</span>';
+                                }else if(p.productPoint == 1){
+                                    text += '<span style="color:#ff4d47;">★</span><span style="color:rgb(190, 190, 190);">★★★★</span>';
+                                }else if(p.productPoint == 0 || p.productPoint == undefined){
+                                    text += '<span style="color:rgb(190, 190, 190);">★★★★★</span>';
+                                }
+
+                                text += '</h6></div></div></form></div>';
+                                
+                                areaForProduct.innerHTML += text;
+                            }
+                        } // 상품반복(foreach)종료
+
+                        //페이징 정규식
+                        const pageInfo = data[data.length -1];
+                        const pageInfoStr = pageInfo;
+                        const regex = /(\w+)=(\d+)/g;
+                        const pageInfoObj = {};
+                        let match;
+                        while ((match = regex.exec(pageInfoStr))) {
+                            const key = match[1];
+                            const value = parseInt(match[2]);
+                            pageInfoObj[key] = value;
+                        }
+                        GeneratePageNumbers(pageInfoObj.startPage, pageInfoObj.endPage, pageInfoObj.maxPage);
+                    },
+                    error: function(error){
+                        console.error(error);
+                    }
+                });
+            }
+
+            //페이징 정규식 함수
+            function GeneratePageNumbers(startPage, endPage, maxPage){ 
+                //위에서 선언한 엔드페이지넘버에 실제 엔드페이지 대입 (hrefNextPage에 필요)
+                endPageNum = maxPage;
+                const numPage = document.getElementById('numPage');
+                numPage.innerHTML = '';
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item';
+
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.style.cursor='pointer';
+                    a.textContent = i;
+                    a.setAttribute('data-page', i);
+                    a.addEventListener('click', function () {
+                    hrefPageNo(this);
+                    });
+
+                    li.appendChild(a);
+                    numPage.appendChild(li);
+                }
+            }
+
+            //페이징 숫자 버튼
+            function hrefPageNo(element){
+                page = element.getAttribute("data-page");
+                loadProductList();
+            }
+
+            //페이징 이전 페이지 버튼
+            document.getElementById('hrefPrevious').addEventListener('click',()=>{
+                if(document.getElementById('searchKeyword').value == ''){
+                    page -= 1;
+                    if(page < 1){
+                        page = 1;
+                    }
+                    loadProductList();
+                }else{
+                    searchPage -= 1;
+                    if(searchPage < 1){
+                        searchPage = 1;
+                    }
+                    searchFunction(searchPage,orderRule);
+                }
+            })
+            
+            //페이징 다음 페이지 버튼
+            document.getElementById('hrefNextPage').addEventListener('click',()=>{
+                if(document.getElementById('searchKeyword').value == ''){
+                    page += 1;
+                    if (page > endPageNum){
+                        page = endPageNum;
+                    }
+                    loadProductList();
+                }else{
+                    searchPage += 1;
+                    if(searchPage > searchEndPageNum){
+                        searchPage = searchEndPageNum;
+                    }
+                    searchFunction(searchPage,orderRule);
+                }
+            });
+
+            //ajax를 이용해 카테고리 및 가격범위 지정
+            const changeOption = document.getElementsByClassName('changeOption');
+            for (let j = 0; j < changeOption.length; j++) {
+                //체크박스 혹은 라디오 버튼에 변화가 생길 때 아래 이벤트 발동
+                changeOption[j].addEventListener('change', () => {
+                    var categoryArr = [];
+                    var priceRangeValue;
+
+                    const categories = document.getElementsByName('category');
+                    for (let i = 0; i < categories.length; i++) {
+                        //만약 하나라로 선택되지 않은 체크박스가 존재하면 전체선택의 체크상태를 해제
+                        if (!categories[i].checked) {
+                            document.getElementById('product-all').checked = false;
+                        }
+                        //체크된 체크박스의 값을 AJAX로 넘길 categoryArr에 추가
+                        if (categories[i].checked) {
+                            categoryArr.push(categories[i].value);
+                        }
+                    }
+
+                    const priceRanges = document.getElementsByName('priceRange');
+                    for (let i = 0; i < priceRanges.length; i++) {
+                        //체크된 라디온 버튼의 값을 AJAX로 넘길 priceRangeValue에 추가
+                        if (priceRanges[i].checked) {
+                            priceRangeValue = priceRanges[i].value;
+                        }
+                    }
+
+                    // 사이드바를 통해 검색 옵션 변경 시 페이지를 다시 1로 초기화
+                    page = 1;
+                    loadProductList(categoryArr, priceRangeValue);
+                });
+            }
+
+            //상품 정렬 기준 선택
+            const changeOrderRule = document.getElementsByClassName('changeOrderRule');
+            for (const rule of changeOrderRule){
+                rule.addEventListener('click',function(){
+                    if(this.innerText == '최신순'){
+                        orderRule = 'PRODUCT_UPDATE desc';
+                    }else if(this.innerText == '평점순'){
+                        orderRule = 'PRODUCT_POINT desc';
+                    }else if(this.innerText == '판매량순'){
+                        orderRule = 'PRODUCT_SALES desc';
+                    }else if(this.innerText == '낮은가격순'){
+                        orderRule = 'PRODUCT_PRICE asc'
+                    }else if(this.innerText == '높은가격순'){
+                        orderRule = 'PRODUCT_PRICE desc'
+                    }
+                    if(document.getElementById('searchKeyword').value == ''){
+                        page = 1;
+                        loadProductList();
+                    }else{
+                        searchPage = 1;
+                        searchFunction(searchPage,orderRule);
+                    }
+                });
+            }
+            
+        } // window.onolad END
+        
+        //클릭 시 상품번호를 가지고 상품상세조회를 요청
+        function selectProduct(element){
+            element.children[0].submit();
+        }
+
+        //사이드바 전체선택 체크박스를 체크 시 모든 체크박스의 체크상태로 체크됨으로 변경
+        //전체 선택 체크박스 체크 해제 시 모든 체크박스의 체크상태를 해제함
+        function fatherCheckBox(father){
+            if(father.checked){
+                for(let son of document.getElementsByName('category')){
+                    son.checked = true;
+                }
+            } else {
+                for (let son of document.getElementsByName('category')) {
+                son.checked = false;
+                }
+            }
+        }
+
+        const searchBtn = document.getElementById('searchBtn');
+        //document.getElementById('keyword').value;
+        var searchPage = 1;
+        searchBtn.addEventListener('click',function(){
+            searchPage = 1;
+            searchFunction(searchPage);
+        })
+        document.getElementById('searchKeyword').addEventListener('keypress', function(event){
+            if(event.key === 'Enter'){
+                searchPage = 1;
+                searchFunction(searchPage);
+            }
+        })
+
+        function searchFunction(searchPage, orderRule){
+            if(orderRule === undefined){
+                orderRule = 'PRODUCT_UPDATE desc';
+            }
+            let key = document.getElementById('searchKeyword').value;
+            if(key != null){
+                $.ajax({
+                    method: "GET",
+                    url: "searchProduct",
+                    data: {key:key,searchPage:searchPage,orderRule:orderRule},
+                    dataType: "json",
+                    success: function(data){
+                        areaForProduct.innerHTML = '';
+
+                        if(typeof(data[0]) == 'string'){
+                            document.getElementById('areaForProduct').style.justifyContent='center';
+                            let noproduct = '';
+                            noproduct += '<div style="text-align: center; margin-top: 2rem;">';
+                            noproduct += '<img src="market_assets/img/sample/sorry.png" style="height:50%;"><br><br>'
+                            noproduct += '<div style="color:black; font-weight:bold; font-size: 20px;">검색결과가 없습니다</div>';
+                            noproduct += '<div style="color:black; font-size:18px;">좌측 메뉴바에서 찾으시는 상품의 옵션을 선택해주세요</div>'
+                            noproduct += '</div>';
+
+                            areaForProduct.innerHTML = noproduct;
+                        }
+
+                        for(const p of data){
+                            //data에들어있는 pi를 빼주기위해 상품번호가 있는 p(즉 상품들)만 걸러주는 if문
+                            if(p.productNo != null || p.productNo != undefined){
+
+                                //InnerHTML으로 넣을 text
+                                let text = '';
+
+                                text += '<div class="col-lg-3 col-md-6 col-sm-12 pb-1 w-cp" onclick="selectProduct(this);">';
+                                text += '<form action="productDetail" method="get" class="submitForm">';
+                                text += '<input type="hidden" name="productNo" value="'+p.productNo+'">';
+                                text += '<div class="card product-item border-0 mb-4">';
+                                text += '<div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">';
+                                text += '<img class="img-fluid w-100" src="'+p.productImage+'" alt="이미지 불러오기 실패" style="height:230.23px"></div>';
+                                text += '<div class="card-body border-left border-right text-center p-0 pt-4 pb-3">';
+
+                                if(p.eventTitle == null || p.eventTitle == undefined){
+                                    text += '<h6 class="text-truncate mb-3">'+p.productName+'</h6>';
+                                }else if(p.eventTitle != null || p.eventTitle != undefined){
+                                    text += '<h6 class="text-truncate mb-3" style="color:#f5683c; font-size:15px;">['+p.eventTitle+']</h6>';
+                                    text += '<h6 class="text-truncate mb-3" style="color:black;">'+p.productName+'</h6>';
+                                }
+
+                                if(p.eventCode == null || p.eventCode == undefined || p.eventCode == 0){
+                                    text += '<div class="d-flex justify-content-center">';
+                                    text += '<h6>'+priceToString(p.productPrice)+'원</h6></div>'; //?????????????????????????
+                                }else if(p.eventCode != null || p.eventCode != undefined || p.eventCode != 0){
+                                    text += '<div class="d-flex justify-content-center"><div class="eventPrice">';
+                                    if(p.eventCode >= 1000){
+                                        text += '<h6 style="color:#f5683c;font-size:17px;">'+priceToString(p.productPrice - p.eventCode)+'원</h6></div>';
+                                    }else if(p.eventCode >= 1 && p.eventCode <= 100){
+                                        text += '<h6 style="color:#f5683c;font-size:17px;">'+priceToString(Math.round(p.productPrice * (1 - p.eventCode / 100)))+'원</h6></div>';
+                                    }
+                                    text += '<h6 class="text-muted ml-2 oriPh6">';
+                                    text += '<del class="placeop" style="font-size:15px;">'+priceToString(p.productPrice)+'</del></h6></div>';
+                                }
+
+                                text += '<h6 class="text-truncate mb-3">';
+                                if(p.productPoint == 5){
+                                    text += '<span style="color:#ff4d47;">★★★★★</span>';
+                                }else if(p.productPoint == 4){
+                                    text += '<span style="color:#ff4d47;">★★★★</span><span style="color:rgb(190, 190, 190);">★</span>';
+                                }else if(p.productPoint == 3){
+                                    text += '<span style="color:#ff4d47;">★★★</span><span style="color:rgb(190, 190, 190);">★★</span>';
+                                }else if(p.productPoint == 2){
+                                    text += '<span style="color:#ff4d47;">★★</span><span style="color:rgb(190, 190, 190);">★★★</span>';
+                                }else if(p.productPoint == 1){
+                                    text += '<span style="color:#ff4d47;">★</span><span style="color:rgb(190, 190, 190);">★★★★</span>';
+                                }else if(p.productPoint == 0 || p.productPoint == undefined){
+                                    text += '<span style="color:rgb(190, 190, 190);">★★★★★</span>';
+                                }
+
+                                text += '</h6></div></div></form></div>';
+                                
+                                areaForProduct.innerHTML += text;
+                            }
+                        }
+                        //
+                        const pageInfo = data[data.length -1];
+                        const pageInfoStr = pageInfo;
+                        const regex = /(\w+)=(\d+)/g;
+                        const pageInfoObj = {};
+                        let match;
+                        while ((match = regex.exec(pageInfoStr))) {
+                            const key = match[1];
+                            const value = parseInt(match[2]);
+                            pageInfoObj[key] = value;
+                        }
+                        searchGeneratePageNumbers(pageInfoObj.startPage, pageInfoObj.endPage, pageInfoObj.maxPage);
+                    },
+                    error: function(error){
+                        console.error(error);
+                    }
+                })
+            }
+        }
+
+        function searchGeneratePageNumbers(startPage, endPage, maxPage){
+            searchEndPageNum = maxPage;
+            endpn = maxPage;
+
+            numPage.innerHTML = '';
+
+            for (let i = startPage; i <= endPage; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item';
+
+                const a = document.createElement('a');
+                a.className = 'page-link';
+                a.style.cursor='pointer';
+                a.textContent = i;
+                a.setAttribute('data-page', i);
+                a.addEventListener('click', function () {
+                hrefSearchNo(this);
+                });
+
+                li.appendChild(a);
+                numPage.appendChild(li);
+            }
+        }
+
+        function hrefSearchNo(element){
+            searchPage = element.getAttribute("data-page");
+            searchFunction(searchPage, orderRule);
+        }
+
+        const resetBtn = document.getElementById('resetBtn');
+        resetBtn.addEventListener('click',function(){
+            if(document.getElementById('searchKeyword').value != ''){
+                document.getElementById('searchKeyword').value = '';
+            }
+        })
+
+    </script>
+</body>
+</html>

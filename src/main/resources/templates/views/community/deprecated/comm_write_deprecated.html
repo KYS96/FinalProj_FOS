@@ -1,0 +1,442 @@
+<!-- =========
+
+	Template Name: Play
+	Author: UIdeck
+	Author URI: https://uideck.com/
+	Support: https://uideck.com/support/
+	Version: 1.1
+
+========== -->
+
+  <!-- ======== summernote link ======== -->
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+  <!-- ======== summernote link end ======== -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>user_question</title>
+
+    <!-- Primary Meta Tags -->
+<meta name="title" content="Play - Free Open Source HTML Bootstrap Template by UIdeck">
+<meta name="description" content="Play - Free Open Source HTML Bootstrap Template by UIdeck Team">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://uideck.com/play/">
+<meta property="og:title" content="Play - Free Open Source HTML Bootstrap Template by UIdeck">
+<meta property="og:description" content="Play - Free Open Source HTML Bootstrap Template by UIdeck Team">
+<meta property="og:image" content="https://uideck.com/wp-content/uploads/2021/09/play-meta-bs.jpg">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://uideck.com/play/">
+<meta property="twitter:title" content="Play - Free Open Source HTML Bootstrap Template by UIdeck">
+<meta property="twitter:description" content="Play - Free Open Source HTML Bootstrap Template by UIdeck Team">
+<meta property="twitter:image" content="https://uideck.com/wp-content/uploads/2021/09/play-meta-bs.jpg">
+
+    <!--====== Favicon Icon ======-->
+    <link
+      rel="shortcut icon"
+      href="assets/images/favicon.svg"
+      type="image/svg"
+    />
+
+    <!-- ===== All CSS files ===== -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/animate.css" />
+    <link rel="stylesheet" href="assets/css/lineicons.css" />
+    <link rel="stylesheet" href="assets/css/ud-styles.css" />
+    
+    <!-- ===== Noto Sans Fonts ===== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+
+    <!-- css style -->
+    <style>
+      tr:hover {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ====== Header Start ====== -->
+    <header class="ud-header">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <nav class="navbar navbar-expand-lg">
+              <a class="navbar-brand" href="index.html">
+                <img src="assets/images/!final_proj/Forest-2.png" alt="Logo" style="margin: 3px; width: 50%;"/>
+              </a>
+              <button class="navbar-toggler">
+                <span class="toggler-icon"> </span>
+                <span class="toggler-icon"> </span>
+                <span class="toggler-icon"> </span>
+              </button>
+
+              <div class="navbar-collapse">
+                <ul id="nav" class="navbar-nav mx-auto">
+                  <li class="nav-item">
+                      <a class="ud-menu-scroll" href="#home" id="home">홈</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="ud-menu-scroll" href="user_question.html">문의사항</a>
+                  </li>
+                  <li class="nav-item nav-item-has-children">
+                    <a href="javascript:void(0)"> 커뮤니티 </a>
+                    <ul class="ud-submenu">
+                      <li class="ud-submenu-item">
+                        <a href="community.html" class="ud-submenu-link">
+                          베스트
+                        </a>
+                      </li>
+                      <li class="ud-submenu-item">
+                        <a href="community.html" class="ud-submenu-link">
+                          꿀팁
+                        </a>
+                      </li>
+                      <li class="ud-submenu-item">
+                        <a href="contact.html" class="ud-submenu-link">
+                          자유
+                        </a>
+                      </li>
+                      <li class="ud-submenu-item">
+                        <a href="contact.html" class="ud-submenu-link">
+                          유머
+                        </a>
+                      </li>
+                      <li class="ud-submenu-item">
+                        <a href="contact.html" class="ud-submenu-link">
+                          공지
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="navbar-btn d-none d-sm-inline-block">
+                <a href="login.html" class="ud-main-btn ud-login-btn">
+                  로그인
+                </a>
+                <a class="ud-main-btn ud-white-btn" href="javascript:void(0)">
+                  회원가입
+                </a>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- ====== Header End ====== -->
+
+    <!-- ====== Banner Start ====== -->
+    <section class="ud-page-banner" style="background-color: #5c469c;">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="ud-banner-content">
+              <h1 class="mb-2">문의사항</h1>
+              <!-- <form action="">
+                <div class="input-group mb-3 mt-3">
+                  <select name="Search" class="btn" style="background:#d4adfc">
+                    <option>전체</option>
+                    <option>꿀팁</option>
+                    <option>자유</option>
+                    <option>유머</option>
+                  </select>
+                  <input type="text" class="form-control" placeholder="검색어를 입력해 주세요">
+                </div>
+              </form> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ====== Banner End ====== -->
+
+
+
+    <!-- ====== 글 작성 Start ====== -->
+    <section class="container ud-features">
+      <ul class="ms-4 mb-3" style="list-style-type: circle">
+        <li>음란물, 차별, 비하, 혐오 및 초상권, 저작권 침해 게시물은 민, 형사상의 책임을 질 수 있습니다.</li>
+      </ul>
+      <form method="post">
+        <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+          <option selected>게시판 선택 (필수 선택 입니다)</option>
+          <option value="tips">꿀팁</option>
+          <option value="free">자유</option>
+          <option value="humor">유머</option>
+        </select>
+        <div class="input-group flex-nowrap mb-2">
+          <span class="input-group-text" id="addon-wrapping">제목</span>
+          <input type="text" class="form-control" placeholder="제목을 입력하세요." aria-label="Username" aria-describedby="addon-wrapping">
+        </div>
+        <textarea id="summernote" name="editordata"></textarea>
+
+        <!--목록보기 및 제출-->
+        <div class="container mt-4 mb-2">
+          <div class="row-cols-sm-12">
+            <button type="button" class="btn btn-dark">취소</button>
+            <button type="button" class="btn btn-primary">등록</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- ====== Features End ====== -->
+
+    <!-- ====== 앵커 ====== -->
+    <section class="ud-about">
+      
+    </section>
+    <!-- ====== About End ====== -->
+
+
+    <!-- ====== Footer Start ====== -->
+    <!-- ====== Footer Start ====== -->
+    <footer class="ud-footer wow fadeInUp" data-wow-delay=".15s" style="background-color: #5c469c;">
+      <div class="shape shape-1">
+        <img src="assets/images/footer/shape-1.svg" alt="shape" />
+      </div>
+      <div class="shape shape-2">
+        <img src="assets/images/footer/shape-2.svg" alt="shape" />
+      </div>
+      <div class="shape shape-3">
+        <img src="assets/images/footer/shape-3.svg" alt="shape" />
+      </div>
+      <div class="ud-footer-widgets">
+        <div class="container">
+          <div class="row">
+            <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="ud-widget">
+                <a href="index.html" class="ud-footer-logo">
+                  <img src="assets/images/!final_proj/Forest-2.png" alt="logo" />
+                </a>
+                <p class="ud-widget-desc">
+                  홈으로 가기
+                </p>
+                <ul class="ud-widget-socials">
+                  <li>
+                    <a href="https://twitter.com/MusharofChy">
+                      <i class="lni lni-facebook-filled"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://twitter.com/MusharofChy">
+                      <i class="lni lni-twitter-filled"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://twitter.com/MusharofChy">
+                      <i class="lni lni-instagram-filled"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://twitter.com/MusharofChy">
+                      <i class="lni lni-linkedin-original"></i>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6">
+              <div class="ud-widget">
+                <h5 class="ud-widget-title">Shop</h5>
+                <ul class="ud-widget-links">
+                  <li>
+                    <a href="javascript:void(0)">쇼핑몰로 이동</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6">
+              <div class="ud-widget">
+                <h5 class="ud-widget-title">Inquiry</h5>
+                <ul class="ud-widget-links">
+                  <li>
+                    <a href="javascript:void(0)">문의사항</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6">
+              <div class="ud-widget">
+                <h5 class="ud-widget-title">Community</h5>
+                <ul class="ud-widget-links">
+                  <li>
+                    <a
+                      href="https://lineicons.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                      >베스트
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://ecommercehtml.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                      >꿀팁</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="https://ayroui.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                      >자유</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="https://ayroui.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                      >유머</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="https://ayroui.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                      >공지</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-8 col-sm-10">
+              <div class="ud-widget">
+                <h5 class="ud-widget-title">Partners</h5>
+                <ul class="ud-widget-brands">
+                  <li>
+                    <a
+                      href="https://ayroui.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                    >
+                      <img
+                        src="assets/images/footer/brands/ayroui.svg"
+                        alt="ayroui"
+                      />
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://ecommercehtml.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                    >
+                      <img
+                        src="assets/images/footer/brands/ecommerce-html.svg"
+                        alt="ecommerce-html"
+                      />
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://graygrids.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                    >
+                      <img
+                        src="assets/images/footer/brands/graygrids.svg"
+                        alt="graygrids"
+                      />
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://lineicons.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                    >
+                      <img
+                        src="assets/images/footer/brands/lineicons.svg"
+                        alt="lineicons"
+                      />
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://uideck.com/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                    >
+                      <img
+                        src="assets/images/footer/brands/uideck.svg"
+                        alt="uideck"
+                      />
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://tailwindtemplates.co/"
+                      rel="nofollow noopner"
+                      target="_blank"
+                    >
+                      <img
+                        src="assets/images/footer/brands/tailwindtemplates.svg"
+                        alt="tailwindtemplates"
+                      />
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ud-footer-bottom">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-8">
+              <ul class="ud-footer-bottom-left">
+                <li>
+                  <a href="javascript:void(0)">Privacy policy</a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">Support policy</a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">Terms of service</a>
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-4">
+              <p class="ud-footer-bottom-right">
+                Designed and Developed by
+                <a href="https://uideck.com" rel="nofollow">UIdeck</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- ====== Footer End ====== -->
+    
+    <!-- ====== All Javascript Files ====== -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/wow.min.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script>
+      $('#summernote').summernote({
+        placeholder: 'Hello Bootstrap 5',
+        tabsize: 4,
+        height: 350
+      });
+    </script>
+  </body>
+</html>

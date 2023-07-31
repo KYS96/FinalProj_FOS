@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kh.slumber.market.model.dao.MarketDAO">
+
+	<resultMap type="MarketProduct" id="marketProductResultSet">
+		<id property="productNo" column="PRODUCT_NO"/>
+		<result property="productCategoryName" column="PRODUCT_CATEGORY_NAME"/>
+		<result property="productName" column="PRODUCT_NAME"/>
+		<result property="productPrice" column="PRODUCT_PRICE"/>
+		<result property="productPoint" column="PRODUCT_POINT"/>
+		<result property="eventTitle" column="EVENT_TITLE"/>
+		<result property="eventCode" column="EVENT_CODE"/>
+		<result property="productStock" column="PRODUCT_STOCK"/>
+		<result property="productExplain" column="PRODUCT_EXPLAIN"/>
+		<result property="productImage" column="PRODUCT_IMAGE"/>
+		<!-- <result property="productCategoryNo" column="PRODUCT_CATEGORY_NO"/> -->
+		<!-- <result property="employeeNo" column="EMPLOYEE_NO"/> -->
+		<!-- <result property="productResistDate" column="PRODUCT_RESIST_DATE"/> -->
+		<!-- <result property="productUpdate" column="PRODUCT_UPDATE"/> -->
+		<result property="productSales" column="PRODUCT_SALES"/>
+		<result property="productStatus" column="PRODUCT_STATUS"/>
+	</resultMap>
+
+	<resultMap type="MarketProductAttm" id="marketProductAttmResultSet">
+		<id property="productAttmNo" column="ATTM_NO"/>
+		<!-- <result property="productAttmName" column="ATTM_NAME"/> -->
+		<!-- <result property="productAttmSaveName" column="ATTM_SAVE_NAME"/> -->
+		<result property="productAttmURL" column="ATTM_URL"/>
+		<!-- <result property="productAttmRefNo" column="ATTM_REF_NO"/> -->
+		<result property="productAttmCategory" column="ATTM_CATEGORY"/>
+	</resultMap>
+
+	<resultMap type="MarketReview" id="marketReviewResultSet">
+		<id property="reviewNo" column="REVIEW_NO"/>
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="memberNickName" column="MEMBER_NICKNAME"/>
+		<result property="reviewContent" column="REVIEW_CONTENT"/>
+		<result property="reviewPoint" column="REVIEW_POINT"/>
+		<result property="reviewUpdateDate" column="REVIEW_UPDATE_DATE"/>
+	</resultMap>
+
+	<resultMap type="MarketQnA" id="marketQnAResultSet">
+		<id property="questionNo" column="QUESTION_NO"/>
+		<result property="memberNo" column="MEMBER_NO"/>
+		<result property="memberNickName" column="MEMBER_NICKNAME"/>
+		<result property="productNo" column="PRODUCT_NO"/>
+		<result property="questionTitle" column="QUESTION_TITLE"/>
+		<result property="questionContent" column="QUESTION_CONTENT"/>
+		<result property="questionUpdateDate" column="QUESTION_UPDATEDATE"/>
+		<result property="questionAnswer" column="QUESTION_ANSWER"/>
+	</resultMap>
+
+	<resultMap type="MarketProductOrder" id="marketProductOrderResultSet">
+		<id property="orderNo" column="ORDER_NO"/>
+		<result property="memberNo" column="MEMBER_NO"/>
+		<result property="memberName" column="MEMBER_NAME"/>
+		<result property="memberPhone" column="MEMBER_PHONE"/>
+		<result property="productNo" column="PRODUCT_NO"/>
+		<result property="productName" column="PRODUCT_NAME"/>
+		<result property="orderDate" column="ORDER_DATE"/>
+		<result property="orderAmount" column="ORDER_AMOUNT"/>
+		<result property="orderPrice" column="ORDER_PRICE"/>
+		<result property="orderAddr" column="ORDER_ADDR"/>
+		<result property="orderDetailAddr" column="ORDER_DETAIL_ADDR"/>
+		<result property="productImage" column="PRODUCT_IMAGE"/>
+		<result property="cartNo" column="CART_NO"/>
+		<result property="orderMemo" column="ORDER_MEMO"/>
+		<result property="orderType" column="ORDER_TYPE"/>
+	</resultMap>
+
+	<resultMap type="MarketCoupon" id="marketCouponResultSet">
+		<id property="couponIssuanceNo" column="COUPON_ISSUANCE_NO"/>
+		<result property="couponNo" column="COUPON_NO"/>
+		<result property="couponStartDate" column="COUPON_START_DATE"/>
+		<result property="couponStartDate" column="COUPON_OPEN_DATE"/>
+		<result property="couponEndDate" column="COUPON_END_DATE"/>
+		<result property="couponEndDate" column="COUPON_CLOSE_DATE"/>
+		<result property="couponUseDate" column="COUPON_USEDATE"/>
+		<result property="couponStatus" column="COUPON_STATUS"/>
+		<result property="couponName" column="COUPON_NAME"/>
+		<result property="couponDiscountRate" column="COUPON_DISCOUNT_RATE"/>
+		<result property="couponCondition" column="COUPON_CONDITION"/>
+		<result property="couponUseCondition" column="COUPON_USE_CONDITION"/>
+	</resultMap>
+    
+	<!--o-->
+	<!--상품목록조회페이지에서 페이징을 위해 상품 카테고리별 총 상품 수량 파악-->
+	<select id="getProductCount" resultType="_int" parameterType="hashMap">
+		select count(*)
+		from PRODUCT
+		where PRODUCT_STATUS = 'Y'
+		and (PRODUCT_CATEGORY_NO = 'XXX'
+		<if test="bed == 'bed'">
+			or PRODUCT_CATEGORY_NO = 'P01'
+		</if>
+		<if test="pillow == 'pillow'">
+			or PRODUCT_CATEGORY_NO = 'P02'
+		</if>
+		<if test="blanket == 'blanket'">
+			or PRODUCT_CATEGORY_NO = 'P03'
+		</if>
+		<if test="clothing == 'clothing'">
+			or PRODUCT_CATEGORY_NO = 'P04'
+		</if>
+		<if test="health == 'health'">
+			or PRODUCT_CATEGORY_NO = 'P05'
+		</if>
+		<if test="goods == 'goods'">
+			or PRODUCT_CATEGORY_NO = 'P06'
+		</if>
+		<if test="all == 'all'">
+			or PRODUCT_CATEGORY_NO LIKE 'P0%'
+		</if>
+		)
+		<if test="priceRange == 'allPrice'">
+			AND PRODUCT_PRICE &gt;= 0
+		</if>
+		<if test="priceRange == '2mLess'">
+			AND PRODUCT_PRICE &lt;= 20000
+		</if>
+		<if test="priceRange == '2mTo10m'">
+			AND PRODUCT_PRICE between 20000 and 100000
+		</if>
+		<if test="priceRange == '10mTo30m'">
+			AND PRODUCT_PRICE between 100000 and 300000
+		</if>
+		<if test="priceRange == '30mTo100m'">
+			AND PRODUCT_PRICE between 300000 and 1000000
+		</if>
+		<if test="priceRange == '100mMore'">
+			AND PRODUCT_PRICE &gt;= 1000000
+		</if>
+	</select>
+
+	<!--상품목록조회페이지에서 노출할 상품들을 카테고리별로 분류후 호출-->
+	<select id="getProductList" resultMap="marketProductResultSet" parameterType="hashMap">
+		select *
+		from PRODUCT_WITH_EVENTINFO
+		where PRODUCT_STATUS = 'Y'
+		and (PRODUCT_CATEGORY_NAME = 'XXX'
+		<if test="bed == 'bed'">
+			or PRODUCT_CATEGORY_NAME = '침대'
+		</if>
+		<if test="pillow == 'pillow'">
+			or PRODUCT_CATEGORY_NAME = '베개'
+		</if>
+		<if test="blanket == 'blanket'">
+			or PRODUCT_CATEGORY_NAME = '이불'
+		</if>
+		<if test="clothing == 'clothing'">
+			or PRODUCT_CATEGORY_NAME = '의류'
+		</if>
+		<if test="health == 'health'">
+			or PRODUCT_CATEGORY_NAME = '건강'
+		</if>
+		<if test="goods == 'goods'">
+			or PRODUCT_CATEGORY_NAME = '굿즈'
+		</if>
+		<if test="all == 'all'">
+			or PRODUCT_CATEGORY_NAME LIKE '%%'
+		</if>
+		)
+		<if test="priceRange == 'allPrice'">
+			AND PRODUCT_PRICE &gt;= 0
+		</if>
+		<if test="priceRange == '2mLess'">
+			AND PRODUCT_PRICE &lt;= 20000
+		</if>
+		<if test="priceRange == '2mTo10m'">
+			AND PRODUCT_PRICE between 20000 and 100000
+		</if>
+		<if test="priceRange == '10mTo30m'">
+			AND PRODUCT_PRICE between 100000 and 300000
+		</if>
+		<if test="priceRange == '30mTo100m'">
+			AND PRODUCT_PRICE between 300000 and 1000000
+		</if>
+		<if test="priceRange == '100mMore'">
+			AND PRODUCT_PRICE &gt;= 1000000
+		</if>
+		order by ${orderRule}
+	</select>
+
+	<!--상품상세보기를 위한 상품 정보 호출-->
+	<select id="getProductDetail" resultMap="marketProductResultSet">
+		select *
+		from PRODUCT_WITH_EVENTINFO
+		where PRODUCT_NO = #{productNo}
+	</select>
+
+	<!--상품상세보기를 위한 상품 서브이미지1~4개를 호출-->
+	<select id="getProductSubImgs" resultMap="marketProductAttmResultSet">
+		select ATTM_NO, ATTM_URL
+		from BOARD_ATTACHMENT
+		where ATTM_REF_NO = #{productNo}
+			and ATTM_CATEGORY = 's_sub'
+			and rownum &lt;= 4
+		order by ATTM_NO desc
+	</select>
+
+	<!--상품상세보기를 위한 상품 상세정보이미지를 호출-->
+	<select id="getProductDetailImg" resultMap="marketProductAttmResultSet">
+		select ATTM_NO, ATTM_URL
+		from BOARD_ATTACHMENT
+		where ATTM_REF_NO = #{productNo}
+			and ATTM_CATEGORY = 's_detail'
+		order by ATTM_NO desc
+	</select>
+
+	<!--리뷰페이징으로 위해 전체 리뷰 수를 가져옴-->
+	<select id="getReviewCount" resultType="_int">
+		select count(*)
+		from PRODUCT_REVIEW
+			join PRODUCT_ORDER using(ORDER_NO)
+		where PRODUCT_NO = #{productNo}
+	</select>
+
+	<!--페이징처리를 일단 무시한 상태에서 상품에 달린 리뷰를 가져옴-->
+	<select id="getProductReviews" resultMap="marketReviewResultSet">
+		select REVIEW_NO, ORDER_NO, MEMBER_NICKNAME, REVIEW_CONTENT, REVIEW_POINT, REVIEW_UPDATE_DATE
+		from PRODUCT_REVIEW
+			join PRODUCT_ORDER using (ORDER_NO)
+			join MEMBER using (MEMBER_NO)
+		where PRODUCT_NO = #{productNo}
+	</select>
+
+	<!--상품에 달린 전체 리뷰 이미지 호출-->
+	<!--Attm테이블에서 ATTM_REF_NO컬럼은 어떤 상품에 달린 리뷰들인지 알려주는 역할-->
+	<!--ATTM_CATEGORY는 어떤 사용자가 작성한 리뷰에 달린 리뷰인지 알려주는 역할-->
+	<!--표현법은 : s_review_주문번호-->
+	<select id="getReviewImgs" resultMap="marketProductAttmResultSet">
+		select ATTM_NO, ATTM_URL, ATTM_CATEGORY
+		from BOARD_ATTACHMENT
+		where ATTM_REF_NO = #{productNo}
+			and ATTM_CATEGORY Like 's_review_%'
+		order by ATTM_NO desc
+	</select>
+
+	<!--페이징을 위해 상품의 달린 총 QnA게시글 수를 가져오기-->
+	<select id="getQnACount" resultType="_int">
+		select count(*)
+		from QUESTION_BOARD
+		where PRODUCT_NO = #{productNo}
+	</select>
+
+	<!--상품에 달린 전체 QnA을 가져오기-->
+	<select id="getQnAList" resultMap="marketQnAResultSet">
+		select QUESTION_NO, MEMBER_NO, MEMBER_NICKNAME, QUESTION_TITLE, QUESTION_UPDATEDATE, QUESTION_CONTENT, QUESTION_ANSWER, PRODUCT_NO
+		from QUESTION_BOARD
+			join MEMBER using(MEMBER_NO)
+		where PRODUCT_NO = #{productNo}
+		order by QUESTION_NO desc
+	</select>
+
+	<!--회원이 해당 상품을 구매한 기록이 존재하는지 확인-->
+	<select id="checkOrder" resultType="_int" parameterType="hashMap">
+		select count(*)
+		from PRODUCT_ORDER
+		where ORDER_NO = #{orderNo}
+			and MEMBER_NO = #{memberNo}
+	</select>
+
+	<!--리뷰팝업에 띄울 주문 정보-->
+	<select id="getRecentOrderInfo" resultMap="marketProductOrderResultSet" parameterType="hashMap">
+		select ORDER_NO, PRODUCT_NO, PRODUCT_NAME, ORDER_DATE, ORDER_AMOUNT, ORDER_PRICE, PRODUCT_IMAGE
+		from PRODUCT_ORDER
+			join PRODUCT using (PRODUCT_NO)
+		where MEMBER_NO = #{memberNo}
+			and PRODUCT_NO = #{productNo}
+			and rownum = 1
+		order by ORDER_DATE desc
+	</select>
+
+	<select id="getUseableCoupons" resultMap="marketCouponResultSet">
+		select COUPON_ISSUANCE_NO, COUPON_NAME, COUPON_END_DATE, COUPON_DISCOUNT_RATE, COUPON_USE_CONDITION
+		from COUPON_ISSUANCE c
+			join COUPON using (COUPON_NO)
+		where MEMBER_NO = #{memberNo}
+			and c.COUPON_STATUS = 'Y'
+		order by COUPON_DISCOUNT_RATE desc
+	</select>
+
+	<insert id="insertNewOrder">
+		<selectKey keyProperty="orderNo" resultType="String" order="AFTER">
+			select SEQ_ORDER_NO.CURRVAL FROM DUAL
+		</selectKey>
+		insert into PRODUCT_ORDER
+		values
+		<if test="couponIssuanceNo != null and !couponIssuanceNo.isEmpty()">
+			(SEQ_ORDER_NO.NEXTVAL, #{memberNo}, #{productNo}, SYSDATE, #{orderAmount}, #{orderType}, null, null, null, #{orderAddr}, #{orderDetailAddr}, 'Y', #{couponIssuanceNo}, #{orderPrice}, SEQ_ORDER_NO.CURRVAL, #{orderMemo})
+		</if>
+		<if test="couponIssuanceNo == null or couponIssuanceNo.isEmpty()">
+			(SEQ_ORDER_NO.NEXTVAL, #{memberNo}, #{productNo}, SYSDATE, #{orderAmount}, #{orderType}, null, null, null, #{orderAddr}, #{orderDetailAddr}, 'N', null, #{orderPrice}, SEQ_ORDER_NO.CURRVAL, #{orderMemo})
+		</if>
+	</insert>
+
+	<select id="getNewOrderInfo" resultMap="marketProductOrderResultSet">
+		select ORDER_NO, MEMBER_NAME, MEMBER_PHONE, ORDER_ADDR, ORDER_DETAIL_ADDR
+		from PRODUCT_ORDER
+			join MEMBER using(MEMBER_NO)
+		where MEMBER_NO = #{memberNo}
+			and PRODUCT_NO = #{productNo}
+			and ORDER_AMOUNT = #{orderAmount}
+			and ORDER_TYPE = 'KAKAO'
+			and ORDER_ADDR = 'KAKAOADDR'
+			and ORDER_DETAIL_ADDR = 'DETAILADDR'
+			and ORDER_PRICE = #{orderPrice}
+	</select>
+
+	<update id="couponExpiration">
+		update COUPON_ISSUANCE
+		set COUPON_STATUS = 'N',
+			COUPON_USEDATE = sysdate
+		where COUPON_ISSUANCE_NO = #{usedCoupon}
+	</update>
+
+	<insert id="writeReview" parameterType="hashMap">
+		insert into PRODUCT_REVIEW
+		values
+		(SEQ_REVIEW_NO.NEXTVAL, #{orderNo}, SYSDATE, #{content}, #{point})
+	</insert>
+
+	<insert id="insertReviewImgs">
+		insert all
+		<foreach collection="list" item="item">
+			into BOARD_ATTACHMENT
+				values(null, #{item.attmName}, #{item.attmSaveName}, #{item.attmUrl}, #{item.productNo}, #{item.attmCategory})
+		</foreach>
+		select * from dual
+	</insert>
+
+	<insert id="writeQnA">
+		insert into QUESTION_BOARD
+		values
+		(SEQ_QUESTION_NO.NEXTVAL, #{memberNo}, #{QnATitle}, SYSDATE, #{QnAContent}, default, #{productNo})
+	</insert>
+
+	<select id="getQnAs" resultMap="marketQnAResultSet">
+		select QUESTION_NO, MEMBER_NO, MEMBER_NICKNAME, QUESTION_TITLE, QUESTION_UPDATEDATE, QUESTION_CONTENT, QUESTION_ANSWER, PRODUCT_NO
+		from QUESTION_BOARD
+			join MEMBER using(MEMBER_NO)
+		where PRODUCT_NO = #{productNo}
+		order by QUESTION_NO desc
+	</select>
+
+	<select id="getReviews" resultMap="marketReviewResultSet">
+		select REVIEW_NO, ORDER_NO, MEMBER_NICKNAME, REVIEW_CONTENT, REVIEW_POINT, REVIEW_UPDATE_DATE
+		from PRODUCT_REVIEW
+			join PRODUCT_ORDER using (ORDER_NO)
+			join MEMBER using (MEMBER_NO)
+		where PRODUCT_NO = #{productNo}
+	</select>
+
+	<!--o-->
+	<select id="getProductInfo" resultMap="marketProductResultSet">
+		select *
+		from PRODUCT_WITH_EVENTINFO
+		where PRODUCT_NO = #{productNo}
+			and PRODUCT_STATUS = 'Y'
+	</select>
+
+	<select id="getReviewPointDetail" resultMap="marketReviewResultSet">
+		select REVIEW_POINT
+		from PRODUCT_REVIEW
+			join PRODUCT_ORDER using(ORDER_NO)
+		where PRODUCT_NO = #{productNo}
+	</select>
+
+	<select id="countQnA" resultType="_int">
+		select count(*)
+		from QUESTION_BOARD
+		where PRODUCT_NO = #{productNo}
+	</select>
+
+	<select id="countReview" resultType="_int">
+		select count(*)
+		from PRODUCT_REVIEW
+			join PRODUCT_ORDER using(ORDER_NO)
+		where PRODUCT_NO = #{productNo}
+	</select>
+
+	<select id="getReviewList" resultMap="marketReviewResultSet" parameterType="hashMap">
+		select REVIEW_NO, ORDER_NO, REVIEW_UPDATE_DATE, REVIEW_CONTENT, REVIEW_POINT, MEMBER_NICKNAME
+		from PRODUCT_REVIEW
+			join PRODUCT_ORDER using(ORDER_NO)
+			join MEMBER using(MEMBER_NO)
+		where PRODUCT_NO = #{productNo}
+		order by ${orderRule}
+	</select>
+
+	<select id="getFirstReviewImg" resultMap="marketProductAttmResultSet">
+		select ATTM_NO, ATTM_URL
+		from BOARD_ATTACHMENT
+		where ATTM_CATEGORY = 's_review_${reviewNo}'
+		and rownum &lt;= 1
+		order by ATTM_NO asc
+	</select>
+
+	<select id="getAllImgs" resultMap="marketProductAttmResultSet">
+		select ATTM_NO, ATTM_URL
+		from BOARD_ATTACHMENT
+		where ATTM_REF_NO = #{productNo}
+			and ATTM_CATEGORY Like 's_review_%'
+		order by ATTM_NO desc
+	</select>
+
+	<select id="getRestImgs" resultMap="marketProductAttmResultSet">
+		select ATTM_URL
+		from BOARD_ATTACHMENT
+		where ATTM_CATEGORY = 's_review_${reviewNo}'
+		order by ATTM_NO asc
+	</select>
+
+	<select id="getOrderInfo" resultMap="marketProductOrderResultSet">
+		select ORDER_NO, MEMBER_NAME, MEMBER_NICKNAME, PRODUCT_NAME, PRODUCT_NO,
+				ORDER_AMOUNT, ORDER_PRICE, PRODUCT_IMAGE, ORDER_DATE
+		from PRODUCT_ORDER
+			join MEMBER using (MEMBER_NO)
+			join PRODUCT using (PRODUCT_NO)
+		where ORDER_NO = #{orderNo}
+			and MEMBER_NO = #{memberNo}
+	</select>
+
+	<insert id="insertReview">
+		<selectKey keyProperty="reviewNo" resultType="String" order="AFTER">
+			select SEQ_REVIEW_NO.CURRVAL FROM DUAL
+		</selectKey>
+		insert into PRODUCT_REVIEW
+		values
+		(SEQ_REVIEW_NO.NEXTVAL, #{orderNo}, SYSDATE, #{reviewContent}, #{reviewPoint})
+	</insert>
+
+	<update id="updateProductPoint">
+		update PRODUCT
+		set PRODUCT_POINT = ${newPoint}
+		where PRODUCT_NO = #{productNo}
+	</update>
+
+	<select id="getQnA" resultMap="marketQnAResultSet">
+		select *
+		from QUESTION_BOARD
+			join MEMBER using(MEMBER_NO)
+		where QUESTION_NO = #{questionNo}
+	</select>
+
+	<delete id="deleteQnA">
+		delete from QUESTION_BOARD
+		where QUESTION_NO = #{questionNo}
+	</delete>
+
+	<!-- <update id="updateProduct">
+		update PRODUCT
+		set PRODUCT_STOCK = PRODUCT_STOCK - 1
+			,PRODUCT_SALES = PRODUCT_SALES + 1
+		where PRODUCT_NO = #{productNo}
+	</update> -->
+
+	<select id="getOrder" resultMap="marketProductOrderResultSet">
+		select *
+		from PRODUCT_ORDER
+			join MEMBER using(MEMBER_NO)
+		where ORDER_NO = #{orderNo}
+	</select>
+
+	<update id="updateStockSales">
+		update PRODUCT
+		set PRODUCT_STOCK = PRODUCT_STOCK - #{purchaseQuantity},
+			PRODUCT_SALES = PRODUCT_SALES + #{purchaseQuantity}
+		where PRODUCT_NO = #{productNo}
+	</update>
+
+	<select id="getIndexProduct" resultMap="marketProductResultSet">
+		select PRODUCT_NO, PRODUCT_NAME, PRODUCT_IMAGE, PRODUCT_PRICE, EVENT_TITLE, EVENT_CODE
+		from PRODUCT_WITH_EVENTINFO
+		where PRODUCT_STATUS = 'Y'
+			and PRODUCT_CATEGORY_NAME = #{string}
+			and rownum &lt;= 4
+	</select>
+	
+	<select id="getSearchProductCount" resultType="_int">
+		select count(*)
+		from PRODUCT
+		where PRODUCT_NAME LIKE '%${key}%'
+			and PRODUCT_STATUS = 'Y'
+	</select>
+
+	<select id="getSearchedList" resultMap="marketProductResultSet">
+		select *
+		from PRODUCT_WITH_EVENTINFO
+		where PRODUCT_NAME LIKE '%${key}%'
+			and PRODUCT_STATUS = 'Y'
+		order by ${orderRule}
+	</select>
+
+	<select id="getCartList" resultMap="marketProductResultSet">
+		select *
+		from PRODUCT_WITH_EVENTINFO
+		where PRODUCT_NO IN
+		<foreach item="productNo" collection="list" open="(" separator="," close=")">
+			#{productNo}
+		</foreach>
+	</select>
+
+	<insert id="insertFisrtCart">
+		<selectKey keyProperty="orderNo" resultType="String" order="AFTER">
+			select SEQ_ORDER_NO.CURRVAL FROM DUAL
+		</selectKey>
+		insert into PRODUCT_ORDER
+		values
+		<if test="couponIssuanceNo != null and !couponIssuanceNo.isEmpty()">
+			(SEQ_ORDER_NO.NEXTVAL, #{memberNo}, #{productNo}, SYSDATE, #{orderAmount}, #{orderType}, null, null, null, #{orderAddr}, #{orderDetailAddr}, 'Y', #{couponIssuanceNo}, #{orderPrice}, SEQ_ORDER_NO.CURRVAL+1, #{orderMemo})
+		</if>
+		<if test="couponIssuanceNo == null or couponIssuanceNo.isEmpty()">
+			(SEQ_ORDER_NO.NEXTVAL, #{memberNo}, #{productNo}, SYSDATE, #{orderAmount}, #{orderType}, null, null, null, #{orderAddr}, #{orderDetailAddr}, 'N', null, #{orderPrice}, SEQ_ORDER_NO.CURRVAL+1, #{orderMemo})
+		</if>
+	</insert>
+
+	<insert id="insertRestCart">
+		insert all
+		<foreach collection="list" item="item">
+			into PRODUCT_ORDER values (
+			<if test="item.couponIssuanceNo != null and !item.couponIssuanceNo.isEmpty">
+				null, #{item.memberNo}, #{item.productNo}, SYSDATE, #{item.orderAmount}, #{item.orderType}, null, null, null, #{item.orderAddr}, #{item.orderDetailAddr}, 'Y', #{item.couponIssuanceNo}, #{item.orderPrice}, #{item.cartNo}, #{item.orderMemo}
+			</if>
+			<if test="item.couponIssuanceNo == null or item.couponIssuanceNo.isEmpty">
+				null, #{item.memberNo}, #{item.productNo}, SYSDATE, #{item.orderAmount}, #{item.orderType}, null, null, null, #{item.orderAddr}, #{item.orderDetailAddr}, 'N', null, #{item.orderPrice}, #{item.cartNo}, #{item.orderMemo}
+			</if>
+			)
+		</foreach>
+		select * from dual
+	</insert>
+
+	<select id="getCanDownloadCoupons" resultMap="marketCouponResultSet">
+		select COUPON_NO, COUPON_NAME, COUPON_DISCOUNT_RATE, COUPON_USE_CONDITION
+		from COUPON
+		where COUPON_CONDITION = 'download'
+			and COUPON_STATUS = 'Y'
+	</select>
+
+	<select id="getCouponInfo" resultMap="marketCouponResultSet">
+		select COUPON_NO, COUPON_OPEN_DATE, COUPON_CLOSE_DATE, COUPON_DISCOUNT_RATE
+		from COUPON
+		where COUPON_NO = #{couponNo}
+			and COUPON_STATUS = 'Y'
+	</select>
+
+	<insert id="insertCouponToMember">
+		insert into COUPON_ISSUANCE
+		values (
+			SEQ_COUPON_ISSUANCE_NO.NEXTVAL,
+			#{couponNo}, #{memberNo},
+			#{couponStartDate}, #{couponEndDate},
+			null, 'Y', 'N'
+		)
+	</insert>
+
+	<select id="getCheckDownload" resultType="_int">
+		select count(*)
+		from COUPON_ISSUANCE
+		where MEMBER_NO = #{memberNo}
+			and COUPON_NO = #{couponNo}
+	</select>
+
+	<select id="checkReviewed" resultType="_int">
+		select count(*)
+		from PRODUCT_REVIEW
+		where ORDER_NO = #{orderNo}
+	</select>
+
+	<select id="checkSelfcheckCouponDownloaded" resultType="_int">
+		select count(*)
+		from COUPON_ISSUANCE
+			join COUPON using(COUPON_NO)
+		where MEMBER_NO = #{memberNo}
+			and COUPON_CONDITION = 'survey'
+	</select>
+
+	<select id="getSelfCheckCouponInfo" resultMap="marketCouponResultSet">
+		select COUPON_NO
+		from COUPON
+		where COUPON_CONDITION = 'survey'
+	</select>
+
+	<insert id="insertSelfcheckCouponToMember">
+		insert into COUPON_ISSUANCE
+		values (
+			SEQ_COUPON_ISSUANCE_NO.NEXTVAL,
+			#{couponNo}, #{memberNo},
+			sysdate, sysdate+30,
+			null, 'Y', 'N'
+		)
+	</insert>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

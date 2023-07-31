@@ -1,0 +1,59 @@
+<th:block th:if="${list == null}">
+    <h3>검색 결과가 없습니다.</h3>
+</th:block>
+<th:block th:if="${list != null}">
+    <table class="table">
+        <thead class="bg-light">
+            <tr>
+                <th style="min-width: 150px; max-width: 200px;">상품명</th>
+                <th style="min-width: 110px;">수량</th>
+                <th style="min-width: 110px;">금액</th>
+                <th style="min-width: 110px;">구매자</th>
+                <th style="min-width: 150px; max-width: 160px;">주소<hr>연락처</th>
+                <th style="min-width: 110px;">주문일<hr>출고일</th>
+                <th style="min-width: 110px;">운송장번호<br>입력/수정</th>
+            </tr>
+        </thead>
+        <tbody th:each="a : ${list}">
+            <tr>
+                <input type="hidden" th:value="${a.orderNo}">
+                <input type="hidden" th:value="${a.memberNo}">
+                <input type="hidden" th:value="${a.productNo}">
+                <input type="hidden" th:value="${a.cartNo}">
+                <td><br><br>[[${a.productName}]]</td>
+                <td><br><br>[[${a.orderAmount}]]</td>
+                <td><br><br>[[${a.orderPrice}]]</td>
+                <td><br><br>[[${a.memberName}]]</td>
+                <td>[[${a.orderAddr}]]<br>[[${a.orderDetailAddr}]]<hr>[[${a.memberPhone}]]</td>
+                <td>
+                    <br>
+                    [[${a.orderDate}]]
+                    <hr>
+                    <th:block  th:text="${a.orderDeliveryDate == null ? '-' : a.orderDeliveryDate}"></th:block>
+                    <br><br>
+                </td>
+                <td>
+                    <br><br>
+                    <button class="btn btn-primary btn-sm" onclick="productOrderDetail(this)">상세보기</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="mx-auto bg-white" th:if="${pi != null}">
+        <ul class="pagination mx-auto justify-content-center p-3">
+            <li class="page-item" th:if="${pi.currentPage > 1}">
+                <span class="page-link" th:data-page="${pi.currentPage - 1}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </span>
+            </li>
+            <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}">
+                <span class="page-link" th:data-page="${p}" th:text="${p}"></span>
+            </li>
+            <li class="page-item" th:if="${pi.currentPage &lt pi.maxPage}">
+                <span class="page-link" th:data-page="${pi.currentPage + 1}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </span>
+            </li>
+        </ul>
+    </div> 
+</th:block>

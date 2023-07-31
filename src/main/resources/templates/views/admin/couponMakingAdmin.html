@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="kor" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+            <form action="enrollCoupon.admin" method="post">
+                <div class="main-content">
+                    <div class="section__content section__content--p30">
+                        <div class="container-fluid" id="mainContentAdmin">
+                            <div class="row">
+                                <div class="col-1"></div>
+                                <div class="col-9">
+                                    <div class="au-card au-card--no-shadow au-card--no-pad m-b-40" style="min-width: 700px;">
+                                        <div class="au-card-title">
+                                            <div class="bg-overlay bg-overlay--blue"></div>
+                                            <h3><i class="bi bi-plus-square"></i>쿠폰 등록</h3>
+                                        </div>
+                                        <div class="au-task js-list-load cardInnerText" style="text-align: center;">
+                                            <table class="table bg-light table-bordered" style="margin-left: auto; margin-right: auto; vertical-align: middle;">
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="min-width: 125px;">
+                                                            쿠폰명
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="couponName" placeholder="쿠폰명을 입력하세요" required>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            쿠폰설명
+                                                        </td>
+                                                        <td>
+                                                            <textarea name="couponContent" placeholder="쿠폰설명을 입력하세요" style="width: 500px; height: 250px;" required></textarea>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            할인금액
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" name="couponDiscountRate" value="100" min="100" placeholder="할인 금액을 입력하세요" style="width: 215px;" required>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            최소주문금액
+                                                        </td>
+                                                        <td>
+                                                            <div class="rs-select2--dark rs-select2--md m-r-10 rs-select2--border">
+                                                                <input type='number' name="couponUseCondition" value="0" placeholder='최소주문금액을 입력하세요' style='width:215px' min='0' required>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td> 
+                                                            발급 구분
+                                                        </td>
+                                                        <td>
+                                                            <div class="rs-select2--dark rs-select2--md m-r-10 rs-select2--border">
+                                                                <select class="js-select2" name="couponCondition" onchange="chooseCouponCondition(this)">
+                                                                    <option value="download" selected="selected">다운로드발급</option>
+                                                                    <option value="signup" >회원가입</option>
+                                                                    <option value="survey" >수면조사완료</option>
+                                                                </select>
+                                                                <div class="dropDownSelect2"></div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            배포 기간
+                                                        </td>
+                                                        <td id="selectCouponOpenClose">
+                                                            <input type='date' name='couponOpenDate' th:value="${ac.couponOpenDate}" required> ~ <input type='date' name='couponCloseDate' th:value="${ac.couponCloseDate}" required>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            사용 기간
+                                                        </td>
+                                                        <td>
+                                                            <div class="rs-select2--dark rs-select2--md m-r-10 rs-select2--border">
+                                                                <select class="js-select2" id="couponPeriodType" name="couponPeriodType" onchange="chooseCouponPeriod(this)">
+                                                                    <option value='close' selected='selected'>배포종료일기준</option>
+                                                                    <option value='same'>배포 기간과 동일</option>
+                                                                    <option value='obtain'>쿠폰획득일기준</option>
+                                                                </select>
+                                                                <div class="dropDownSelect2"></div>
+                                                            </div>
+                                                            <span id="chooseCouponDate">
+                                                                <input type='number' name='couponPeriod' min="0" required>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <br>
+                                            <input type="hidden" name="employeeNo" th:if="${session.loginUser.memberNo != null}" th:value="${session.loginUser.memberNo}">
+                                            <button class="btn btn-primary btn-sm" th:if="${session.loginUser.memberNo != null}">만들기</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+        
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var msg = /*[[${msg}]]*/ null;
+
+        const chooseCouponCondition = (element) =>{
+            var selectCouponOpenClose = document.getElementById("selectCouponOpenClose");
+            var couponPeriodType = document.getElementById("couponPeriodType");
+            if(element.value == 'download'){
+                selectCouponOpenClose.innerHTML="<input type='date' name='couponOpenDate' required> ~ <input type='date' name='couponCloseDate' required>";
+                couponPeriodType.innerHTML = "";
+                couponPeriodType.innerHTML += "<option value='close' selected='selected'>배포종료일기준</option>";
+                couponPeriodType.innerHTML += "<option value='same'>배포 기간과 동일</option>";
+                couponPeriodType.innerHTML += "<option value='obtain'>쿠폰획득일기준</option>";
+
+            }else{
+                selectCouponOpenClose.innerHTML='<input type="hidden" name="couponOpenDate"><input type="hidden"  name="couponCloseDate">';
+                couponPeriodType.innerHTML = "";
+                couponPeriodType.innerHTML += "<option value='obtain' selected='selected'>쿠폰획득일기준</option>";
+            }
+        }
+
+        const chooseCouponPeriod = (element) =>{
+            var chooseCouponDate = document.getElementById("chooseCouponDate");
+            if(element.value == 'same'){
+                chooseCouponDate.innerHTML = "<input type='hidden' name='couponPeriod' value='0' required>";
+            }else{
+                chooseCouponDate.innerHTML = "<input type='number' name='couponPeriod' min='0' required>";
+            }
+            
+        }
+        $(document).ready(function(){
+            if(msg == 'success'){
+                Swal.fire({
+                    icon: 'success',
+                    title: '쿠폰 등록에 성공했습니다..'
+                })
+            }
+        });
+        /*]]>*/
+    </script>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    
+</body>
+
+</html>
+<!-- end document-->

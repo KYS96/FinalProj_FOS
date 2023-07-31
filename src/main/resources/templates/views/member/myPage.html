@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+</head>
+
+<body>
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+    <div th:replace="~{ views/member/common/myPageNavbar :: myPageNavbar }"></div>
+
+    <div class="container-fluid bg-secondary mb-5">
+        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
+            <h1 class="font-weight-semi-bold text-uppercase mb-3">마이페이지</h1>
+            <div th:replace="~{ views/member/common/myPageInfo :: myPageInfo }"></div>
+        </div>
+    </div>
+
+    <div class="container pt-5">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="mb-5">
+                    <div class="card-body">
+                        <h5 class="font-weight-medium mb-3"><i class="fa fa-user text-primary mr-3"></i><b>[[${ session.loginUser.memberName }]] 님</b><a href="myInfo.me"><i class="fa fa-sign-in-alt text-primary fa-pull-right"></i></a>
+                        </h5>
+                        <hr/>
+                        <div class="d-flex justify-content-between">
+                            <p><i class="fa fa-id-card text-primary mr-3"></i>[[${ session.loginUser.memberId }]]</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p><i class="fa fa-id-card-alt text-primary mr-3"></i>[[${ session.loginUser.memberNickname }]]</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p><i class="fa fa-phone-alt text-primary mr-3"></i>[[${ session.loginUser.memberPhone }]]</p>
+                        </div>
+                        <div class="justify-content-between" th:if="${ session.loginUser.memberAddr != null}">
+                            <p><i class="fa fa-map-marker-alt text-primary mr-3"></i>[[${ session.loginUser.memberAddr }]]</p>
+                            <p class="pl-4">[[${ session.loginUser.memberDetailAddr }]]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card border-secondary mb-5">
+                    <div class="pt-3 pb-3 pr-4 pl-4 bg-teamcolor3 border-0 justify-content-between">
+                        <h4 class="font-weight-semi-bold m-0 text-white">쿠폰<a href="myCoupon.me"><i class="fa fa-sign-in-alt text-white fa-pull-right"></i></a></h4>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${ #lists.isEmpty(cCList) }">
+                            <div class="d-flex justify-content-between">
+                                <p>보유 중인 쿠폰이 없습니다.</p>
+                            </div>
+                        </div>
+                        <div th:if="${ not #lists.isEmpty(cCList) }">
+                            <h5 class="font-weight-medium mb-3">
+                                <i class="fa fa-ticket-alt text-primary mr-3"></i><b>보유 쿠폰</b>
+                                <label class="fa-pull-right cursor" data-toggle="collapse" data-target="#coupon-list" th:if="${ #lists.size(cCList) gt 3 }"><i class="fa fa-caret-down text-primary mr-3"></i></label>
+                            </h5>
+                            <div class="d-flex justify-content-between" th:each="c : ${ cCList }" th:if="${ cStat.index lt 3 }">
+                                <p th:text="${ c.couponName }"></p>
+                                <p class="font-weight-medium" th:text="${ c.couponEndDate }"></p>
+                            </div>
+                            <div class="collapse mb-3" id="coupon-list">
+                                <div class="d-flex justify-content-between" th:each="c : ${ cCList }" th:if="${ cStat.index >= 3 }">
+                                    <p th:text="${ c.couponName }"></p>
+                                    <p class="font-weight-medium" th:text="${ c.couponEndDate }"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="mt-0"/>
+                        <div th:if="${ #lists.isEmpty(eCList) }">
+                            <div class="d-flex justify-content-between">
+                                <p>만료된 쿠폰이 없습니다.</p>
+                            </div>
+                        </div>
+                        <div th:if="${ not #lists.isEmpty(eCList) }">
+                            <h5 class="font-weight-medium mb-3">
+                                <i class="fa fa-unlink text-primary mr-3"></i><b>만료 쿠폰</b>
+                                <label class="fa-pull-right cursor" data-toggle="collapse" data-target="#coupon-end-list" th:if="${ #lists.size(eCList) gt 3 }"><i class="fa fa-caret-down text-primary mr-3"></i></label>
+                            </h5>
+                            <div class="d-flex justify-content-between" th:each="c : ${ eCList }" th:if="${ cStat.index lt 3 }">
+                                <p th:text="${ c.couponName }"></p>
+                                <p class="font-weight-medium" th:text="${ c.couponEndDate }"></p>
+                            </div>
+                            <div class="collapse mb-3" id="coupon-end-list">
+                                <div class="d-flex justify-content-between" th:each="c : ${ eCList }" th:if="${ cStat.index >= 3 }">
+                                    <p th:text="${ c.couponName }"></p>
+                                    <p class="font-weight-medium" th:text="${ c.couponEndDate }"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 table-responsive mb-5">
+                <table class="table table-bordered text-center mb-0">
+                    <tbody class="align-middle">
+                        <div class="pt-3 pb-3 pr-4 pl-4 bg-teamcolor3 border-0">
+                            <h4 class="font-weight-semi-bold m-0 text-white">주문<a href="myOrder.me"><i class="fa fa-sign-in-alt text-white fa-pull-right"></i></a></h4>
+                        </div>
+                        <thead class="bg-white text-teamcolor2">
+                            <tr>
+                                <th style="width: 100px;">사진</th>
+                                <th style="width: 300px;">상품</th>
+                                <th style="width: 150px;">상품 가격</th>
+                                <th style="width: 50px;">수량</th>
+                                <th style="width: 100px;">주문일</th>
+                                <th style="width: 150px;">운송장번호</th>
+                                <th style="width: 100px;">상태</th>
+                            </tr>
+                        </thead>
+                        <tr name="orderList" th:each="o : ${ oList }" th:if="${ oStat.index lt 3 }">
+                            <td><img class="ml-4 mr-4" th:src="${ o.productImage }" alt="" style="width: 50px; height: 50px;"></td>
+                            <td class="align-middle justify-content-left">
+                                <a class="cursor text-truncate list-inline-item" style="width: 300px;" th:href="@{ productDetail(productNo=${ o.productNo }, orderNo=${ o.orderNo }) }" th:text="${ o.productName }"></a>
+                            </td>
+                            <td class="align-middle">
+                                <th:block th:unless="${ o.eventCode lt 100 }">
+                                    <th:block th:unless="${ (o.productPrice * o.orderAmount - o.eventCode) lt 100 }">
+                                        <p class="align-middle text-truncate list-inline-item m-0" style="width: 150px;" th:text="${ #numbers.formatDecimal(o.productPrice * o.orderAmount - o.eventCode, 0, 'COMMA', 0, 'DEFAULT') + '원' }"></p>
+                                    </th:block>
+                                    <th:block th:if="${ (o.productPrice * o.orderAmount - o.eventCode) lt 100 }">
+                                        <p class="align-middle text-truncate list-inline-item m-0" style="width: 150px;">0 원</p>
+                                    </th:block>
+                                </th:block>
+                                <th:block th:if="${ o.eventCode lt 100 }">
+                                    <th:block th:unless="${ (o.productPrice - ((o.productPrice * o.eventCode) / 100)) lt 100 }">
+                                        <p class="align-middle text-truncate list-inline-item m-0" style="width: 150px;" th:text="${ #numbers.formatInteger(o.productPrice - ((o.productPrice * o.eventCode) / 100), 3, 'COMMA') + ' 원' }"></p>
+                                    </th:block>
+                                    <th:block th:if="${ (o.productPrice - ((o.productPrice * o.eventCode) / 100)) lt 100 }">
+                                        <p class="align-middle text-truncate list-inline-item m-0" style="width: 150px;">0 원</p>
+                                    </th:block>
+                                </th:block>
+                            </td>
+                            <td class="align-middle">
+                                <p class="align-middle text-truncate list-inline-item m-0" style="width: 50px;" th:text="${ o.orderAmount }"></p>
+                            </td>
+                            <td class="align-middle" th:text="${ o.orderDate }"></td>
+                            <td class="align-middle" th:if="${ #strings.isEmpty(o.orderDeliveryNo) }">-</td>
+                            <td class="align-middle cursor" th:unless="${ #strings.isEmpty(o.orderDeliveryNo) }" th:text="${ o.orderDeliveryNo }"></td>
+                            <input type="hidden" th:value="${ o.orderDeliveryCourier }">
+                            <td class="align-middle" name="orderState"></td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle" th:if="${ #lists.isEmpty(oList) }" colspan="7">주문한 상품이 없습니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 table-responsive mb-5">
+                <table class="table table-bordered text-center mb-0">
+                    <tbody class="align-middle">
+                        <tr>
+                            <div class="pt-3 pb-3 pr-4 pl-4 bg-teamcolor3 border-0">
+                                <h4 class="font-weight-semi-bold m-0 text-white">리뷰<a href="myReview.me"><i class="fa fa-sign-in-alt text-white fa-pull-right"></i></a></h4>
+                            </div>
+                        </tr>
+                        <thead class="bg-white text-teamcolor2">
+                            <tr>
+                                <th>사진</th>
+                                <th>상품명</th>
+                                <th>내용</th>
+                                <th>작성일</th>
+                            </tr>
+                        </thead>
+                        <tr th:each="r : ${ rList }" th:if="${ rStat.index lt 3 }">
+                            <td class="align-middle justify-content-left col-lg-1"><img th:src="${ r.productImage }" alt="" style="width: 50px; height: 50px;"></td>
+                            <td class="align-middle justify-content-left col-lg-5">
+                                <a class="cursor text-truncate list-inline-item" style="width: 300px;"th:href="@{ productDetail(productNo=${ r.productNo }, orderNo=${ r.orderNo }) }" th:text="${ r.productName }"></a>
+                            </td>
+                            <td class="align-middle col-lg-4">
+                                <p class="align-middle text-truncate list-inline-item m-0" style="width: 300px;" th:text="${ r.reviewContent }"></p>
+                            </td>
+                            <td class="align-middle" th:text="${ r.reviewUpdateDate }"></td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle" th:if="${ #lists.isEmpty(rList) }" colspan="4">등록된 리뷰가 없습니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card border-secondary mb-5">
+                    <div class="pt-3 pb-3 pr-4 pl-4 bg-teamcolor3 border-0">
+                        <h4 class="font-weight-semi-bold m-0 text-white">작성 글 / 댓글<a href="myBoard.me"><i class="fa fa-sign-in-alt text-white fa-pull-right"></i></a></h4>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="font-weight-medium mb-3"><i class="fa fa-pen text-primary mr-3"></i><b>글</b></h5>               
+                        <div class="d-flex justify-content-between" th:each="bB : ${ bBList }" th:if="${ bBStat.index lt 3 }">
+                            <a class="cursor" th:href="@{ post.comm(no=${ bB.boardNo }) }">
+                                <p class="align-middle text-truncate list-inline-item m-0 cursor" style="width: 350px;">
+                                    <b th:if="${ bB.boardType == 'free_and_humor'}">[자유, 유머]</b> 
+                                    <b th:if="${ bB.boardType == 'tips_and_info'}">[꿀팁, 정보]</b>
+                                    [[${ bB.boardTitle }]]
+                                    <b th:text="${ ' [' + bB.replyCount + ']'}"></b>
+                                </p>
+                            </a>
+                            <p class="font-weight-medium" th:text="${ bB.boardEnrollDate }"></p>
+                        </div>
+                        <div class="d-flex justify-content-between" th:if="${ #lists.isEmpty(bBList) }">
+                            <p>작성된 게시글이 없습니다.</p>
+                        </div>
+                        <hr class="mt-3">
+                        <h5 class="font-weight-medium mb-3"><i class="fa fa-pencil-alt text-primary mr-3"></i><b>댓글</b></h5>
+                        <div class="d-flex justify-content-between" th:each="bR : ${ bRList }" th:if="${ bRStat.index lt 3 }">
+                            <a th:href="@{ post.comm(no=${ bR.boardNo }) }">
+                                <p class="align-middle text-truncate list-inline-item m-0 cursor" style="width: 350px;" th:text="${ bR.replyContent }"></p>
+                            </a>
+                            <p class="font-weight-medium" th:text="${ bR.replyEnrollDate }"></p>
+                        </div>
+                        <div class="d-flex justify-content-between" th:if="${ #lists.isEmpty(bRList) }">
+                            <p>작성된 댓글이 없습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-secondary mb-5">
+                    <div class="pt-3 pb-3 pr-4 pl-4 bg-teamcolor3 border-0">
+                        <h4 class="font-weight-semi-bold m-0 text-white">문의<a href="myContact.me"><i class="fa fa-sign-in-alt text-white fa-pull-right"></i></a></h4>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="font-weight-medium mb-3"><i class="fa fa-question text-primary mr-3"></i><b>제목</b>
+                        </h5>
+                        <div class="d-flex justify-content-between" th:each="c : ${ cList }" th:if="${ cStat.index lt 3 }">
+                            <p class="align-middle text-truncate list-inline-item m-0" style="width:350px;" th:text="${ c.questionTitle }"></p>
+                            <p class="font-weight-medium" th:text="${ c.questionUpdateDate }"></p>
+                        </div>
+                        <div class="d-flex justify-content-between" th:if="${ #lists.isEmpty(cList) }">
+                            <p>등록된 상품문의가 없습니다.</p>
+                        </div>
+                        <hr class="mt-3">
+                        <h5 class="font-weight-medium mb-3"><i class="fa fa-exclamation text-primary mr-4"></i><b>최근 답변</b>
+                        </h5>
+                        <div class="d-flex justify-content-between" th:each="a : ${ aList }" th:if="${ aStat.index lt 3 }">
+                            <p class="align-middle text-truncate list-inline-item m-0" style="width:350px;" th:text="${ a.questionAnswer }"></p>
+                            <p th:text="${ a.questionUpdateDate }"></p>
+                        </div>
+                        <div class="d-flex justify-content-between" th:if="${ #lists.isEmpty(aList) }">
+                            <p>등록된 답변이 없습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Checkout End -->
+
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+    <script>
+        window.onload = () => {
+            const orderList = document.getElementsByName("orderList");
+
+            for(let o of orderList) {
+                let deliveryNo = o.children[5].innerText;
+                let deliveryCourier = o.children[5].nextElementSibling.value;
+                let orderState = o.children[5].nextElementSibling.nextElementSibling;
+                
+                if(deliveryNo == '-') {
+                    orderState.innerText = '상품 준비 중';
+                } else {
+                    $.ajax({
+                        method: "GET",
+                        url: 'https://apis.tracker.delivery/carriers/' + deliveryCourier + '/tracks/' + deliveryNo,
+                        success: (msg) => {
+                            if(msg.to.name != '') {
+                                orderState.innerText = msg.state.text;
+                            } else {
+                                orderState.innerText = '출고 완료';
+                            }
+                        },
+                        error: (msg) => {
+                            if(msg.responseJSON.message != '') {
+                                orderState.innerText = '출고 완료';
+                            }
+                        }
+                    });
+                }
+            }
+
+            for(let o of orderList) {
+                o.children[5].addEventListener('click', function() {
+                    let deliveryNo = this.innerText;
+                    let deliveryCourier = this.nextElementSibling.value;
+                    let orderState = this.nextElementSibling.nextElementSibling;
+
+                    switch(deliveryCourier) {
+                        case "kr.epost" : 
+                            window.open("https://service.epost.go.kr/trace.RetrieveRegiPrclDeliv.postal?sid1=" + deliveryNo, null, "width=800px, height=1000px");
+                            break;
+                        case "kr.logen" : 
+                            window.open("https://www.ilogen.com/web/personal/trace/" + deliveryNo, null, "width=1200px, height=1000px");
+                            break;
+                        case "kr.cjlogistics" : 
+                            window.open("http://nexs.cjgls.com/web/service02_01.jsp?slipno=" + deliveryNo, null, "width=600px, height=500px");
+                            break;
+                        default : 
+                            Swal.fire({
+                                icon: 'error',
+                                title: '운송장 번호 미발급',
+                                text: orderState.innerText + ' 입니다.'
+                            });
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

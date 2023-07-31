@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲</title>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+</head>
+
+<body>
+    <div class="page-wrapper">
+
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid" id="mainContentAdmin">
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-people-fill"></i>고객 현황</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div style="text-align: center;">
+                                            <table class="table" style="margin-left: auto; margin-right: auto;">
+                                                <thead class="bg-light">
+                                                    <tr>
+                                                        <th>신규 회원<i class="bi mx-2 bi-info-circle-fill"
+                                                                data-toggle="tooltip" data-placement="top"
+                                                                title="최근 2주 내 신규 가입자만 조회 됩니다."></i></th>
+                                                        <th>탈퇴 회원</th>
+                                                        <th>총 회원</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-emoji-sunglasses"></i>구매 상위 고객</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div style="text-align: center;">
+                                            <table class="table" style="margin-left: auto; margin-right: auto;">
+                                                <thead class="bg-light">
+                                                    <tr>
+                                                        <th>아이디</th>
+                                                        <th>이름</th>
+                                                        <th>전화번호</th>
+                                                        <th>주소</th>
+                                                        <th>총 구매액수<i class="bi mx-2 bi-info-circle-fill"
+                                                                data-toggle="tooltip" data-placement="top"
+                                                                title="구매 금액 기준으로 조회 됩니다."></i></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!--반복 되는 공간-->
+                                                </tbody>
+                                            </table>
+                                            <!--페이지네이션 start-->
+                                            <div name="loadSpendingPaging" class="p-3"
+                                                style="display: flex; justify-content: center;"></div>
+                                            <!--페이지네이션 end-->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2"></div>
+                        </div>
+                        <!-- <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-bar-chart-line-fill"></i>매출 현황</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div class="au-card m-b-30">
+                                            <div class="au-card-inner">
+                                                <h3 class="title-2 m-b-40">일별 매출</h3>
+                                                <canvas id="singelBarChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2"></div>
+                        </div> -->
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-fire"></i>상품 판매 순위</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        ※상품번호를 누르면 판매 페이지로 이동합니다.
+                                        <br><br>
+                                        <div style="text-align: center;">
+                                            <!--페이지네이션 start-->
+                                            <div name="productSalesPaging" class="p-3"
+                                                style="display: flex; justify-content: center;"></div>
+                                            <!--페이지네이션 end-->
+                                            <table border="1" summary="" class="bg-light text-center"
+                                                style="margin-left: auto; margin-right: auto;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>상품 번호</th>
+                                                        <th>이미지</th>
+                                                        <th>분류</th>
+                                                        <th>이름</th>
+                                                        <th>가격</th>
+                                                        <th>상품 재고</th>
+                                                        <th>총 판매량</th>
+                                                        <th>진열 상태</th>
+                                                        <th>수정하기</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody name="productSalesList">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <!-- 상품 판매 비율 start-->
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-life-preserver"></i>상품 판매 비율</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div class="chart-note-wrap">
+                                            <!--항목 값이 들어가는 부분 start-->
+                                            <div class="chart-note mr-0 d-block">
+                                                <span class="dot dot--red"></span>
+                                                <span>침구</span>&nbsp;
+                                            </div>
+                                            <div class="chart-note mr-0 d-block">
+                                                <span class="dot dot--blue"></span>
+                                                <span>옷</span>
+                                            </div>
+                                            <div class="chart-note mr-0 d-block">
+                                                <span class="dot dot--green"></span>
+                                                <span>건강</span>
+                                            </div>
+                                            <div class="chart-note mr-0 d-block">
+                                                <span class="dot dot--black"></span>
+                                                <span>굿즈</span>
+                                            </div>
+                                            <!--항목 값이 들어가는 부분 end-->
+                                            <!--admin_assets 폴더 -> js -> main.js에 데이터 있음 (동그라미 차트가 들어가는 부분 start) // Percent Chart -->
+                                            <div class="percent-chart">
+                                                <canvas id="percent-chart"></canvas>
+                                            </div>
+                                            <!--admin_assets 폴더 -> js -> main.js에 데이터 있음 (동그라미 차트가 들어가는 부분 end)  // Percent Chart -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 상품 판매 비율 end-->
+                            <div class="col-2"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-person-video3"></i>방문한 게시글 순위</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText justify-content-center">
+                                        <div>
+                                            ※글 번호를 누르면 해당 글로 이동합니다.
+                                            <br><br>
+                                            <table class="table">
+                                                <!--페이지네이션 start-->
+                                                <div name="viewRankingPaging" class="p-3"
+                                                    style="display: flex; justify-content: center;"></div>
+                                                <!--페이지네이션 end-->
+                                                <thead class="bg-light" style="text-align: center;">
+                                                    <tr>
+                                                        <th>글번호</th>
+                                                        <th>분류</th>
+                                                        <th>카테고리</th>
+                                                        <th>제목</th>
+                                                        <th>아이디</th>
+                                                        <th>조회수</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody name="viewRankingList">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script th:inline="javascript">
+
+        const tbodys = document.querySelectorAll('tbody')
+
+        window.onload = () => {
+            loadMember();
+            loadSpendingList(1);
+            loadSalesChartGettingData();
+            loadViewRanking(1);
+            loadProductSales(1);
+        }
+
+        const loadSpendingPaging = document.getElementsByName('loadSpendingPaging');
+
+        const viewRankingList = document.getElementsByName('viewRankingList');
+        const viewRankingPaging = document.getElementsByName('viewRankingPaging');
+
+        const productSalesList = document.getElementsByName('productSalesList');
+        const productSalesPaging = document.getElementsByName('productSalesPaging');
+
+        const loadMember = () => {
+            $.ajax({
+                url: 'getMemberDatas.admin',
+                async: true,
+                success: data => {
+                    tbodys[0].innerHTML = '<tr>\
+                                            <th>' + data.newMemberTotal + '명</th>\
+                                            <th>' + data.DisabledMemberTotal + '명</th>\
+                                            <th>' + data.entireMemberTotal + '명</th>\
+                                        </tr>'
+                },
+                error: data => {
+                    console.log("에러발생");
+                }
+            })
+        }
+
+
+        const loadSpendingList = (page) => {
+            $.ajax({
+                url: 'getMemberSpendingDatas.admin',
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    tbodys[1].innerHTML = html;
+                    loadSpendingListPaging(page);
+                }
+            })
+        }
+
+        const loadSpendingListPaging = (page) => {
+            $.ajax({
+                url: 'getMemberSpendingPaging.admin',
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    loadSpendingPaging[0].innerHTML = html;
+                }
+            })
+        }
+
+        //도넛 차트 데이터 가져오기
+        const loadSalesChartGettingData = () => {
+            $.ajax({
+                url: 'getSalesChartDatas.admin',
+                async: true,
+                success: (data) => {
+                    if (data.length !== 0) {
+                        let totalSum = 0;
+                        let NUM1 = 0;
+                        let NUM2 = 0;
+                        let NUM3 = 0;
+                        let NUM4 = 0;
+                        let categoryName1 = '';
+                        let categoryName2 = '';
+                        let categoryName3 = '';
+                        let categoryName4 = '';
+
+                        for (const d of data) {
+                            const key = d.productCategoryNo;
+                            const value = d.sumProductSales;
+                            const categoryName = d.productCategoryName;
+
+                            if (key === 'P01' || key === 'P02' || key === 'P03') {
+                                NUM1 += value;
+                                categoryName1 = "침구";
+                            } else if (key === 'P04') {
+                                NUM2 = value;
+                                categoryName2 = "옷";
+                            } else if (key === 'P05') {
+                                NUM3 = value;
+                                categoryName3 = categoryName;
+                            } else if (key === 'P06') {
+                                NUM4 = value;
+                                categoryName4 = categoryName;
+                            }
+
+                            totalSum += value;
+                        }
+
+                        const percentageFactor = 100 / totalSum;
+                        NUM1 = (NUM1 * percentageFactor).toFixed(1);
+                        NUM2 = (NUM2 * percentageFactor).toFixed(1);
+                        NUM3 = (NUM3 * percentageFactor).toFixed(1);
+                        NUM4 = (NUM4 * percentageFactor).toFixed(1);
+
+                        const sumPercentages = parseFloat(NUM1) + parseFloat(NUM2) + parseFloat(NUM3) + parseFloat(NUM4);
+
+                        if (sumPercentages !== 100) {
+                            const adjustmentFactor = 100 / sumPercentages;
+                            NUM1 = (NUM1 * adjustmentFactor).toFixed(1);
+                            NUM2 = (NUM2 * adjustmentFactor).toFixed(1);
+                            NUM3 = (NUM3 * adjustmentFactor).toFixed(1);
+                            NUM4 = (NUM4 * adjustmentFactor).toFixed(1);
+                        }
+
+                        loadSalesChart(NUM1, NUM2, NUM3, NUM4, categoryName1, categoryName2, categoryName3, categoryName4);
+                        inputCategoryValue(NUM1, NUM2, NUM3, NUM4);
+                    } else {
+                        console.log("데이터가 없습니다.");
+                    }
+                },
+                error: data => {
+                    console.log("통신 실패");
+                }
+            })
+        }
+
+        //카테고리 옆 수치 넣기
+        const inputCategoryValue = (NUM1, NUM2, NUM3, NUM4) => {
+            const categoryArea = document.querySelectorAll('.chart-note');
+            categoryArea[0].children[1].append(" " + NUM1 + "%");
+            categoryArea[1].children[1].append(" " + NUM2 + "%");
+            categoryArea[2].children[1].append(" " + NUM3 + "%");
+            categoryArea[3].children[1].append(" " + NUM4 + "%");
+        }
+
+
+
+        const loadProductSales = (page) => {
+            $.ajax({
+                url: "loadProductSales.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    productSalesList[0].innerHTML = html;
+                    loadProductSalesPaging(page);
+                }
+            })
+        }
+
+        const loadProductSalesPaging = (page) => {
+            $.ajax({
+                url: "loadProductSalesPaging",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    productSalesPaging[0].innerHTML = html;
+                }
+            })
+        }
+
+
+        const loadViewRanking = (page) => {
+            $.ajax({
+                url: "getBoardViewRanking.admin",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    viewRankingList[0].innerHTML = html;
+                    viewRankingPagination(page);
+                }
+            });
+        }
+
+        const viewRankingPagination = (page) => {
+            $.ajax({
+                url: "viewRankingPagination",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    viewRankingPaging[0].innerHTML = html;
+                }
+            })
+        }
+
+        const goToUpdatePage = (productNo, page) => {
+            location.href = "productUpdateDetailAdmin.admin?productNo=" + productNo;
+        }
+
+        const goToBoard = (boardNo, sortion) => {
+            location.href = "goToBoard.admin?boardNo=" + boardNo + "&sortion=" + sortion
+        }
+
+    </script>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kh.slumber.admin.model.dao.AdminDAO">
+
+	<!-- insert -->
+	<insert id="enrollProduct">
+		insert into product 
+		values(seq_product_no.nextval, #{productCategoryNo}, #{employeeNo}, #{productName}, #{productPrice}, sysdate, sysdate, #{productStock}, 0, #{productImage}, #{productStatus}, #{productExplain}, null)
+	</insert>
+    
+    <insert id="enrollProductImages">
+        insert all
+		<foreach collection="list" item="item">
+			into board_attachment
+			values(null, #{item.attm_name}, #{item.attm_save_name}, #{item.attm_url}, #{item.productNo}, #{item.attm_category})
+		</foreach>
+		select * from dual
+    </insert>
+
+	<insert id="enrollCoupon">
+		insert into coupon
+		values(seq_coupon_no.nextval, #{employeeNo}, #{couponName}, #{couponDiscountRate}, #{couponContent}, #{couponCondition}, #{couponPeriod}, #{couponOpenDate}, #{couponCloseDate}, #{couponUseCondition}, #{couponPeriodType}, 'Y')
+	</insert>
+
+	<insert id="downloadCoupon">
+		insert into coupon_issuance
+		values(seq_coupon_issuance_no.nextval, #{couponNo}, #{memberNo}, sysdate, ${couponEndDate}, null, default, default)
+	</insert>
+
+	<insert id="enrollEvent">
+		<selectKey keyProperty="eventNo" resultType="String" order="AFTER">
+			select seq_event_no.currval from dual
+		</selectKey>
+		insert into event
+		values(seq_event_no.nextval, #{employeeNo}, #{eventCode}, #{eventTitle}, to_date(#{eventStartDate}, 'yyyy-mm-dd'),  to_date(#{eventEndDate}, 'yyyy-mm-dd'), #{eventActivity}, #{eventContent})
+	</insert>
+
+	<insert id="enrollFrontImage">
+        insert into board_attachment 
+		values(seq_attm_no.nextval, #{attm_name}, #{attm_save_name}, #{attm_url}, #{eventNo}, #{attm_category})
+    </insert>
+
+	<insert id="enrollEventProducts">
+		<choose>
+			<when test="productNo.size() == 1">
+				insert into event_product 
+				values(#{productNo[0]}, #{eventNo})
+			</when>
+			<otherwise>
+				insert all
+				<foreach collection="productNo" item="item">
+					into event_product
+					values(#{item}, #{eventNo})
+				</foreach>
+				select * from dual
+			</otherwise>
+		</choose>
+    </insert>
+
+	<!--  select -->
+	<select id="getSearchListCount" resultType="_int">
+		select count(*)
+		from v_product_admin
+		<if test="sc.category == 'all'">
+			where (product_no like '%${sc.query}%' or product_name like '%${sc.query}%' or product_explain like '%${sc.query}%') and product_category_no in
+		</if>
+		<if test="sc.category != 'all'">
+			where (${sc.category} like '%${sc.query}%') and product_category_no in
+		</if>
+		<foreach collection="sc.productCategoryNoList" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		<if test="sc.selectResistDate != 'all'">
+			and (trunc(product_resist_date) between #{sc.productResistDateStart} and #{sc.productResistDateEnd})
+		</if>
+		<if test="sc.selectUpdate != 'all'">
+			and (trunc(product_update) between #{sc.productUpdateStart} and #{sc.productUpdateEnd})
+		</if>
+		<if test="sc.selectProductStatus != 'all'">
+			and product_status = #{sc.selectProductStatus}
+		</if>
+	</select>
+
+	<select id="searchProductAdmin" resultMap="productResultSet">
+		select *
+		from v_product_admin
+		<if test="sc.category == 'all'">
+			where (product_no like '%${sc.query}%' or product_name like '%${sc.query}%' or product_explain like '%${sc.query}%') and product_category_no in
+		</if>
+		<if test="sc.category != 'all'">
+			where (${sc.category} like '%${sc.query}%') and product_category_no in
+		</if>
+		<foreach collection="sc.productCategoryNoList" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		<if test="sc.selectResistDate != 'all'">
+			and (trunc(product_resist_date) between to_date(#{sc.productResistDateStart}, 'yyyy-mm-dd') and to_date(#{sc.productResistDateEnd}, 'yyyy-mm-dd'))
+		</if>
+		<if test="sc.selectUpdate != 'all'">
+			and (trunc(product_update) between to_date(#{sc.productUpdateStart}, 'yyyy-mm-dd') and to_date(#{sc.productUpdateEnd}, 'yyyy-mm-dd'))
+		</if>
+		<if test="sc.selectProductStatus != 'all'">
+			and product_status = #{sc.selectProductStatus}
+		</if>
+		order by ${sc.order} nulls last
+	</select>
+
+	<select id="getSearchCouponListCount" resultType="_int">
+		select count(*)
+		from coupon
+		<if test="category == 'all'">
+			where (coupon_name like '%${query}%' or coupon_content like '%${query}%') and coupon_condition in
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%') and coupon_condition in
+		</if>
+		<foreach collection="couponConditionList" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		<if test="eventOngoing == 'open'">
+			<![CDATA[
+			and (trunc(sysdate) >= coupon_open_date and trunc(sysdate) <= coupon_close_date)
+			]]>
+		</if>
+		<if test="eventOngoing == 'close'">
+			<![CDATA[
+			and (trunc(sysdate) <= coupon_open_date or trunc(sysdate) >= coupon_close_date)
+			]]>
+		</if>
+	</select>
+
+	<select id="searchCoupon" resultMap="couponResultSet">
+		select *
+		from coupon
+		<if test="category == 'all'">
+			where (coupon_name like '%${query}%' or coupon_content like '%${query}%') and coupon_condition in
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%') and coupon_condition in
+		</if>
+		<foreach collection="couponConditionList" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		<if test="eventOngoing == 'open'">
+			<![CDATA[
+			and (trunc(sysdate) >= coupon_open_date and trunc(sysdate) <= coupon_close_date)
+			]]>
+		</if>
+		<if test="eventOngoing == 'close'">
+			<![CDATA[
+			and (trunc(sysdate) <= coupon_open_date or trunc(sysdate) >= coupon_close_date)
+			]]>
+		</if>
+		order by ${order} nulls last
+	</select>
+
+	<select id="selectProductNo">
+		select product_no
+		from product
+		where product_image = #{productImage}
+	</select>
+
+	<select id="getSearchEventListCount" resultType="_int">
+		select count(*)
+		from v_event
+		<if test="category == 'all'">
+			where (event_title like '%${query}%' or event_content like '%${query}%'or event_no like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="selectEventStartDate != 'all'">
+			and (trunc(event_start_date) between to_date(#{eventStartDateStart}, 'yyyy-mm-dd') and to_date(#{eventStartDateEnd}, 'yyyy-mm-dd'))
+		</if>
+		<if test="selectEventEndDate != 'all'">
+			and (trunc(event_end_date) between to_date(#{eventEndDateStart}, 'yyyy-mm-dd') and to_date(#{eventEndDateEnd}, 'yyyy-mm-dd'))
+		</if>
+		<if test="selectEventActivity != 'all'">
+			and event_activity = #{selectEventActivity}
+		</if>
+	</select>
+
+	<select id="getSearchEventList" resultMap="eventResultSet">
+		select *
+		from v_event
+		<if test="category == 'all'">
+			where (event_title like '%${query}%' or event_content like '%${query}%'or event_no like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="selectEventStartDate != 'all'">
+			and (trunc(event_start_date) between to_date(#{eventStartDateStart}, 'yyyy-mm-dd') and to_date(#{eventStartDateEnd}, 'yyyy-mm-dd'))
+		</if>
+		<if test="selectEventEndDate != 'all'">
+			and (trunc(event_end_date) between to_date(#{eventEndDateStart}, 'yyyy-mm-dd') and to_date(#{eventEndDateEnd}, 'yyyy-mm-dd'))
+		</if>
+		<if test="selectEventActivity != 'all'">
+			and event_activity = #{selectEventActivity}
+		</if>
+		order by ${order} nulls last
+	</select>
+
+	<select id="getSearchBoardListCount" resultType="_int">
+		select count(*)
+		from v_community_board
+		<if test="category == 'all'">
+			where (board_title like '%${query}%' or board_content like '%${query}%' or member_nickname like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="status != 'all'">
+			and ${status}
+		</if>
+	</select>
+	
+	<select id="getSearchBoardList" resultMap="boardResultSet">
+		select *
+		from v_community_board
+		<if test="category == 'all'">
+			where (board_title like '%${query}%' or board_content like '%${query}%' or member_nickname like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="status != 'all'">
+			and ${status}
+		</if>
+		order by ${order} nulls last
+	</select>
+
+	<select id="getSearchReplyListCount" resultType="_int">
+		select count(*)
+		from v_community_reply
+		<if test="category == 'all'">
+			where (reply_content like '%${query}%' or member_nickname like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="status != 'all'">
+			and ${status}
+		</if>
+		and board_isdeleted = 'N' and board_ishidden = 'N'
+	</select>
+	
+	<select id="getSearchReplyList" resultMap="replyResultSet">
+		select *
+		from v_community_reply
+		<if test="category == 'all'">
+			where (reply_content like '%${query}%' or member_nickname like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="status != 'all'">
+			and ${status}
+		</if>
+		and board_isdeleted = 'N' and board_ishidden = 'N'
+		order by ${order} nulls last
+	</select>
+
+	<select id="getSearchProductOrderListCount" resultType="_int">
+		select count(*)
+		from v_product_order
+		<if test="category == 'all'">
+			where (product_name like '%${query}%' or order_addr like '%${query}%' or member_name like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="status != 'all'">
+			and ${status}
+		</if>
+	</select>
+	
+	<select id="getSearchProductOrderList" resultMap="productOrderResultSet">
+		select *
+		from v_product_order
+		<if test="category == 'all'">
+			where (product_name like '%${query}%' or order_addr like '%${query}%' or member_name like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="status != 'all'">
+			and ${status}
+		</if>
+		order by ${order} nulls last
+	</select>
+
+	<select id="getSearchQuestionBoardListCount" resultType="_int">
+		select count(*)
+		from v_question_board
+		<if test="category == 'all'">
+			where (question_title like '%${query}%' or question_content like '%${query}%' or question_answer like '%${query}%' or product_name like '%${query}%' or member_name like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="status != 'all'">
+			and ${status}
+		</if>
+	</select>
+	
+	<select id="getSearchQuestionBoardList" resultMap="questionBoardResultSet">
+		select *
+		from v_question_board
+		<if test="category == 'all'">
+			where (question_title like '%${query}%' or question_content like '%${query}%' or question_answer like '%${query}%' or product_name like '%${query}%' or member_name like '%${query}%')
+		</if>
+		<if test="category != 'all'">
+			where (${category} like '%${query}%')
+		</if>
+		<if test="status != 'all'">
+			and ${status}
+		</if>
+		order by ${order} nulls last
+	</select>
+
+	<select id="searchProductNo" resultMap="productResultSet">
+		select *
+		from v_product_admin
+		where product_no = #{productNo}
+	</select>
+
+	<select id="searchFrontImage" resultMap="productImagesResultSet">
+		select product_image "ATTM_URL", substr(product_image, instr(product_image, '/', -1) + 38) "ATTM_NAME"
+		from product
+		where product_no = #{productNo}
+	</select>
+
+	<select id="searchImages" resultMap="productImagesResultSet">
+		select attm_url, attm_name
+		from board_attachment
+		where attm_ref_no = #{productNo} and attm_category = #{attm_category}
+	</select>
+
+	<select id="getCouponList" resultMap="couponResultSet">
+		select * 
+		from coupon
+		where coupon_status = 'Y' and
+		<![CDATA[
+			(sysdate >= coupon_open_date and sysdate <= coupon_close_date)
+		]]>
+	</select>
+
+	<select id="getCouponIssuanceList" resultMap="couponIssuanceResultSet">
+		select * 
+		from coupon_issuance
+		where member_no = #{memberNo}
+	</select>
+
+	<select id="getCartList" resultMap="productOrderResultSet">
+		select *
+		from v_product_order
+		where cart_no = #{cartNo}
+	</select>
+
+	<select id="getQuestionBoardDetail" resultMap="questionBoardResultSet">
+		select *
+		from v_question_board
+		where question_no = #{questionNo}
+	</select>
+
+	<select id="getEvent" resultMap="eventResultSet">
+		select * 
+		from v_event
+		where event_no = #{eventNo}
+	</select>
+
+	<select id="getEventProductNoList" resultType="string">
+		select product_no
+		from event_product
+		where event_no = #{eventNo}
+	</select>
+
+	<select id="getEventProductList" resultMap="productResultSet">
+		select *
+		from v_product_admin
+		where product_no 
+		<choose> 
+			<when test="list.size() == 1">
+				= #{list[0]}
+			</when>
+			<otherwise>
+				in 
+				<foreach item="item" collection="list" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="checkEventProductDuplication" resultType="string">
+		select distinct product_no
+		from v_event_product
+		where (event_activity = 'Y') and product_no 
+		<choose> 
+			<when test="productNo.size() == 1">
+				= #{productNo[0]}
+			</when>
+			<otherwise>
+				in 
+				<foreach item="item" collection="productNo" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</otherwise>
+		</choose>
+		and ((trunc(event_start_date) between to_date(#{eventStartDate}, 'yyyy-mm-dd') and to_date(#{eventEndDate}, 'yyyy-mm-dd'))
+      	or (trunc(event_end_date) between to_date(#{eventStartDate}, 'yyyy-mm-dd') and to_date(#{eventEndDate}, 'yyyy-mm-dd')))
+		<if test="eventNo != null">
+			and event_no != #{eventNo}
+		</if> 
+	</select>
+
+	<!-- update -->
+	<update id="changeProductStatusToN">
+		update product
+		set product_status = 'N' 
+		where product_no = #{productNo}
+	</update>
+
+	<update id="changeProductStatusToY">
+		update product
+		set product_status = 'Y' 
+		where product_no = #{productNo}
+	</update>
+
+	<update id="changeProductCategory">
+		update product
+		set product_category_no = #{selectedProductCategory}
+		where product_no = #{productNo}
+	</update>
+
+	<update id="changeProductName">
+		update product
+		set product_name = #{selectedProductName}
+		where product_no = #{productNo}
+	</update>
+
+	<update id="changeProductPrice">
+		update product
+		set product_price = #{selectedProductPrice}
+		where product_no = #{productNo}
+	</update>
+
+	<update id="changeProductStock">
+		update product
+		set product_stock = #{selectedProductStock}
+		where product_no = #{productNo}
+	</update>
+
+	<update id="updateProduct">
+		update product
+		set PRODUCT_CATEGORY_NO = #{productCategoryNo},
+			EMPLOYEE_NO = #{employeeNo},
+			PRODUCT_NAME = #{productName},
+			PRODUCT_PRICE = #{productPrice},
+			PRODUCT_UPDATE = sysdate,
+			PRODUCT_STOCK = #{productStock},
+			PRODUCT_IMAGE = #{productImage},
+			PRODUCT_STATUS = #{productStatus},
+			PRODUCT_EXPLAIN = #{productExplain}
+		where PRODUCT_NO = #{productNo}
+	</update>
+
+	<update id="changeCouponUseCondition">
+		update coupon
+		set coupon_use_condition = #{selectedCouponUseCondition}
+		where coupon_no = #{couponNo}
+	</update>
+
+	<update id="changeCouponDiscountRate">
+		update coupon
+		set coupon_discount_rate = #{selectedCouponDiscountRate}
+		where coupon_no = #{couponNo}
+	</update>
+
+	<update id="changeCouponName">
+		update coupon
+		set coupon_name = #{couponName}
+		where coupon_no = #{couponNo}
+	</update>
+
+	<update id="changeCouponContent">
+		update coupon
+		set coupon_content = #{couponContent}
+		where coupon_no = #{couponNo}
+	</update>
+
+	<update id="changeCouponCondition">
+		update coupon
+		set coupon_condition = #{couponCondition}, coupon_open_date = null, coupon_close_date = null
+		where coupon_no = #{couponNo}
+	</update>
+
+	<update id="changeCouponOpenClose">
+		update coupon
+		set coupon_open_date = to_date(#{couponOpenDate}, 'yyyy-mm-dd'), coupon_close_date = to_date(#{couponCloseDate}, 'yyyy-mm-dd'), coupon_condition = 'download'
+		where coupon_no = #{couponNo}
+	</update>
+
+	<update id="changeCouponPeriodType">
+		update coupon
+		set coupon_period_type = #{couponPeriodType}
+		where coupon_no = #{couponNo}
+	</update>
+
+	<update id="changeCouponPeriod">
+		update coupon
+		set coupon_period = #{couponPeriod}
+		where coupon_no = #{couponNo}
+	</update>
+
+	<update id="changeCouponStatus">
+		update coupon
+		set coupon_status = #{couponStatus}
+		where coupon_no = #{couponNo}
+	</update>
+
+	<update id="updateTable">
+		update ${table}
+		set ${columnName} = #{selectedValue}
+		where ${condition} = #{selectedCondition}
+	</update>
+
+	<update id="updateEventDetail">
+		update event
+		set EVENT_NO = #{eventNo},
+			EMPLOYEE_NO = #{employeeNo},
+			EVENT_CODE = #{eventCode},
+			EVENT_TITLE = #{eventTitle},
+			EVENT_START_DATE = to_date(#{eventStartDate}, 'yyyy-mm-dd'),
+			EVENT_END_DATE = to_date(#{eventEndDate}, 'yyyy-mm-dd'),
+			EVENT_ACTIVITY = #{eventActivity},
+			EVENT_CONTENT = #{eventContent}
+		where EVENT_NO = #{eventNo}
+	</update>
+
+	<!-- delete -->
+	<delete id="deleteImage">
+		<choose>
+			<when test="list.size() == 1">
+				delete from board_attachment
+				where attm_url = #{list[0]}
+			</when>
+			<otherwise>
+				delete from board_attachment
+				where attm_url in
+				<foreach item="item" collection="list" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</otherwise>
+		</choose>
+	</delete>
+
+	<delete id="deleteEventProducts">
+		delete from event_product
+		where event_no = #{eventNo} 
+		<choose> 
+			<when test="productNo.size() == 1">
+				and product_no = #{productNo[0]}
+			</when>
+			<otherwise>
+				and product_no in 
+				<foreach item="item" collection="productNo" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</otherwise>
+		</choose>
+	</delete>
+
+	<!-- resultMap -->
+	<resultMap type="AdminProduct" id="productResultSet">
+		<id column="PRODUCT_NO" property="productNo"/>
+		<result column="PRODUCT_CATEGORY_NO" property="productCategoryNo"/>
+		<result column="PRODUCT_CATEGORY_NAME" property="productCategoryName"/>
+		<result column="EMPLOYEE_NO" property="employeeNo"/>
+		<result column="PRODUCT_NAME" property="productName"/>
+		<result column="PRODUCT_PRICE" property="productPrice"/>
+		<result column="PRODUCT_RESIST_DATE" property="productResistDate"/>
+		<result column="PRODUCT_UPDATE" property="productUpdate"/>
+		<result column="PRODUCT_STOCK" property="productStock"/>
+		<result column="PRODUCT_SALES" property="productSales"/>
+		<result column="PRODUCT_IMAGE" property="productImage"/>
+		<result column="PRODUCT_STATUS" property="productStatus"/>
+		<result column="PRODUCT_EXPLAIN" property="productExplain"/>
+		<result column="PRODUCT_POINT" property="productPoint"/>
+	</resultMap>
+
+	<resultMap type="AdminProductImages" id="productImagesResultSet">
+		<id column="ATTM_URL" property="imageUrl"/>
+		<result column="ATTM_NAME" property="originalName"/>
+	</resultMap>
+
+	<resultMap type="AdminReply" id="replyResultSet">
+		<id column="REPLY_NO" property="replyNo"/>
+		<result column="MEMBER_NO" property="memberNo"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="REPLY_CONTENT" property="replyContent"/>
+		<result column="REPLY_LIKES" property="replyLikes"/>
+		<result column="REPLY_DISLIKES" property="replyDislikes"/>
+		<result column="REPLY_REPORTS" property="replyReports"/>
+		<result column="REPLY_ENROLL_DATE" property="replyEnrollDate"/>
+		<result column="REPLY_MODIFY_DATE" property="replyModifyDate"/>
+		<result column="REPLY_ISDELETED" property="replyIsdeleted"/>
+		<result column="REPLY_ISHIDDEN" property="replyIshidden"/>
+		<result column="MEMBER_NICKNAME" property="memberNickname"/>
+		<result column="MEMBER_IS_BLACKLIST" property="memberIsBlacklist"/>
+	</resultMap>
+
+	<resultMap type="AdminCoupon" id="couponResultSet">
+		<id column="COUPON_NO" property="couponNo"/>
+		<result column="EMPLOYEE_NO" property="employeeNo"/>
+		<result column="COUPON_NAME" property="couponName"/>
+		<result column="COUPON_DISCOUNT_RATE" property="couponDiscountRate"/>
+		<result column="COUPON_CONTENT" property="couponContent"/>
+		<result column="COUPON_CONDITION" property="couponCondition"/>
+		<result column="COUPON_PERIOD" property="couponPeriod"/>
+		<result column="COUPON_OPEN_DATE" property="couponOpenDate"/>
+		<result column="COUPON_CLOSE_DATE" property="couponCloseDate"/>
+		<result column="COUPON_DISCOUNT_TYPE" property="couponDiscountType"/>
+		<result column="COUPON_USE_CONDITION" property="couponUseCondition"/>
+		<result column="COUPON_PERIOD_TYPE" property="couponPeriodType"/>
+		<result column="COUPON_LOCATION" property="couponLocation"/>
+		<result column="COUPON_DISCOUNT_PRODUCT" property="couponDiscountProduct"/>
+		<result column="COUPON_STATUS" property="couponStatus"/>
+	</resultMap>
+
+	<resultMap type="AdminCouponIssuance" id="couponIssuanceResultSet">
+		<id column="COUPON_ISSUANCE_NO" property="couponIssuanceNo"/>
+		<result column="COUPON_NO" property="couponNo"/>
+		<result column="MEMBER_NO" property="memberNo"/>
+		<result column="COUPON_START_DATE" property="couponStartDate"/>
+		<result column="COUPON_END_DATE" property="couponEndDate"/>
+		<result column="COUPON_USEDATE" property="couponUsedate"/>
+		<result column="COUPON_STATUS" property="couponStatus"/>
+	</resultMap>
+
+	<resultMap type="AdminEvent" id="eventResultSet">
+		<id column="EVENT_NO" property="eventNo"/>
+		<result column="EMPLOYEE_NO" property="employeeNo"/>
+		<result column="EVENT_CODE" property="eventCode"/>
+		<result column="EVENT_TITLE" property="eventTitle"/>
+		<result column="EVENT_START_DATE" property="eventStartDate"/>
+		<result column="EVENT_END_DATE" property="eventEndDate"/>
+		<result column="EVENT_ACTIVITY" property="eventActivity"/>
+		<result column="EVENT_CONTENT" property="eventContent"/>
+		<result column="ATTM_URL" property="frontImage"/>
+	</resultMap>
+
+	<resultMap type="AdminBoard" id="boardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="MEMBER_NO" property="memberNo"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_LIKES" property="boardLikes"/>
+		<result column="BOARD_DISLIKES" property="boardDislikes"/>
+		<result column="BOARD_REPORTS" property="boardReports"/>
+		<result column="BOARD_VIEWS" property="boardViews"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_ENROLL_DATE" property="boardEnrollDate"/>
+		<result column="BOARD_MODIFY_DATE" property="boardModifyDate"/>
+		<result column="BOARD_ISDELETED" property="boardIsdeleted"/>
+		<result column="BOARD_ISHIDDEN" property="boardIshidden"/>
+		<result column="MEMBER_NICKNAME" property="memberNickname"/>
+		<result column="MEMBER_IS_BLACKLIST" property="memberIsBlacklist"/>
+	</resultMap>
+
+	<resultMap type="AdminProductOrder" id="productOrderResultSet">
+		<id column="ORDER_NO" property="orderNo"/>
+		<result column="MEMBER_NO" property="memberNo"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="ORDER_DATE" property="orderDate"/>
+		<result column="ORDER_AMOUNT" property="orderAmount"/>
+		<result column="ORDER_TYPE" property="orderType"/>
+		<result column="ORDER_DELIVERY_DATE" property="orderDeliveryDate"/>
+		<result column="ORDER_DELIVERY_NO" property="orderDeliveryNo"/>
+		<result column="ORDER_DELIVERY_COURIER" property="orderDeliveryCourier"/>
+		<result column="ORDER_ADDR" property="orderAddr"/>
+		<result column="ORDER_DETAIL_ADDR" property="orderDetailAddr"/>
+		<result column="COUPON_USE" property="couponUse"/>
+		<result column="COUPON_ISSUANCE_NO" property="couponIssuanceNo"/>
+		<result column="ORDER_PRICE" property="orderPrice"/>
+		<result column="CART_NO" property="cartNo"/>
+		<result column="ORDER_MEMO" property="orderMemo"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+		<result column="MEMBER_PHONE" property="memberPhone"/>
+		<result column="PRODUCT_NAME" property="productName"/>
+	</resultMap>
+
+	<resultMap type="AdminQuestionBoard" id="questionBoardResultSet">
+		<id column="QUESTION_NO" property="questionNo"/>
+		<result column="MEMBER_NO" property="memberNo"/>
+		<result column="QUESTION_TITLE" property="questionTitle"/>
+		<result column="QUESTION_UPDATEDATE" property="questionUpdateDate"/>
+		<result column="QUESTION_CONTENT" property="questionContent"/>
+		<result column="QUESTION_ANSWER" property="questionAnswer"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+		<result column="PRODUCT_NAME" property="productName"/>
+	</resultMap>
+
+</mapper>

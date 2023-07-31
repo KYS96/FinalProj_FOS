@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+
+<body th:fragment="mainScript">
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="market_assets/lib/easing/easing.min.js"></script>
+    <script src="market_assets/lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="market_assets/mail/jqBootstrapValidation.min.js"></script>
+    <script src="market_assets/mail/contact.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="market_assets/js/main.js"></script>
+    
+    <!-- Sweet Alert2 ver 11 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        //숫자에 쉼표 넣어주는 함수
+        function priceToString(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        };
+
+        const updateAlarm = () => {
+            $.ajax({
+                url: "memberAlarm.me",
+                type: "POST",
+                dataType: "html",
+                success: (html) => {
+                    document.getElementById("alarm").innerHTML = html;
+                }
+            });
+        }
+
+        const checkAlarm = (replyNo, boardNo) => {
+            $.ajax({
+                url: "checkAlarm.me",
+                type: "POST",
+                data: {
+                    "replyNo": replyNo
+                },
+                success: () => {
+                    updateAlarm();
+                    window.location.href = "post.comm?no=" + boardNo;
+                }
+            })
+        }
+
+        const deleteAlarm = (memberNo) => {
+            $.ajax({
+                url: "deleteAlarm.me",
+                type: "POST",
+                data: {
+                    "memberNo": memberNo
+                },
+                success: () => {
+                    updateAlarm();
+                }
+            });
+        }
+
+        updateAlarm();
+
+        //Top에 카트에 담긴 상품 수를 가져오는 함수
+        // function getCartNums(){
+        //     var request = indexedDB.open('cartDB', 1);
+
+        //     request.onsuccess = function(event) {
+        //         var db = event.target.result;
+        //         var transaction = db.transaction('products', 'readonly');
+        //         var objectStore = transaction.objectStore('products');
+        //         var getAllRequest = objectStore.getAll();
+
+        //         getAllRequest.onsuccess = function(event) {
+        //             var data = event.target.result;
+        //             document.getElementById('cartNum').innerText = data.length;
+        //         };
+
+        //         transaction.oncomplete = function(event) {
+        //             db.close();
+        //         };
+
+        //         transaction.onerror = function(event) {
+        //             console.error('데이터 조회 중 오류가 발생하였습니다.');
+        //             db.close();
+        //         };
+        //     };
+
+        //     request.onerror = function(event) {
+        //         console.error('IndexedDB 데이터베이스를 열 수 없습니다.');
+        //     };
+        // }
+
+        // if(document.getElementById('cartNum') != null){
+        //     getCartNums();
+        // }
+    </script>
+</body>
+</html>

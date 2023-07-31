@@ -1,0 +1,15 @@
+<tr th:unless="${ #lists.isEmpty(list) }" th:each="r : ${ list }">
+    <td class="align-middle col-lg-1"><img th:src="${ r.productImage }" alt="" style="width: 50px; height: 50px;"></td>
+    <td class="align-middle justify-content-left">
+        <a class="align-middle text-truncate list-inline-item cursor" style="width: 200px;" th:href="@{ productDetail(productNo=${ r.productNo }, orderNo=${ r.orderNo }) }" th:text="${ '[ ' + r.productName + ' ]'}"></a>
+    </td>
+    <td class="align-middle">
+        <p class="align-middle text-truncate list-inline-item m-0" style="width: 350px;" th:text="${ r.reviewContent }"></p>
+    </td>
+    <td class="align-middle" th:text="${ r.reviewUpdateDate }"></td>
+    <td class="align-middle"><button class="btn btn-sm btn-primary" th:onclick="updateReview([[${ r.reviewNo }]])"><i class="fa fa-pen"></i></button></td>
+    <td class="align-middle"><button class="btn btn-sm btn-primary" th:onclick="deleteReview([[${ r.reviewNo }]], [[${ currentPage }]])"><i class="fa fa-times"></i></button></td>
+</tr>
+<tr th:if="${ #lists.isEmpty(list) }">
+    <td class="align-middle" colspan="6" >등록된 리뷰가 없습니다.</td>
+</tr>

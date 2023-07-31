@@ -1,0 +1,19 @@
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center mb-3">
+        <li class="page-item" th:classappend="${ pi.currentPage lt 2 } ? disabled : ''">
+            <a class="page-link" th:onclick="eval([[${ func }]])([[${ pi.currentPage - 1 }]])" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">Previous</span>
+            </a>
+        </li>
+        <li class="page-item" th:classappend="${ pi.currentPage == p } ? active : ''" th:each="p : ${ #numbers.sequence(pi.startPage, pi.endPage) }">
+            <a class="page-link" th:onclick="eval([[${func}]])([[${ p }]])" th:text="${ p }"></a>
+        </li>
+        <li class="page-item" th:classappend="${ pi.currentPage gt pi.maxPage - 1 } ? 'disabled'">
+            <a class="page-link" th:onclick="eval([[${ func }]])([[${ pi.currentPage + 1 }]])" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="sr-only">Next</span>
+            </a>
+        </li>
+    </ul>
+</nav>

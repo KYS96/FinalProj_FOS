@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲</title>
+
+</head>
+<body>
+    <header class="header-mobile d-block d-lg-none" th:fragment="headerAdmin">
+        <div class="header-mobile__bar">
+            <div class="container-fluid">
+                <div class="header-mobile-inner">
+                    <a class="logo" href="/">
+                        <img src="admin_assets/images/icon/logo_fos.png" alt="로고" class="fosLogo1"/>
+                    </a>
+                    <button class="hamburger hamburger--slider" type="button">
+                        <span class="hamburger-box">
+                            <span class="hamburger-inner"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <nav class="navbar-mobile">
+            <div class="container-fluid">
+                <ul class="navbar-mobile__list list-unstyled">
+                    <li>
+                        <a href="statisticMain.admin">
+                            <i class="fas fa-chart-bar"></i>통계관리</a>
+                    </li>
+                    <li class="has-sub">
+                        <a class="js-arrow" style="cursor: pointer;">
+                            <i class="bi bi-handbag"></i>상품관리</a>
+                        <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                            <li>
+                                <a href="productUpdate.admin">상품조회/수정</a>
+                            </li>
+                            <li>
+                                <a href="productEnroll.admin">상품등록</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="memberManageAdmin.admin">
+                            <i class="bi bi-universal-access"></i>사용자관리
+                        </a>
+                    </li>
+                    <li class="has-sub">
+                        <a class="js-arrow" style="cursor: pointer;">
+                            <i class="bi bi-layout-text-sidebar-reverse"></i>게시판관리</a>
+                        <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                            <li>
+                                <a href="communityManage.admin">커뮤니티관리</a>
+                            </li>
+                            <li>
+                                <a href="productQuestion.admin">상품문의관리</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="has-sub">
+                        <a class="js-arrow" style="cursor: pointer;">
+                            <i class="bi bi-stars"></i>프로모션관리</a>
+                        <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                            <li>
+                                <a href="couponManage.admin">쿠폰관리</a>
+                            </li>
+                            <li>
+                                <a href="couponMaking.admin">쿠폰등록</a>
+                            </li>
+                            <li>
+                                <a href="eventManage.admin">이벤트관리</a>
+                            </li>
+                            <li>
+                                <a href="eventMaking.admin">이벤트등록</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="deliveryManage.admin">
+                            <i class="bi bi-car-front-fill"></i>배송관리
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+</body>
+</html>

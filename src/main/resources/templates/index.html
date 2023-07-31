@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+    <link href="market_assets/css/hwayi.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .pca-hover {
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 50%);
+            color: white;
+            font-size: 50px;
+            top: 0;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pca-img:hover .pca-hover {
+            display: flex;
+        }
+
+        .pop_self {
+            left: 50%;
+            margin-top: 10px;
+            margin-left: -350px;
+        }
+
+        .pop_self .close_popup {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #fff;
+            font-size: 1.125em;
+            /*18px*/
+        }
+
+        .pop_self .close_popup img {
+            vertical-align: middle;
+        }
+
+        .pop_self .tit_test {
+            font-size: 2.000em;
+            /*32px*/
+            font-weight: 700;
+            text-align: center;
+            color: #1a1a1a;
+            letter-spacing: -0.08em;
+        }
+
+        .pop_self .result {
+            margin-top: 10px;
+            padding: 15px 25px;
+            border: 1px solid #356db6;
+            background: #eff6fe;
+            font-size: 1.0em;
+            /*15px*/
+            ;
+        }
+
+        .pop_self .result span {
+            font-weight: 700;
+            color: #326ab3;
+        }
+
+        .pop_self .result_guide {
+            margin-top: 20px;
+            padding: 20px 60px;
+            border: 1px solid #e8235b;
+            background: #fff3f6;
+        }
+
+        .pop_self .result_guide p {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #e8235b;
+            text-align: center;
+            line-height: 100px;
+            color: #fff;
+            font-weight: 700;
+            vertical-align: middle;
+        }
+
+        .pop_self .result_guide ul {
+            display: inline-block;
+            margin-left: 60px;
+            vertical-align: middle;
+        }
+
+        .pop_self .result_guide ul li {
+            margin: 5px 0;
+            font-size: 1.0em;
+            /*15px*/
+            ;
+        }
+
+        .pop_self .tbl_test {
+            margin-top: 20px;
+            font-size: 0.93em;
+            /*14px*/
+        }
+
+        .pop_self .tbl_test th {
+            padding: 5px 0;
+            border: 1px solid #d4d4d4;
+            vertical-align: middle;
+            font-weight: 400;
+        }
+
+        .pop_self .tbl_test td {
+            padding: 5px;
+            border: 1px solid #d4d4d4;
+            text-align: center;
+        }
+
+        .pop_self .tbl_test td:first-child {
+            text-align: left;
+        }
+
+        #self02 .popup_inner {
+            position: relative;
+            width: 700px;
+            height: 950px;
+            padding: 80px 60px 60px 60px;
+            background: url(../images/bg_self02.png) no-repeat top left;
+        }
+
+        #self02 .test_guide {
+            margin-top: 20px;
+            padding: 10px 0;
+            border: 1px solid #d4d4d4;
+            background: #f1f1f1;
+            font-size: 1.0em;
+            /*15px*/
+            ;
+        }
+
+        #self02 .test_guide ul {
+            text-align: center;
+        }
+
+        #self02 .test_guide ul li {
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        #self02 .addInfo {
+            margin-top: 10px;
+            text-align: right;
+            font-size: 1.0em;
+            /*15px*/
+            ;
+        }
+
+        #self02 .question {
+            margin: 15px 0 10px 0;
+            font-weight: 700;
+            font-size: 0.93em;
+            /*14px*/
+            color: #08a3a1;
+        }
+
+        #self02 .distractor {
+            overflow: hidden;
+        }
+
+        #self02 .distractor li {
+            float: left;
+        }
+
+        #self02 .distractor li+li {
+            margin-left: 20px;
+        }
+
+        #self02 .distractor li label {
+            margin-right: 5px;
+            font-size: 0.93em;
+            /*14px*/
+            color: #1a1a1a;
+            letter-spacing: -0.05em;
+            cursor: pointer;
+        }
+
+        #self02 .distractor li input {
+            vertical-align: text-bottom;
+        }
+
+        #self02 .result {
+            margin-top: 20px;
+        }
+
+        #self02 .tbl_test {
+            margin-top: 0;
+        }
+
+        .popup {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .popup .popup_inner {
+            background: #fff;
+        }
+
+        #hospital {
+            left: 50%;
+            width: 580px;
+            margin-left: -290px;
+            border: 2px solid #3c3c3c;
+        }
+
+        #hospital .popup_inner {
+            padding: 35px;
+        }
+
+        #pop_receipt {
+            left: 50%;
+            width: 580px;
+            margin-left: -290px;
+            border: 2px solid #3c3c3c;
+        }
+
+        #pop_receipt .popup_inner {
+            padding: 35px;
+        }
+
+        #pop_receipt .receipt {
+            padding: 40px;
+            border: 1px solid #3c3c3c;
+            text-align: center;
+            font-size: 1em;
+            /*16px*/
+        }
+
+
+        #pop_receipt .receipt h3 {
+            font-size: 1.625em;
+            /*26px*/
+            font-weight: 700;
+        }
+
+        #pop_receipt .receipt .fee {
+            margin: 30px 0 20px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            text-align: center;
+            font-size: 1.125em;
+            /*18px*/
+            font-weight: 700;
+        }
+
+        #pop_receipt .receipt .info01 {
+            margin-top: 45px;
+            text-align: left;
+        }
+
+        #pop_receipt .receipt .info01 span {
+            font-size: 1em;
+            /*16px*/
+            text-decoration: underline;
+        }
+
+        #pop_receipt .receipt .info01 span+span {
+            float: right;
+        }
+
+        #pop_receipt .receipt .info02 {
+            text-decoration: underline;
+        }
+
+        #pop_receipt .receipt .info03 {
+            margin-top: 40px;
+        }
+
+        #pop_receipt .receipt .info04 {
+            margin-top: 15px;
+        }
+
+        #pop_receipt .receipt .info05 {
+            margin-top: 40px;
+            font-size: 1.250em;
+            /*20px*/
+            font-weight: 700
+        }
+
+        /*캐러셀 속성*/
+        .carousel-bg {
+            /* background-position: -100px -60px; */
+            background-image: url("market_assets/img/carouselBackground.png");
+        }
+
+    </style>
+    <link rel="stylesheet" href="market_assets/css/carousel.css" />
+</head>
+
+<body style="min-width: 1920px;">
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+    <div class="col-2"></div>
+
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <div th:replace="~{ views/common/mainNavbar :: mainNavbar }"></div>
+
+            <!--캐러셀 Start-->
+            <div id="header-carousel" class="carousel slide carousel-bg" data-ride="carousel">
+                <div class="carousel-inner" id="carousel-inner-list">
+                    <!--반복되는 공간-->
+                </div>
+                <!-- 원본 캐러셀 내용  <div class="carousel-inner">
+                    <div class="carousel-item active" style="height: 410px;">
+                        <img class="img-fluid" src="market_assets/img/sample/eventsample01.jpg" alt="Image">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height: 410px;">
+                        <img class="img-fluid" src="market_assets/img/sample/eventsample02.jpg" alt="Image">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="height: 410px;">
+                        <img class="img-fluid" src="market_assets/img/sample/eventsample03.jpg" alt="Image">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                        </div>
+                    </div>
+                </div> -->
+                <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">
+                    <div class="btn btn-teamcolor" style="width: 45px; height: 45px;">
+                        <span class="carousel-control-prev-icon mb-n2"></span>
+                    </div>
+                </a>
+                <a class="carousel-control-next" href="#header-carousel" data-slide="next">
+                    <div class="btn btn-teamcolor" style="width: 45px; height: 45px;">
+                        <span class="carousel-control-next-icon mb-n2"></span>
+                    </div>
+                </a>
+            </div>
+            <!--캐러셀 END-->
+
+            <!-- Featured Start -->
+            <div class="container-fluid pt-3">
+                <div class="row px-xl-5 pb-3">
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+                        <div class="d-flex align-items-center border mb-4"
+                            style="padding: 20px; justify-content: center; height: 80px; cursor: pointer;">
+                            <h1 class="bi bi-github text-primary m-0 mr-3"></h1>
+                            <h5 class="font-weight-semi-bold m-0"><a style="color:black;" onclick="getReady()">고양이</a></h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+                        <div class="d-flex align-items-center border mb-4"
+                            style="padding: 20px; justify-content: center; height: 80px;">
+                            <h1 class="fa fa-user-friends text-primary m-0 mr-2"></h1>
+                            <h5 class="font-weight-semi-bold m-0"><a href="main.comm" style="color:black;">커뮤니티</a></h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1" onclick="openSelfCheckModal()" style="cursor: pointer;">
+                        <div class="d-flex align-items-center border mb-4"
+                            style="padding: 20px; justify-content: center; height: 80px;">
+                            <h1 class="fa fa-check text-primary m-0 mr-3" ></h1>
+                            <h5 class="font-weight-semi-bold m-0"><a style="color:black;">수면자가진단</a></h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+                        <div class="d-flex align-items-center border mb-4"
+                            style="padding: 20px; justify-content: center; height: 80px;">
+                            <h1 class="fa fa-phone-volume text-primary m-0 mr-3"></h1>
+                            <h5 class="font-weight-semi-bold m-0"><a style="color:black;">1577-1577</a></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--             <div class="text-center mb-4">
+                <h2 class="section-title px-5"><span class="px-2">카테고리</span></h2>
+            </div> -->
+
+            <!-- Categories Start -->
+            <div class="container-fluid pt-3">
+                <div class="row" style="border: 1px solid #d6d6d6; padding: 10px;">
+                    <div class="col-lg-6 col-md-6 pb-1">
+                        <div class="cat-item d-flex flex-column border mb-4" style="padding: 0;">
+                            <a href="shop?category=bed" class="cat-img position-relative overflow-hidden pca-img"
+                                style="width: 616.33px; height: 401.89px;">
+                                <img class="img-fluid" src="market_assets/img/sample/sample03.jpg" alt="이미지없당"
+                                    width="100%" height="100%">
+                                <div class="pca-hover">침대</div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 pb-1">
+                        <div class="cat-item d-flex flex-column border mb-4" style="padding: 0;">
+                            <a href="shop?category=blanket" class="cat-img position-relative overflow-hidden pca-img"
+                                style="width: 616.33px; height: 401.89px;">
+                                <img class="img-fluid" src="market_assets/img/sample/cate4.jpg" alt="이미지없당" width="100%"
+                                    height="100%">
+                                <div class="pca-hover">이불</div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 pb-1">
+                        <div class="cat-item d-flex flex-column border mb-4"
+                            style="padding-top: 0; width: 100%; height: 100%;">
+                            <a href="shop?category=pillow" class="cat-img position-relative overflow-hidden pca-img"
+                                style="width: 100%; height: 100%;">
+                                <img class="img-fluid" src="market_assets/img/sample/cate3.jpg" alt="이미지없당"
+                                    style="object-fit: cover; width: 100%; height: 100%;">
+                                <div class="pca-hover">베개</div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 pb-1">
+                        <div class="cat-item d-flex flex-column border mb-4"
+                            style="padding-top: 0; width: 100%; height: 100%;">
+                            <a href="shop?category=goods" class="cat-img position-relative overflow-hidden pca-img"
+                                style="width: 100%; height: 100%;">
+                                <img class="img-fluid" src="market_assets/img/sample/cate6.jpg" alt="이미지없당"
+                                    style="object-fit: cover; width: 100%; height: 100%;">
+                                <div class="pca-hover">굿즈</div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 pb-1">
+                        <div class="cat-item d-flex flex-column border mb-4"
+                            style="padding-top: 0; width: 100%; height: 100%;">
+                            <a href="shop?category=clothing" class="cat-img position-relative overflow-hidden pca-img"
+                                style="width: 100%; height: 100%;">
+                                <img class="img-fluid" src="market_assets/img/sample/cate5.jpg" alt="이미지없당"
+                                    style="object-fit: cover; width: 100%; height: 100%;">
+                                <div class="pca-hover">잠옷·의류</div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 pb-1">
+                        <div class="cat-item d-flex flex-column border mb-4"
+                            style="padding-top: 0; width: 100%; height: 100%;">
+                            <a href="shop?category=health" class="cat-img position-relative overflow-hidden pca-img"
+                                style="width: 100%; height: 100%;">
+                                <img class="img-fluid" src="market_assets/img/sample/cate9.png" alt="이미지없당"
+                                    style="object-fit: cover; width: 100%; height: 100%;">
+                                <div class="pca-hover">건강</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Products Start -->
+            <div class="container-fluid pt-3">
+                <div class="text-center mb-4">
+                    <h2 class="section-title px-5"><span class="px-2">침대</span></h2>
+                </div>
+                <div class="row px-xl-5 pb-3">
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1 select" th:each="bed:${beds}">
+                        <input type="hidden" name="productNo" th:value="${bed.productNo}">
+                        <div class="card product-item border-0 mb-4">
+                            <div
+                                class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                <img class="img-fluid w-100" th:src="${bed.productImage}" alt="이미지없음"
+                                    style="height: 283.66px;">
+                            </div>
+                            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                <h6 class="text-truncate mb-3" th:if="${bed.eventTitle != null}"
+                                    th:text="|[${bed.eventTitle}]|" style="color: #f5683c;"></h6>
+                                <h6 class="text-truncate mb-3" th:if="${bed.eventTitle != null}">[[${bed.productName}]]
+                                </h6>
+                                <h6 class="text-truncate mb-3" th:if="${bed.eventTitle == null}">[[${bed.productName}]]
+                                </h6>
+                                <div class="d-flex justify-content-center" th:if="${bed.eventCode != 0}">
+                                    <h6 th:if="${bed.eventCode >= 1000}"
+                                        th:text="${#numbers.formatInteger(bed.productPrice-bed.eventCode, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 th:if="${bed.eventCode >= 1 && bed.eventCode <= 100}"
+                                        th:text="${#numbers.formatInteger(bed.productPrice*(100-bed.eventCode)/100, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 class="text-muted ml-2"><del
+                                            th:text="${#numbers.formatInteger(bed.productPrice, 3, 'COMMA') + '원'}"></del>
+                                    </h6>
+                                </div>
+                                <div class="d-flex justify-content-center" th:if="${bed.eventCode == 0}">
+                                    <h6 th:text="${#numbers.formatInteger(bed.productPrice, 3, 'COMMA') + '원'}"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Products End -->
+            <!-- Products Start -->
+            <div class="container-fluid pt-3">
+                <div class="text-center mb-4">
+                    <h2 class="section-title px-5"><span class="px-2">이불</span></h2>
+                </div>
+                <div class="row px-xl-5 pb-3">
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1 select" th:each="blanket:${blankets}">
+                        <input type="hidden" name="productNo" th:value="${blanket.productNo}">
+                        <div class="card product-item border-0 mb-4">
+                            <div
+                                class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                <img class="img-fluid w-100" th:src="${blanket.productImage}" alt="이미지없음"
+                                    style="height: 283.66px;">
+                            </div>
+                            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                <h6 class="text-truncate mb-3" th:if="${blanket.eventTitle != null}"
+                                    th:text="|[${blanket.eventTitle}]|" style="color: #f5683c;"></h6>
+                                <h6 class="text-truncate mb-3" th:if="${blanket.eventTitle != null}">
+                                    [[${blanket.productName}]]</h6>
+                                <h6 class="text-truncate mb-3" th:if="${blanket.eventTitle == null}">
+                                    [[${blanket.productName}]]</h6>
+                                <div class="d-flex justify-content-center" th:if="${blanket.eventCode != 0}">
+                                    <h6 th:if="${blanket.eventCode >= 1000}"
+                                        th:text="${#numbers.formatInteger(blanket.productPrice-blanket.eventCode, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 th:if="${blanket.eventCode >= 1 && blanket.eventCode <= 100}"
+                                        th:text="${#numbers.formatInteger(blanket.productPrice*(100-blanket.eventCode)/100, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 class="text-muted ml-2"><del
+                                            th:text="${#numbers.formatInteger(blanket.productPrice, 3, 'COMMA') + '원'}"></del>
+                                    </h6>
+                                </div>
+                                <div class="d-flex justify-content-center" th:if="${blanket.eventCode == 0}">
+                                    <h6 th:text="${#numbers.formatInteger(blanket.productPrice, 3, 'COMMA') + '원'}">
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Products End -->
+            <!-- Products Start -->
+            <div class="container-fluid pt-3">
+                <div class="text-center mb-4">
+                    <h2 class="section-title px-5"><span class="px-2">베개</span></h2>
+                </div>
+                <div class="row px-xl-5 pb-3">
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1 select" th:each="pillow:${pillows}">
+                        <input type="hidden" name="productNo" th:value="${pillow.productNo}">
+                        <div class="card product-item border-0 mb-4">
+                            <div
+                                class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                <img class="img-fluid w-100" th:src="${pillow.productImage}" alt="이미지없음"
+                                    style="height: 283.66px;">
+                            </div>
+                            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                <h6 class="text-truncate mb-3" th:if="${pillow.eventTitle != null}"
+                                    th:text="|[${pillow.eventTitle}]|" style="color: #f5683c;"></h6>
+                                <h6 class="text-truncate mb-3" th:if="${pillow.eventTitle != null}">
+                                    [[${pillow.productName}]]</h6>
+                                <h6 class="text-truncate mb-3" th:if="${pillow.eventTitle == null}">
+                                    [[${pillow.productName}]]</h6>
+                                <div class="d-flex justify-content-center" th:if="${pillow.eventCode != 0}">
+                                    <h6 th:if="${pillow.eventCode >= 1000}"
+                                        th:text="${#numbers.formatInteger(pillow.productPrice-pillow.eventCode, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 th:if="${pillow.eventCode >= 1 && pillow.eventCode <= 100}"
+                                        th:text="${#numbers.formatInteger(pillow.productPrice*(100-pillow.eventCode)/100, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 class="text-muted ml-2"><del
+                                            th:text="${#numbers.formatInteger(pillow.productPrice, 3, 'COMMA') + '원'}"></del>
+                                    </h6>
+                                </div>
+                                <div class="d-flex justify-content-center" th:if="${pillow.eventCode == 0}">
+                                    <h6 th:text="${#numbers.formatInteger(pillow.productPrice, 3, 'COMMA') + '원'}"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Products End -->
+            <!-- Products Start -->
+            <div class="container-fluid pt-3">
+                <div class="text-center mb-4">
+                    <h2 class="section-title px-5"><span class="px-2">잠옷·의류</span></h2>
+                </div>
+                <div class="row px-xl-5 pb-3">
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1 select" th:each="clothing:${clothings}">
+                        <input type="hidden" name="productNo" th:value="${clothing.productNo}">
+                        <div class="card product-item border-0 mb-4">
+                            <div
+                                class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                <img class="img-fluid w-100" th:src="${clothing.productImage}" alt="이미지없음"
+                                    style="height: 283.66px;">
+                            </div>
+                            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                <h6 class="text-truncate mb-3" th:if="${clothing.eventTitle != null}"
+                                    th:text="|[${clothing.eventTitle}]|" style="color: #f5683c;"></h6>
+                                <h6 class="text-truncate mb-3" th:if="${clothing.eventTitle != null}">
+                                    [[${clothing.productName}]]</h6>
+                                <h6 class="text-truncate mb-3" th:if="${clothing.eventTitle == null}">
+                                    [[${clothing.productName}]]</h6>
+                                <div class="d-flex justify-content-center" th:if="${clothing.eventCode != 0}">
+                                    <h6 th:if="${clothing.eventCode >= 1000}"
+                                        th:text="${#numbers.formatInteger(clothing.productPrice-clothing.eventCode, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 th:if="${clothing.eventCode >= 1 && clothing.eventCode <= 100}"
+                                        th:text="${#numbers.formatInteger(clothing.productPrice*(100-clothing.eventCode)/100, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 class="text-muted ml-2"><del
+                                            th:text="${#numbers.formatInteger(clothing.productPrice, 3, 'COMMA') + '원'}"></del>
+                                    </h6>
+                                </div>
+                                <div class="d-flex justify-content-center" th:if="${clothing.eventCode == 0}">
+                                    <h6 th:text="${#numbers.formatInteger(clothing.productPrice, 3, 'COMMA') + '원'}">
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Products End -->
+            <!-- Products Start -->
+            <div class="container-fluid pt-3">
+                <div class="text-center mb-4">
+                    <h2 class="section-title px-5"><span class="px-2">수면·건강</span></h2>
+                </div>
+                <div class="row px-xl-5 pb-3">
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1 select" th:each="health:${healths}">
+                        <input type="hidden" name="productNo" th:value="${health.productNo}">
+                        <div class="card product-item border-0 mb-4">
+                            <div
+                                class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                <img class="img-fluid w-100" th:src="${health.productImage}" alt="이미지없음"
+                                    style="height: 283.66px;">
+                            </div>
+                            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                <h6 class="text-truncate mb-3" th:if="${health.eventTitle != null}"
+                                    th:text="|[${health.eventTitle}]|" style="color: #f5683c;"></h6>
+                                <h6 class="text-truncate mb-3" th:if="${health.eventTitle != null}">
+                                    [[${health.productName}]]</h6>
+                                <h6 class="text-truncate mb-3" th:if="${health.eventTitle == null}">
+                                    [[${health.productName}]]</h6>
+                                <div class="d-flex justify-content-center" th:if="${health.eventCode != 0}">
+                                    <h6 th:if="${health.eventCode >= 1000}"
+                                        th:text="${#numbers.formatInteger(health.productPrice-health.eventCode, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 th:if="${health.eventCode >= 1 && health.eventCode <= 100}"
+                                        th:text="${#numbers.formatInteger(health.productPrice*(100-health.eventCode)/100, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 class="text-muted ml-2"><del
+                                            th:text="${#numbers.formatInteger(health.productPrice, 3, 'COMMA') + '원'}"></del>
+                                    </h6>
+                                </div>
+                                <div class="d-flex justify-content-center" th:if="${health.eventCode == 0}">
+                                    <h6 th:text="${#numbers.formatInteger(health.productPrice, 3, 'COMMA') + '원'}"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Products End -->
+            <!-- Products Start -->
+            <div class="container-fluid pt-3">
+                <div class="text-center mb-4">
+                    <h2 class="section-title px-5"><span class="px-2">기타·굿즈</span></h2>
+                </div>
+                <div class="row px-xl-5 pb-3">
+                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1 select" th:each="good:${goods}">
+                        <input type="hidden" name="productNo" th:value="${good.productNo}">
+                        <div class="card product-item border-0 mb-4">
+                            <div
+                                class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                <img class="img-fluid w-100" th:src="${good.productImage}" alt="이미지없당">
+                            </div>
+                            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                <h6 class="text-truncate mb-3" th:if="${good.eventTitle != null}"
+                                    th:text="|[${good.eventTitle}]|" style="color: #f5683c;"></h6>
+                                <h6 class="text-truncate mb-3" th:if="${good.eventTitle != null}">
+                                    [[${good.productName}]]</h6>
+                                <h6 class="text-truncate mb-3" th:if="${good.eventTitle == null}">
+                                    [[${good.productName}]]</h6>
+                                <div class="d-flex justify-content-center" th:if="${good.eventCode != 0}">
+                                    <h6 th:if="${good.eventCode >= 1000}"
+                                        th:text="${#numbers.formatInteger(good.productPrice-good.eventCode, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 th:if="${good.eventCode >= 1 && good.eventCode <= 100}"
+                                        th:text="${#numbers.formatInteger(good.productPrice*(100-good.eventCode)/100, 3, 'COMMA') + '원'}"
+                                        style="color: #f5683c;"></h6>
+                                    <h6 class="text-muted ml-2"><del
+                                            th:text="${#numbers.formatInteger(good.productPrice, 3, 'COMMA') + '원'}"></del>
+                                    </h6>
+                                </div>
+                                <div class="d-flex justify-content-center" th:if="${good.eventCode == 0}">
+                                    <h6 th:text="${#numbers.formatInteger(good.productPrice, 3, 'COMMA') + '원'}"></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Products End -->
+            <!-- Categories End -->
+            <!-- Featured End -->
+        </div>
+
+        <div class="modal fade" tabindex="-1" role="dialog" id="selfCheckModal">
+            <div class="modal-dialog" role="document" style="max-width: 700px;">
+                <div class="modal-content rounded-3 shadow w-sc3" style="height: auto;">
+                    <div class="modal-body" style="padding: 0;">
+                        <div class="w-sc1">
+                            <div class="w-sc2">
+                                <div class="w-sc4">
+                                    <div>불면증 자가진단</div>
+                                </div>
+                                <br>
+                                <div class="w-center">
+                                    <div class="w-sc5">
+                                        <span>없다-0점</span>
+                                        <span>약간-1점</span>
+                                        <span>중간-2점</span>
+                                        <span>심함-3점</span>
+                                        <span>매우 심함-4점</span>
+                                    </div>
+                                </div>
+                                <div class="w-sc6">
+                                    <div class="w-sc7 w-b">* 아래 선택지를 전부 선택하시고 제출하시면 결과가 나타납니다</div>
+                                    <div class="w-pc w-b">1. 당신의 불면증에 관한 문제들의 현재(최근2주간) 심한 정도를 표시해 주세요.</div>
+                                    <table border="1" class="w-sctable w-b">
+                                        <tr>
+                                            <td style="width: 50%;"></td>
+                                            <td>없음</td>
+                                            <td>약간</td>
+                                            <td>중간</td>
+                                            <td>심함</td>
+                                            <td style="width: 65px;">매우심함</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w-sc1td">a.잠들기 어렵다.</td>
+                                            <td><input type="radio" name="sc1-a" value="0"></td>
+                                            <td><input type="radio" name="sc1-a" value="1"></td>
+                                            <td><input type="radio" name="sc1-a" value="2"></td>
+                                            <td><input type="radio" name="sc1-a" value="3"></td>
+                                            <td><input type="radio" name="sc1-a" value="4"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w-sc1td">b.잠을 유지하기 어렵다.</td>
+                                            <td><input type="radio" name="sc1-b" value="0"></td>
+                                            <td><input type="radio" name="sc1-b" value="1"></td>
+                                            <td><input type="radio" name="sc1-b" value="2"></td>
+                                            <td><input type="radio" name="sc1-b" value="3"></td>
+                                            <td><input type="radio" name="sc1-b" value="4"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w-sc1td">c.쉽게 깬다.</td>
+                                            <td><input type="radio" name="sc1-c" value="0"></td>
+                                            <td><input type="radio" name="sc1-c" value="1"></td>
+                                            <td><input type="radio" name="sc1-c" value="2"></td>
+                                            <td><input type="radio" name="sc1-c" value="3"></td>
+                                            <td><input type="radio" name="sc1-c" value="4"></td>
+                                        </tr>
+                                    </table>
+                                    <div class="w-pc w-b">2. 현재 수면 양상에 관하여 얼마나 만족하고 있습니까?</div>
+                                    <div>
+                                        <label for="sc2-1-0">매우만족</label>&nbsp;<input type="radio" name="sc2-1" value="0" id="sc2-1-0">&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <label for="sc2-1-1">약간만족</label>&nbsp;<input type="radio" name="sc2-1" value="1" id="sc2-1-1">&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <label for="sc2-1-2">그저그렇다</label>&nbsp;<input type="radio" name="sc2-1" value="2" id="sc2-1-2">&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <label for="sc2-1-3">약간불만족</label>&nbsp;<input type="radio" name="sc2-1" value="3" id="sc2-1-3">&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <label for="sc2-1-4">매우불만족</label>&nbsp;<input type="radio" name="sc2-1" value="4" id="sc2-1-4">
+                                    </div>
+                                    <div class="w-pc w-b">3. 당신의 수면 장애가 어느 정도나 당신의 낮 활동을 방해 한다고 생각합니까?</div>
+                                    <div class="w-pc w-b">(예. 낮에 피곤함, 직장이나 가사에 일하는 능력, 집중력, 기억력, 기분, 등).</div>
+                                    <div>
+                                    <label for="sc3-1-0">전혀 방해되지 않는다</label>&nbsp;<input type="radio" name="sc3-1" value="0" id="sc3-1-0">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc3-1-1">약간</label>&nbsp;<input type="radio" name="sc3-1" value="1" id="sc3-1-1">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc3-1-2">다소</label>&nbsp;<input type="radio" name="sc3-1" value="2" id="sc3-1-2">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc3-1-3">상당히</label>&nbsp;<input type="radio" name="sc3-1" value="3" id="sc3-1-3">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc3-1-4">매우많이</label>&nbsp;<input type="radio" name="sc3-1" value="4" id="sc3-1-4">
+                                    </div>
+                                    <div class="w-pc w-b">4. 불면증으로 인한 장애가 당신의 삶의 질을 얼마나 손상시킨다고 생각합니까?</div>
+                                    <label for="sc4-1-0">전혀</label>&nbsp;<input type="radio" name="sc4-1" value="0" id="sc4-1-0">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc4-1-1">약간</label>&nbsp;<input type="radio" name="sc4-1" value="1" id="sc4-1-1">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc4-1-2">다소</label>&nbsp;<input type="radio" name="sc4-1" value="2" id="sc4-1-2">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc4-1-3">상당히</label>&nbsp;<input type="radio" name="sc4-1" value="3" id="sc4-1-3">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc4-1-4">매우많이</label>&nbsp;<input type="radio" name="sc4-1" value="4" id="sc4-1-4">
+                                    <div class="w-pc w-b">5. 당신은 현재 불면증에 관하여 얼마나 걱정하고 있습니까?</div>
+                                    <label for="sc5-1-0">전혀</label>&nbsp;<input type="radio" name="sc5-1" value="0" id="sc5-1-0">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc5-1-1">약간</label>&nbsp;<input type="radio" name="sc5-1" value="1" id="sc5-1-1">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc5-1-2">다소</label>&nbsp;<input type="radio" name="sc5-1" value="2" id="sc5-1-2">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc5-1-3">상당히</label>&nbsp;<input type="radio" name="sc5-1" value="3" id="sc5-1-3">&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="sc5-1-4">매우많이</label>&nbsp;<input type="radio" name="sc5-1" value="4" id="sc5-1-4">
+                                </div>
+                                <br>
+                                <div class="w-center">
+                                    <button class="w-btn4" onclick="selfCheckResult()" style="width: 50%; height: 40px;">결과보기</button>
+                                </div>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="modal-footer flex-nowrap p-0">
+                        <button class="btn btn-lg btn-link fs-6 text-decoration-none col-12 m-0 rounded-0 w-btn4"
+                            data-bs-dismiss="modal" onclick="closeModal()">닫기</button>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" tabindex="-1" role="dialog" id="selfCheckResultModal">
+            <div class="modal-dialog" role="document" style="max-width: 700px;">
+                <div class="modal-content rounded-3 shadow w-sc3" style="height: auto;">
+                    <div class="modal-body" style="padding: 0;">
+                        <div class="w-sc1">
+                            <div class="w-sc2">
+                                <br>
+                                <div class="w-sc4">
+                                    <div>불면증 자가진단 결과</div>
+                                </div>
+                                <br>
+                                <div class="w-sc8">
+                                    <span>결과 : 총</span>
+                                    <span id="checkPointArea">0</span>
+                                    <span>점 이므로 </span>
+                                    <span id="checkResultArea">유의할만한 불명증이 없습니다.</span>
+                                </div>
+                                <!--  -->
+                                <br>
+                                <div class="w-sc9">
+                                        <div>0-7 : 유의할 만한 불면증이 없습니다.</div>
+                                        <div>8-14 : 약간의 불면증 경향이 있습니다.</div>
+                                        <div>15~21 : 중등도의 불면증이 있습니다.</div>
+                                        <div>22-28 : 심한 불면증이 있습니다.</div>
+                                </div>
+                                <!--  -->
+                                <br>
+                                <div class="w-center">
+                                    <button class="w-btn3" onclick="downloadSelfcheckCoupon()" style="font-size: 20px;">*자가진단 쿠폰받기</button>
+                                </div>
+                                <br>
+                                <div class="w-sc10">설문조사에 참여해주셔서 감사합니다.</div>
+                                <br>
+                                <div class="w-sc11">
+                                    <button onclick="closeModal()" class="w-btn3">닫기</button>
+                                </div>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!--광고캐러셀-->
+        <script th:inline="javascript">
+            const getReady = () => {
+                Swal.fire({
+                title: '야옹',
+                width: 600,
+                padding: '3em',
+                color: '#716add',
+                backdrop: `
+                    rgba(0,0,123,0.4)
+                    url("/member_assets/images/nyan-cat.gif")
+                    left top
+                    no-repeat
+                `
+                });
+            }
+
+            /*<![CDATA[*/
+            window.onload = () => {
+                loadEventList();
+            }
+
+            const loadEventList = () => {
+                $.ajax({
+                    url: 'eventNewsListMain.ens',
+                    async: true,
+                    success: data => {
+                        console.log(data)
+                        const carouselInner = document.getElementById('carousel-inner-list');
+                        let result = '';
+
+                        if (data.length > 0) {
+                            console.log("data.length > 0");
+                            for (let i = 0; i < data.length; i++) {
+                                const e = data[i];
+
+                                //이벤트 코드 100이하면 % 붙이고 100넘으면 '원' 붙이기
+                                if (e.eventCode < 100) {
+                                    e.eventCode += '%';
+                                } else {
+                                    e.eventCode += '원';
+                                }
+
+                                //즉시구매 링크
+                                const purchaseLink = "productDetail?productNo=" + e.productNo;
+
+                                //이벤트 자세히 보기 링크
+                                const eventDetailLink = "eventNewsDetail.ens?eventNo=" + e.eventNo;
+
+                                let carouselItemClass = 'carousel-item row';
+                                if (i === 0) {
+                                    carouselItemClass += ' active';
+                                }
+                                result += '<div class="' + carouselItemClass + '" style="height: 480px;">\
+                                        <div class="container mt-4 text-center alignt-items-center justify-content-between">\
+                                            <div class="row">\
+                                                <div class="col-4 parent-img">\
+                                                    <img src="' + e.eventThumbnail + '" alt="이미지 없음" />\
+                                                </div>\
+                                                <div class="col-8">\
+                                                    <div>\
+                                                        <h1 class="sixth">' + e.eventTitle + '</h1>\
+                                                        <a class="a-event" data-text="전 품목 ' + e.eventCode + ' 할인!"></a>\
+                                                    </div>\
+                                                </div>\
+                                            </div>\
+                                            <div class="row">\
+                                                <div class="col-12">\
+                                                    <a class="btn-carousel m-1 mx-0 w-100" href="' + eventDetailLink + '"> <span>이벤트 자세히 보기</span></a>\
+                                                </div>\
+                                            </div>\
+                                        </div>\
+                                    </div>'
+                            }
+                            carouselInner.innerHTML = result;
+                        } else {
+                            console.log("data.length < 0");
+                            carouselInner.innerHTML = 
+                                '<div class="carousel-item row active" style="height: 480px;">\
+                                    <div class="row">\
+                                        <div class="col-4">\
+                                            <img class="dataNo" style="width: 350px; height: 350px;" src="market_assets/img/noImage.png" alt="이미지 없음" />\
+                                        </div>\
+                                        <div class="col-8">\
+                                            <div>\
+                                                <h1 class="sixth dataNo">현재 진행중인 이벤트가 없습니다.</h1>\
+                                            </div>\
+                                        </div>\
+                                    </div>\
+                                </div>'
+                        }
+                    },
+                    error: () => {
+                        console.log("에러발생");
+
+                    }
+                })
+            }
+        /*]]>*/
+        </script>
+
+        <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+        <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+        <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            const loginUser = /*[[${session.loginUser}]]*/hwayi;
+            /*]]>*/
+            console.log('로그인유저');
+            console.log(loginUser);
+            console.log(loginUser != null);
+            console.log(loginUser == null);
+            const selects = document.getElementsByClassName('select');
+            for (const slt of selects) {
+                slt.style.cursor = 'pointer';
+                slt.addEventListener('click', () => {
+                    let productNo = slt.children[0].value;
+                    location.href = "/productDetail?productNo=" + productNo;
+                })
+            }
+
+            function openSelfCheckModal(){
+                $('#selfCheckModal').modal('show');
+            }
+
+            function selfCheckResult(){
+                let checkNum = 0;
+                let checkPoint = 0;
+                const radioBtns = document.querySelectorAll('input[type="radio"]');
+                for(const btn of radioBtns){
+                    if(btn.checked){
+                        checkNum++;
+                        checkPoint += Number(btn.value);
+                    }
+                }
+                console.log(checkNum);
+                console.log(checkPoint);
+
+                if(checkNum >= 7){
+                    const checkPointArea = document.getElementById('checkPointArea');
+                    const checkResultArea = document.getElementById('checkResultArea');
+                    if(checkPoint>= 0 && checkPoint <= 7){
+                        checkPointArea.innerText = checkPoint;
+                        checkResultArea.innerText = '유의할 만한 불면증이 없습니다.';
+                    }else if(checkPoint>= 8 && checkPoint <= 14){
+                        checkPointArea.innerText = checkPoint;
+                        checkResultArea.innerText = '약간의 불면증 경향이 있습니다.';
+                    }else if(checkPoint>= 15 && checkPoint <= 21){
+                        checkPointArea.innerText = checkPoint;
+                        checkResultArea.innerText = '중등도의 불면증이 있습니다.';
+                    }else if(checkPoint>= 22){
+                        checkPointArea.innerText = checkPoint;
+                        checkResultArea.innerText = '심한 불면증이 있습니다.';
+                    }
+                    $('#selfCheckModal').modal('hide');
+                    $('#selfCheckResultModal').modal('show');
+                }else{
+                    swal.fire('모든 문항을 답해주세요.');
+                }
+            }
+
+            function closeModal(){
+                $('#selfCheckResultModal').modal('hide');
+            }
+
+            function downloadSelfcheckCoupon(){
+                console.log(loginUser);
+                if(loginUser != null){
+                    $.ajax({
+                        method: "GET",
+                        url: "downloadSelfcheckCoupon",
+                        success: data=>{
+                            console.log(data);
+                            if(data == 'success'){
+                                    swal.fire({
+                                    title: "요청 성공",
+                                    text: "쿠폰 다운로드 성공",
+                                    icon: "success",
+                                    button: "확인",
+                                });
+                            }else if(data == 'alreadyDownload'){
+                                swal.fire({
+                                    title: "요청 실패",
+                                    text: "이미 다운로드 받았습니다",
+                                    icon: "error",
+                                    button: "확인",
+                                });
+                            }else if(data == 'noCoupon'){
+                                swal.fire({
+                                    title: "요청 실패",
+                                    text: "쿠폰이 유효하지 않습니다",
+                                    icon: "error",
+                                    button: "확인",
+                                });
+                            }
+                        },
+                        error: error=>{
+                            console.error(error);
+                        }
+                    })
+                }else{
+                    swal.fire('로그인이 필요합니다');
+                }
+            }
+
+        </script>
+</body>
+
+</html>

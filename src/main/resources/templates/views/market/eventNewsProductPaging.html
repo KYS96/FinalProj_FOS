@@ -1,0 +1,37 @@
+<ul class="pagination justify-content-center mt-5" th:with="loc=${#ctx.springRequestContext.requestUri}">
+
+  <li class="page-item">
+    <a class="page-link" th:classappend="${pi.currentPage &lt;= 1} ? disable : ''"
+      th:href="${pi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(search=${search}, page=1)}">
+      처음으로</a>
+  </li>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <!--이전으로-->
+  <li class="page-item">
+    <a class="page-link"
+      th:href="${pi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(search=${search}, page=${pi.currentPage - 1})}"
+      th:classappend="${pi.currentPage &lt;= 1} ? disable : ''" aria-label="Previous">
+      <span aria-hidden="true">&laquo;</span>
+    </a>
+  </li>
+  <!--숫자 버튼-->
+  <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}"
+    th:classappend="${pi.currentPage == p} ? active : ''">
+    <a class="page-link " th:href="@{${loc}(search=${search}, page=${p})}" th:text=" ${p}"></a>
+  </li>
+  <!--다음으로-->
+  <li class="page-item">
+    <a class="page-link"
+      th:href="${pi.currentPage == pi.maxPage} ? 'javascript:void()' : @{${loc}(search=${search}, page=${pi.currentPage + 1})}"
+      th:classappend="${pi.currentPage == pi.maxPage} ? 'disable' : ''">
+      <span aria-hidden="true">&raquo;</span>
+    </a>
+  </li>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <!--맨 끝으로 이동-->
+  <li class="page-item">
+    <a class="page-link" th:classappend="${pi.currentPage == pi.maxPage} ? disable : ''"
+      th:href="${pi.currentPage == pi.maxPage} ? 'javascript:void()' : @{${loc}(search=${search}, page=${pi.maxPage})}">끝으로
+    </a>
+  </li>
+</ul>

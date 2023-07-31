@@ -1,0 +1,14 @@
+<tr th:unless="${#lists.isEmpty(eList)}" th:each="e : ${eList}"
+  th:onclick="detailPage([[${e.eventNoOnly}]], [[${e.eventEndDateOnly}]])">
+  <td th:text="${#strings.abbreviate(e.eventTitleOnly, 20)}"></td>
+  <td
+    th:text="|${#dates.format(e.eventStartDateOnly, 'yyyy-MM-dd')} ~ ${#dates.format(e.eventEndDateOnly, 'yyyy-MM-dd')}|">
+  </td>
+</tr>
+<tr th:if="${#lists.isEmpty(eList)}">
+  <td colspan="5">
+    <div class="mb-2">
+      <img class="w-75" src="/market_assets/img/검색결과없음.png" />
+    </div>
+  </td>
+</tr>

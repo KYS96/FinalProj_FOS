@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="kor" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <!-- css -->
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+    
+    <!-- aws sdk script-->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1407.0.min.js"></script>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <!-- 써머노트 -->
+    <script src="admin_assets/js/summernote/summernote-lite.js"></script>
+    <script src="admin_assets/js/summernote/lang/summernote-ko-KR.js"></script>
+    <link rel="stylesheet" href="admin_assets/css/summernote/summernote-lite.css">
+
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+            <form action="updateEventDetail.admin" method="post">
+                <div class="main-content">
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-plus-square"></i>이벤트 등록</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText" style="text-align: center;">
+                                        <table class="table bg-light table-bordered" style="margin-left: auto; margin-right: auto; vertical-align: middle;">
+                                            <colgroup>
+                                                <col width="125px">
+                                            </colgroup>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        이벤트명
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="eventTitle" placeholder="이벤트명을 입력하세요" th:value="${e.eventTitle}" required>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        할인율 또는 할인금액
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="eventCode" placeholder="할인율 또는 할인금액 입력" th:value="${e.eventCode}"  min="1" onchange="checkEventCode(this)" required>
+                                                        <br>
+                                                        *1에서 99까지의 값은 할인율로 적용되고 100 이상의 값은 할인 금액으로 적용됩니다.
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        이벤트 시작일
+                                                    </td>
+                                                    <td>
+                                                        <input type='date' name='eventStartDate' th:value="${e.eventStartDate}" required>부터
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        이벤트 종료일
+                                                    </td>
+                                                    <td>
+                                                        <input type='date' name='eventEndDate' th:value="${e.eventEndDate}" required>까지
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        이벤트 활성화
+                                                    </td>
+                                                    <td>
+                                                        <span class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="radio" name="eventActivity" value="Y" th:checked="${e.eventActivity == 'Y'}">
+                                                            <label class="form-check-label">활성화</label>
+                                                        </span>
+                                                        <span class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="radio" name="eventActivity" value="N" th:checked="${e.eventActivity == 'N'}">
+                                                            <label class="form-check-label">비활성화</label>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        대표이미지
+                                                    </td>
+                                                    <td>
+                                                        <input type="file" id="frontImage" name="frontImage" accept="image/*" onchange="checkImage(event)">
+                                                        <div id="savedFrontImage">
+                                                            <th:block>
+                                                                <img style="width:300px;" alt="이미지를 저장해주세요" th:src="${e.frontImage}">
+                                                            </th:block>
+                                                        </div>
+                                                        <input type="hidden" id="frontImageUrl" name="frontImageUrl" th:value="${e.frontImage}">
+                                                        <br>
+                                                        <button type="button" class="btn btn-secondary btn-sm" id="addFrontImage" onclick="uploadFrontImage()">저장하기</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div style="background-color: white; margin: 0%;">
+                                    <br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;<b>이벤트 내용및 이미지 입력</b>
+                                    <br><br>
+                                    <textarea id="summernote" name="eventContent"></textarea>
+                                    <div id="total-size">업로드 용량 : 0MB / 25MB</div>
+                                    <div id="quantity">업로드 수 : 0 / 5</div>
+                                    <div id="content-length">입력 길이 : 0/10000</div>  
+                                </div>
+                                <br>
+                            </div>
+                            <div class="col-2"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-search"></i>이벤트 적용 상품 검색</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div style="text-align: center;">
+                                            <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto;">
+                                                <colgroup>
+                                                    <col style="width:154px;">
+                                                    <col style="width:450px;">
+                                                </colgroup>
+                                                <tbody>
+                                                    <tr>
+                                                        <th>검색분류</th>
+                                                        <td>
+                                                            <span>
+                                                                <select id="category">
+                                                                    <option value="product_name">상품명</option>
+                                                                    <option value="product_no">상품번호</option>
+                                                                    <option value="product_explain">상품설명</option>
+                                                                </select>
+                                                            </span>
+                                                            <span>
+                                                                <input type="text" id="query">
+                                                            </span>    
+                                                            <button type="button" class="btn btn-primary btn-sm" onclick="getSearchProductList();"><i class="bi bi-search"></i>검색</button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>상품분류</th>
+                                                        <td>
+                                                            <div>
+                                                                <label>
+                                                                    <input type="checkbox" class="productCategoryNoList" value="all" onchange="checkBoxesAllCheck()" checked> 전체
+                                                                </label>
+                                                                <label>
+                                                                    <input type="checkbox" class="productCategoryNoList" value="P01" onchange="checkBoxesCheck()"> 침대
+                                                                </label>
+                                                                <label>
+                                                                    <input type="checkbox" class="productCategoryNoList" value="P02" onchange="checkBoxesCheck()"> 베개
+                                                                </label>
+                                                                <label>
+                                                                    <input type="checkbox" class="productCategoryNoList" value="P03" onchange="checkBoxesCheck()"> 이불
+                                                                </label>
+                                                                <label>
+                                                                    <input type="checkbox" class="productCategoryNoList" value="P04" onchange="checkBoxesCheck()"> 의류
+                                                                </label>
+                                                                <label>
+                                                                    <input type="checkbox" class="productCategoryNoList" value="P05" onchange="checkBoxesCheck()"> 건강
+                                                                </label>
+                                                                <label>
+                                                                    <input type="checkbox" class="productCategoryNoList" value="P06" onchange="checkBoxesCheck()"> 굿즈
+                                                                </label>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>상품등록일</th>
+                                                        <td>
+                                                            <select id="selectResistDate" onchange="chooseResistDate(this)">
+                                                                <option value="all" selected>전체 기간</option>
+                                                                <option value="choose">기간 선택</option>
+                                                            </select>
+                                                            <span style="display: none;">
+                                                                <input type="date" id="productResistDateStart"> ~
+                                                                <input type="date" id="productResistDateEnd">
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>상품수정일</th>
+                                                        <td>
+                                                            <select id="selectUpdate" onchange="chooseUpDate(this)">
+                                                                <option value="all" selected>전체 기간</option>
+                                                                <option value="choose">기간 선택</option>
+                                                            </select>
+                                                            <span style="display: none;">
+                                                                <input type="date" id="productUpdateStart"> ~
+                                                                <input type="date" id="productUpdateEnd">
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>진열상태</th>
+                                                        <td>
+                                                            <label><input type="radio" name="selectProductStatus" value="all" checked> 전체</label>
+                                                            <label><input type="radio" name="selectProductStatus" value="Y"> 진열함</label>
+                                                            <label><input type="radio" name="selectProductStatus" value="N"> 진열안함</label>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>정렬순서</th>
+                                                        <td>
+                                                            <div>
+                                                                <select id="order"> 
+                                                                    <option value="product_sales desc">판매량 많은순</option> 
+                                                                    <option value="product_sales asc">판매량 적은순</option> 
+                                                                    <option value="product_price desc">가격 높은순</option> 
+                                                                    <option value="product_price asc">가격 낮은순</option> 
+                                                                    <option value="product_resist_date asc">등록일 빠른순</option> 
+                                                                    <option value="product_resist_date desc">등록일 늦은순</option> 
+                                                                    <option value="product_update asc">수정일 빠른순</option> 
+                                                                    <option value="product_update desc">수정일 늦은순</option>
+                                                                </select> 
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr></tr>
+                                                </tbody>
+                                            </table>
+                                            <br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2"></div> 
+                        </div>
+                        
+                        <div class="row" >
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40" id="searchedProductList">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-cart4"></i>검색한 상품 목록</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <h3>이벤트를 적용할 상품을 검색하고 추가하세요</h3>
+                                    </div>
+                                    <div><table><tr><td></td></tr></table></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" >
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40" >
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-basket3"></i>이벤트 적용 상품</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText" style="text-align: center; overflow-x: scroll;">
+                                        <table border="1" class="bg-light" style="margin-left: auto; margin-right: auto;" id="eventProductHead">
+                                            <thead>
+                                                <tr>
+                                                    <th>상품 번호</th>
+                                                    <th>이미지</th>
+                                                    <th>분류</th>
+                                                    <th>이름</th>
+                                                    <th>가격</th>
+                                                    <th>상품 재고</th>
+                                                    <th>등록일/수정일</th>
+                                                    <th>진열 상태</th>
+                                                    <th>이벤트 제외</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="eventAppliedProductList">
+                                                <th:block th:each="p : ${list}">
+                                                    <input type="hidden" name="productNoBefore" th:value="${p.productNo}">
+                                                    <tr>
+                                                        <td th:text="${p.productNo}"></td>
+                                                        <td><img th:src="${p.productImage}" width="150px" height="150px"></td>
+                                                        <td th:text="${p.productCategoryName}"></td>
+                                                        <td th:text="${p.productName}"></td>
+                                                        <td th:data-productPriceOrigin="${p.productPrice}" th:text="${#numbers.formatInteger(p.productPrice, 1, 'COMMA') + '원'}"></td>
+                                                        <td th:text="${#numbers.formatInteger(p.productStock, 1, 'COMMA') + '개'}"></td>
+                                                        <td>[[${p.productResistDate}]]<hr>[[${p.productUpdate}]]</td>
+                                                        <td th:text="${p.productStatus} == 'Y' ? '진열 중' : '미진열'"></td>
+                                                        <td><button class="btn btn-secondary btn-sm" type="button" onclick="removeEventProduct(this)">제외하기</button></td>
+                                                    </tr>
+                                                    <input type="hidden" name="productNo" th:value="${p.productNo}">
+                                                </th:block>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-1"></div>
+                        <div class="col-9">
+                            <div style="margin: 0%;">
+                                <input type="hidden" name="eventNo" th:value="${e.eventNo}">
+                                <input type="hidden" name="frontImageUrlBefore" th:value="${e.frontImage}">
+                                <div class="user-data__footer" th:if="${session.loginUser.memberNo != null}">
+                                    <input type="hidden" name="employeeNo" th:value="${session.loginUser.memberNo}">
+                                    <button class="btn btn-primary btn-sm" onclick="return check()">제출하기</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+        
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var msg = /*[[${msg}]]*/ null;
+        var msgDetail = /*[[${msgDetail}]]*/ null;
+
+        //AWS
+        // Initialize the Amazon Cognito credentials provider
+        AWS.config.region = "ap-northeast-2"; // Region
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: "ap-northeast-2:d70b0ade-b06e-49bc-b9cd-9f0eb59df8c7",
+        });
+        var bucketName = "finalsof";
+        var s3 = new AWS.S3({
+            apiVersion: "2006-03-01",
+            params: { Bucket: bucketName },
+        });
+
+        var e = /*[[${e}]]*/ null; 
+
+        //서머노트 세팅
+        var allowedExtensions = ["jpg", "jpeg", "webp", "png", "gif"];
+        var quantity = 0; 
+        var quantityLimit = 5; 
+        let size = 0; 
+        var sizeLimit = 25 * 1024 * 1024; 
+        let savedImageCount = 0; 
+        let savedImagesSet = new Set(); 
+        let imagesToDeleteSet = new Set(); 
+        let imagesAndSizes = new Map(); 
+
+        //서머노트
+        $("#summernote").summernote({
+        toolbar: [
+            ["fontname", ["fontname"]],
+            ["fontsize", ["fontsize"]],
+            ["style", ["bold", "italic", "underline", "strikethrough", "clear"]],
+            ["color", ["forecolor", "color"]],
+            ["table", ["table"]],
+            ["para", ["ul", "ol", "paragraph"]],
+            ["height", ["height"]],
+            ["insert", ["picture", "link"]],
+            ["view", ["help"]],
+        ],
+        fontNames: [
+            "Arial",
+            "Arial Black",
+            "Comic Sans MS",
+            "Courier New",
+            "궁서",
+            "굴림체",
+            "굴림",
+            "돋움체",
+            "바탕체",
+        ],
+        fontSizes: [
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "14",
+            "16",
+            "18",
+            "20",
+            "22",
+            "24",
+            "28",
+            "30",
+            "36",
+            "50",
+            "72",
+        ],
+        placeholder: "이벤트 내용을 입력해주세요. 최대 10000바이트까지만 입력 가능합니다.",
+        height: 600,
+        lang: "ko-KR",
+        disableDragAndDrop: true,
+        callbacks: {
+            onInit: function (files) {
+                $("#summernote").summernote("code", e.eventContent);
+            },
+            onKeydown: function (e) {
+                var contentLength = $(this).summernote("code").length;
+                if (contentLength >= 10000) {
+                    e.preventDefault();
+                }
+            },
+            onPaste: function (e) {
+                var pastedData = e.originalEvent.clipboardData.getData("text");
+                if (pastedData.length + $(this).summernote("code").length > 10000) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: '입력 길이 초과',
+                        text: '입력 길이는 10000바이트를 초과할 수 없습니다.'
+                    });
+                }
+            },
+            onKeyup: function (e) {
+                var content = $(this).summernote("code");
+                $("#content-length").text("입력 길이 : " + content.length + "/10000");
+                if (content.length > 10000) {
+                    $(this).summernote("code", content.substring(0, 10000));
+                }
+            },
+            onImageUpload: function (files) {
+                if (quantity >= quantityLimit) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '파일 개수 초과',
+                        text: '파일은 최대 5개까지 업로드할 수 있습니다.'
+                    });
+                    return;
+                }
+                var file = files[0];
+                    var uuid = uuidv4();
+                    var originalFileName = file.name;
+                    var fileSize = file.size;
+                    var extension = originalFileName.split(".").pop().toLowerCase();
+                    var fileName = uuid + "." + extension;
+                    var encodedOriginalFileName = encodeURIComponent(originalFileName);
+                    if (allowedExtensions.indexOf(extension) === -1) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '잘못된 확장자',
+                            text: '확장자는 .jpg, .jpeg, .png, ,webp, .gif 중 하나여야 합니다.'
+                        });
+                        return;
+                    }
+                    if (fileSize > 10 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '용량 초과',
+                            text: '1개의 파일은 10MB를 넘을 수 없습니다.'
+                        });
+                        return;
+                    }
+                    if (size + fileSize > sizeLimit) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '용량 초과',
+                            text: '총 용량은 25MB를 넘을 수 없습니다.'
+                        });
+                        return;
+                    }
+
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        var fileContent = new Uint8Array(reader.result);
+                        var params = {
+                            Bucket: bucketName,
+                            Key: fileName,
+                            Body: fileContent,
+                            ContentType: file.type,
+                            Metadata: { 
+                                originalFileName : encodedOriginalFileName, 
+                            },
+                        };
+                        s3.upload(params, function (err, data) {
+                            if (err) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '이미지 등록에 실패했습니다.',
+                                });
+                                return;
+                            } else {
+                                var imgNode = document.createElement("img");
+                                imgNode.src = data.Location;
+                                imgNode.classList.add('imgtag');
+                                $("#summernote").summernote("insertNode", imgNode);
+                                imagesAndSizes.set(data.Location, fileSize);
+                                size += fileSize;
+                                $("#total-size").text(
+                                    "업로드 용량 : " +
+                                    (size / 1024 / 1024).toFixed(2) +
+                                    "MB / " +
+                                    sizeLimit / 1024 / 1024 +
+                                    "MB"
+                                );
+                            }
+                        });
+                    };
+                reader.readAsArrayBuffer(file);
+                },
+                onChange: function (contents, $editable) {
+                    let currentImages = $($editable[0]).find("img");
+                    let currentImageCount = $($editable[0]).find("img").length;
+                    let currentImageSources = new Set();
+                    currentImages.each(function () {
+                        currentImageSources.add($(this).attr("src"));
+                    });
+                    if (currentImageCount < savedImageCount) {
+                        savedImagesSet.forEach((src) => {
+                            if (!currentImageSources.has(src)) {
+                                imagesToDeleteSet.add(src);
+                            }
+                        });
+                        quantity = currentImageCount;
+                        $("#quantity").text("파일 개수 : " + quantity + "/" + quantityLimit);
+                        var tempImagesToDeleteSet = new Set();
+                        tempImagesToDeleteSet = imagesToDeleteSet;
+
+                        tempImagesToDeleteSet.forEach((src) => {
+                            size -= imagesAndSizes.get(src);
+                            imagesAndSizes.delete(src);
+                            tempImagesToDeleteSet.delete(src);
+                        });
+
+                        quantity = currentImageCount;
+                        $("#quantity").text("파일 개수 : " + quantity + "/" + quantityLimit);
+                        $("#total-size").text(
+                        "업로드 용량 : " +
+                            (size / 1024 / 1024).toFixed(2) +
+                            "MB / " +
+                            sizeLimit / 1024 / 1024 +
+                            "MB"
+                        );
+                    } else if (currentImageCount > savedImageCount) {
+
+                        currentImageSources.forEach((src) => {
+                            if (!savedImagesSet.has(src)) {
+                                savedImagesSet.add(src);
+                            }
+                        });
+
+                        quantity = currentImageCount;
+                        $("#quantity").text("파일 개수 : " + quantity + "/" + quantityLimit);
+                    }
+                    savedImageCount = currentImageCount;
+                    savedImagesSet = currentImageSources;
+                },
+            },
+        });
+
+        function toJSONedContentInfo() {
+            let postObject = {
+                content: $summernote.summernote('code'), 
+                savedImageCount: savedImageCount,
+                savedImagesSet: Array.from(savedImagesSet),
+                imagesToDeleteSet: Array.from(imagesToDeleteSet),
+                imagesAndSizes: Array.from(imagesAndSizes.entries()), 
+                quantity: quantity,
+                size: size
+            };
+            
+            let postJson = JSON.stringify(postObject);
+            return postJson;
+            }
+
+        var selectResistDateDisplay = document.getElementById("selectResistDate");
+        function chooseResistDate(element){
+            if(selectResistDateDisplay.value == 'choose'){
+                element.nextElementSibling.style.display = 'inline';
+            } else{
+                element.nextElementSibling.style.display = 'none';
+            }
+        }
+
+        var selectUpdateDisplay = document.getElementById("selectUpdate");
+        function chooseUpDate(element){
+            if(selectUpdateDisplay.value == 'choose'){
+                element.nextElementSibling.style.display = 'inline';
+            } else{
+                element.nextElementSibling.style.display = 'none';
+            }
+        }
+
+        var checkBoxes = document.getElementsByClassName("productCategoryNoList");
+        const checkBoxesCheck = () =>{
+            var checkAll = 0;
+            for(let i = 1; i < checkBoxes.length; i++){
+                if(checkBoxes[i].checked){
+                    checkBoxes[0].checked = false;
+                    checkAll++;
+                }
+            }
+            if(checkAll == 6){
+                checkBoxes[0].checked = true;
+                for(let i = 1; i < checkBoxes.length; i++){
+                    checkBoxes[i].checked = false;
+                }
+            }
+        }
+
+        const checkBoxesAllCheck = () =>{
+            if(checkBoxes[0].checked){
+                for(let i = 1; i < checkBoxes.length; i++){
+                    checkBoxes[i].checked = false;
+                }
+            }
+        }
+
+        const frontImage = document.getElementById('frontImage');
+        const frontImageUrl = document.getElementById('frontImageUrl');
+        const savedFrontImage = document.getElementById('savedFrontImage');
+        
+        function uploadFrontImage(){
+            var formData = new FormData();
+            if(frontImage.files[0] != null && frontImage.files[0] != ""){
+                formData.append('multipartFileList', frontImage.files[0]);
+                $.ajax({
+                    type: "POST",
+                    url: 'upload',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: data =>{
+                        frontImageUrl.value = data[0];
+                        savedFrontImage.innerHTML = "<img style='width:300px;' alt='이미지를 저장해주세요' src='" + data[0] + "'>";
+                    }
+                });
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: '선택된 파일이 없습니다.',
+                    text: '이미지파일을 선택해주세요'
+                });
+            }
+        }
+
+        const subImagesUrl = document.getElementById('subImagesUrl');
+        const savedSubImages = document.getElementById('savedSubImages');
+        const subImagesDiv = document.getElementById('subImagesDiv');
+
+        function uploadSubImages(){
+            var subImages = document.getElementsByName('subImages');
+            var formData = new FormData();
+            var formDataCount = 0;
+            for (let i = 0; i < subImages.length; i++) {
+                if(subImages[i].files[0] != null && subImages[i].files[0] != ""){
+                    formDataCount++;
+                    formData.append('multipartFileList', subImages[i].files[0]);
+                }
+            }
+            for (const entry of formData.entries()) {
+            }
+            if(formDataCount > 0){
+                $.ajax({
+                    type: "POST",
+                    url: 'upload',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: data =>{
+                        savedSubImages.innerHTML = "";
+                        subImagesUrl.innerHTML = "";
+                        for(let i = 0; i< data.length; i++){
+                            savedSubImages.innerHTML += "<br><div><img style='width:300px;' alt='이미지를 저장해주세요' src='" + data[i] + "'></div>";
+                            subImagesUrl.innerHTML += "<input type='hidden' name='subImagesUrl' value='" + data[i] + "'>";
+                        }
+                    }
+                });
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: '선택된 파일이 없습니다.',
+                    text: '이미지파일을 선택해주세요'
+                });
+            }
+        }
+
+        function addInputSubImagesFile (element){
+            if(element.value != null && element.value != ""){
+                element.removeAttribute("onchange");
+                element.setAttribute("onchange", "checkImage(event);");
+                var newSubDiv = document.createElement("div");
+                newSubDiv.innerHTML = '<br><input type="file" name="subImages" onchange="checkImage(event); addInputSubImagesFile(this);" accept="image/*">';
+                subImagesDiv.append(newSubDiv);
+            }
+        }
+        
+        var page = 1;
+
+        const getSearchProductList = () =>{
+
+            var searchedProductList = document.getElementById("searchedProductList");
+            var category = document.getElementById("category").value; 
+            var query = document.getElementById("query").value; 
+            var productCategoryNoLists = document.getElementsByClassName("productCategoryNoList");
+            var productCategoryNoList = [];
+            for(let i = 0; i< productCategoryNoLists.length; i++){
+                if(productCategoryNoLists[i].checked){
+                    productCategoryNoList.push(productCategoryNoLists[i].value);
+                }
+            }
+            var selectResistDate = document.getElementById("selectResistDate").value; 
+            var productResistDateStart = document.getElementById("productResistDateStart").value; 
+            var productResistDateEnd = document.getElementById("productResistDateEnd").value; 
+            var selectUpdate = document.getElementById("selectUpdate").value; 
+            var productUpdateStart = document.getElementById("productUpdateStart").value; 
+            var productUpdateEnd = document.getElementById("productUpdateEnd").value; 
+            var selectProductStatuses = document.getElementsByName("selectProductStatus");
+            var selectProductStatus = 'all';
+            for(let i = 0; i< selectProductStatuses.length; i++){
+                if(selectProductStatuses[i].checked){
+                    selectProductStatus = selectProductStatuses[i].value;
+                }
+            }
+            var order = document.getElementById("order").value; 
+
+            $.ajax({
+                type: 'get',
+                url: 'getSearchProductList.admin',
+                dataType: 'html',
+                data: {
+                    "page" : page,
+                    "category" : category,
+                    "query" : query,
+                    "productCategoryNoList" : productCategoryNoList,
+                    "selectResistDate" : selectResistDate,
+                    "productResistDateStart" : productResistDateStart,
+                    "productResistDateEnd" : productResistDateEnd,
+                    "selectUpdate" : selectUpdate,
+                    "productUpdateStart" : productUpdateStart,
+                    "productUpdateEnd" : productUpdateEnd,
+                    "selectProductStatus" : selectProductStatus,
+                    "order" : order
+                },
+                success: data =>{
+                    searchedProductList.innerHTML = data;
+                }
+            });
+			
+        }
+
+        $(document).on('click', '.page-link', function () {
+            page = $(this).attr('data-page');
+            getSearchProductList(); 
+        });
+
+        function checkImage(event){
+            var fileCheck = event.target.files[0];
+            if(fileCheck.type.startsWith('image/')){
+            } else{
+                event.target.value = '';
+                Swal.fire({
+                    icon: 'error',
+                    title: '잘못된 파일 형식입니다.',
+                    text: '이미지파일을 선택해주세요'
+                });
+            }
+            
+        }
+
+        const checkEventCode = (element) =>{
+            if(element.value < 1){
+                element.value = '';
+                Swal.fire({
+                    icon: 'error',
+                    title: '1 이상인 값을 입력해주세요.'
+                });
+            }
+        }
+        
+        const check = () => {
+            var eventCode = document.getElementsByName("eventCode")[0].value;
+            var eventAppliedProductTrs = eventAppliedProductList.querySelectorAll("tr");
+            var returnProductNameList = '';
+            var eventContentValue = document.getElementsByName("eventContent")[0].value;
+
+            var checkEventProduct = 0;
+            for (let p of eventAppliedProductTrs) {
+                var eventAppliedProductName = p.children[3].innerText;
+                var eventAppliedProductPrice = p.children[4].getAttribute('data-productPriceOrigin');
+                checkEventProduct = 1;
+                if (Number(eventCode) >= Number(eventAppliedProductPrice)) {
+                    returnProductNameList += ' / ' + eventAppliedProductName;
+                } 
+            }
+
+            if(eventContentValue == ''){
+                Swal.fire({
+                    icon: 'error',
+                    title: '이벤트 설명을 입력해주세요'
+                });
+                return false; 
+            }else if (returnProductNameList != '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: '할인금액이 해당 상품의 가격 이상입니다.',
+                    text: returnProductNameList + ' /'
+                });
+                return false; 
+            }else if(frontImageUrl.value == '' || frontImageUrl.value == null){
+                Swal.fire({
+                    icon: 'error',
+                    title: '대표 이미지가 없습니다.',
+                    text : '대표 이미지를 선택한 후 저장하기 버튼을 눌러주세요'
+                });
+                return false; 
+            }else if(checkEventProduct == 0){
+                Swal.fire({
+                    icon: 'error',
+                    title: '선택된 상품이 없습니다..',
+                    text : '상품을 선택한 후 제출하기 버튼을 눌러주세요'
+                });
+                return false; 
+            }else {
+                return true;
+            }
+
+	  	}
+
+        var eventProductHead = document.getElementById("eventProductHead");
+        const eventAppliedProductList = document.getElementById("eventAppliedProductList");
+        const addEventProduct = (element) =>{
+            eventProductHead.style.visibility = 'visible';
+            var productNo = element.getAttribute('data-productNo');
+            var productImage = element.getAttribute('data-productImage');
+            var productCategoryNo = element.getAttribute('data-productCategoryNo');
+            var productName = element.getAttribute('data-productName');
+            var productCategory = categoryNoToCategoryName(productCategoryNo);
+            var productPrice = element.getAttribute('data-productPrice');
+            var productPriceOrigin = element.getAttribute('data-productPriceOrigin');
+            var productStock = element.getAttribute('data-productStock');
+            var productResistDate = element.getAttribute('data-productResistDate');
+            var productUpdate = element.getAttribute('data-productUpdate');
+            var productStatus = element.getAttribute('data-productStatus');
+
+            eventAppliedProductList.innerHTML += '<tr>\
+                                                    <td>' + productNo + '</td>\
+                                                    <td><img src="' + productImage + '" width="150px" height="150px"></td>\
+                                                    <td>' + productCategory + '</td>\
+                                                    <td>' + productName + '</td>\
+                                                    <td data-productPriceOrigin="' + productPriceOrigin + '">' + productPrice + '</td>\
+                                                    <td>' + productStock + '</td>\
+                                                    <td>' + productResistDate + '<hr>' + productUpdate + '</td>\
+                                                    <td>' + productStatus + '</td>\
+                                                    <td><button class="btn btn-secondary btn-sm" type="button" onclick="removeEventProduct(this)">제외하기</button></td>\
+                                                </tr>\
+                                                <input type="hidden" name="productNo" value="' + productNo + '">';
+        }
+
+        const categoryNoToCategoryName = (productCategoryNo) =>{
+            var productCategory = '';
+            switch(productCategoryNo){
+                case 'P01' : productCategory = '침대'; break;
+                case 'P02' : productCategory = '베개'; break;
+                case 'P03' : productCategory = '이불'; break;
+                case 'P04' : productCategory = '의류'; break;
+                case 'P05' : productCategory = '건강'; break;
+                case 'P06' : productCategory = '굿즈'; break;
+            }
+            return productCategory;
+        }
+
+        removeEventProduct = (element) =>{
+            element.parentElement.parentElement.nextElementSibling.remove();
+            element.parentElement.parentElement.remove();
+            if(eventAppliedProductList.innerText){
+                eventProductHead.style.visibility = 'visible';
+            }else{
+                eventProductHead.style.visibility = 'hidden';
+            }
+        }
+
+        $(document).ready(function(){
+            if(msg == 'success'){
+                Swal.fire({
+                    icon: 'success',
+                    title: '상품 수정에 성공했습니다.'
+                })
+            }else if(msg == 'error'){
+                Swal.fire({
+                    icon: 'error',
+                    title: '이벤트 등록이 실패했습니다.',
+                    text: '동일기간 하나의 상품에 한가지 이벤트만 적용 가능합니다. 중복된 상품번호 : ' + msgDetail
+                });
+            }else if(msg == 'error2'){
+                Swal.fire({
+                    icon: 'error',
+                    title: '이벤트 등록이 실패했습니다.',
+                    text: '최소 한 개 이상의 상품을 선택해주세요'
+                });
+            }else if(msg == 'error3'){
+                Swal.fire({
+                    icon: 'error',
+                    title: '이벤트 등록이 실패했습니다.'
+                });
+            }
+        });
+        /*]]>*/
+    </script>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    
+</body>
+
+</html>
+<!-- end document-->

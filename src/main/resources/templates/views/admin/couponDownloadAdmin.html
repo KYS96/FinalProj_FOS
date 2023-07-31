@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="kor" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <style>
+        #searchProductInnerText{
+            padding: 60px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid" id="mainContentAdmin">
+                        <div class="row">
+                            <div class="col-1"></div>
+                            <div class="col-9">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-plus-square"></i>쿠폰 다운로드 테스트</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText" style="text-align: center;">
+                                        <div>
+                                            <!-- 쿠폰 다운로드 -->
+                                            <b>모든 쿠폰 다운로드 테스트</b>
+                                            <div th:each="c : ${list}" style="border: 1px solid black;">
+                                                <th:block th:if="${c.couponCondition == 'download'}">
+                                                    <h6>[[${c.couponName}]]</h6>
+                                                    <p>[[${c.couponContent}]]</p>
+                                                    <th:block th:if="${session.loginUser}">
+                                                        <button class="btn btn-primary btn-sm" onclick="downloadCoupon(this)" th:data-couponNo="${c.couponNo}" th:data-couponPeriodType="${c.couponPeriodType}" th:data-couponPeriod="${c.couponPeriod}" th:data-couponCloseDate="${c.couponCloseDate}">
+                                                            쿠폰 다운로드<i class="bi bi-arrow-down"></i>
+                                                        </button>
+                                                    </th:block>
+                                                    <th:block th:if="${session.loginUser == null}">
+                                                        <button type="button" class="btn btn-primary btn-sm" onclick="location.href='loginView.me'">로그인</button>
+                                                    </th:block>
+                                                </th:block>
+                                            </div>
+                                        </div>
+                                        <br><br><br><br>
+                                        <div>
+                                            <!-- 베개 쿠폰 다운로드 -->
+                                            <b>베개 쿠폰 다운로드 테스트</b>
+                                            <div th:each="c : ${list}" style="border: 1px solid black;">
+                                                <th:block th:if="${c.couponCondition == 'download' && c.couponLocation == 'P02'}">
+                                                    <h6>[[${c.couponName}]]</h6>
+                                                    <p>[[${c.couponContent}]]</p>
+                                                    <th:block th:if="${session.loginUser}">
+                                                        <button class="btn btn-primary btn-sm" onclick="downloadCoupon(this)" th:data-couponNo="${c.couponNo}" th:data-couponPeriodType="${c.couponPeriodType}" th:data-couponPeriod="${c.couponPeriod}" th:data-couponCloseDate="${c.couponCloseDate}">
+                                                            쿠폰 다운로드<i class="bi bi-arrow-down"></i>
+                                                        </button>
+                                                    </th:block>
+                                                    <th:block th:if="${session.loginUser == null}">
+                                                        <button type="button" class="btn btn-primary btn-sm" onclick="location.href='loginView.me'">로그인</button>
+                                                    </th:block>
+                                                </th:block>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const downloadCoupon = (element) =>{
+            var couponNo = "" + element.getAttribute('data-couponNo');
+            var couponPeriodType = "" + element.getAttribute('data-couponPeriodType');
+            var couponPeriod = "" + element.getAttribute('data-couponPeriod');
+            var couponCloseDate = "" + element.getAttribute('data-couponCloseDate');
+            $.ajax({
+                type: "POST",
+                url: 'downloadCoupon',
+                data: {couponNo: couponNo, couponPeriodType: couponPeriodType, couponPeriod: couponPeriod, couponCloseDate: couponCloseDate},
+                dataType: 'json',
+                success: data =>{
+                    if(data.msg == '쿠폰이 다운로드 되었습니다.'){
+                        Swal.fire({
+                            icon: 'success',
+                            title: data.msg
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: 'error',
+                            title: data.msg
+                        });
+                    }
+                },
+                error: data =>{
+                }
+            });
+        }
+    </script>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    
+</body>
+
+</html>
+<!-- end document-->

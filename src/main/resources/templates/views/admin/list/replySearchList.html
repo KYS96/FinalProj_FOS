@@ -1,0 +1,66 @@
+<th:block th:if="${list == null}">
+    <h3>검색 결과가 없습니다.</h3>
+</th:block>
+<th:block th:if="${list != null}">
+    <table class="table">
+        <thead class="bg-light">
+            <tr>
+                <th style="min-width: 200px; max-width: 200px;">내용</th>
+                <th style="min-width: 110px; max-width: 110px;">추천수</th>
+                <th style="min-width: 110px; max-width: 110px;">반대수</th>
+                <th style="min-width: 110px; max-width: 110px;">신고회수</th>
+                <th style="min-width: 120px; max-width: 120px;">작성자</th>
+                <th style="min-width: 130px; max-width: 130px;">작성일/수정일</th>
+                <th style="min-width: 110px; max-width: 110px;">상태</th>
+            </tr>
+        </thead>
+        <tbody th:each="a : ${list}">
+            <tr>
+                <input type="hidden" th:value="${a.replyNo}">
+                <input type="hidden" th:value="${a.memberNo}">
+                <input type="hidden" th:value="${a.boardNo}">
+                <td th:onclick="|location.href='@{post.comm(no=${a.boardNo})}'|" style="cursor: pointer;">
+                    <br>
+                    <span th:text="${#strings.abbreviate(a.replyContent, 25)}"></span>
+                </td>
+                <td><br>[[${a.replyLikes}]]</td>
+                <td><br>[[${a.replyDislikes}]]</td>
+                <td><br>[[${a.replyReports}]]</td>
+                <td>
+                    [[${a.memberNickname}]]<hr>
+                    <button th:data-type="member_is_blacklist" onclick="changeMember(this)" class="btn btn-primary btn-sm" th:text="${a.memberIsBlacklist == 'N' ? '정지하기' : '정지해제'}"></button>
+                </td>
+                <td>
+                    [[${a.replyEnrollDate}]]
+                    <hr>
+                    <th:block  th:text="${a.replyModifyDate == null ? '-' : a.replyModifyDate}"></th:block>
+                </td>
+                <td>
+                    <br>
+                    <select th:data-type="replyStatus" onchange="changeReply(this)">
+                        <option value="active" th:selected="${a.replyIshidden == 'N' && a.replyIsdeleted == 'N'}">활성화</option>
+                        <option value="hidden" th:selected="${a.replyIshidden == 'Y'}">숨김</option>
+                        <option value="delete" th:selected="${a.replyIsdeleted == 'Y'}">삭제</option>
+                    </select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="mx-auto bg-white" th:if="${pi != null}">
+        <ul class="pagination mx-auto justify-content-center p-3">
+            <li class="page-item" th:if="${pi.currentPage > 1}">
+                <span class="page-link replyPage" th:data-page="${pi.currentPage - 1}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </span>
+            </li>
+            <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}">
+                <span class="page-link replyPage" th:data-page="${p}" th:text="${p}"></span>
+            </li>
+            <li class="page-item" th:if="${pi.currentPage &lt pi.maxPage}">
+                <span class="page-link replyPage" th:data-page="${pi.currentPage + 1}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </span>
+            </li>
+        </ul>
+    </div> 
+</th:block>

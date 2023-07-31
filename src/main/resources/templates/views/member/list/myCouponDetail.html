@@ -1,0 +1,39 @@
+<div class="card mb-1 border-0">
+    <div class="card-header bg-teamcolor3 border-0">
+        <h4 class="font-weight-semi-bold m-0 text-white">쿠폰 정보</h4>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+            <h5 class="font-weight-bold" th:text="${ mc.couponName }"></h5>
+        </div>
+        <div class="d-flex justify-content-between">
+            <p>발급 방식</p>
+            <p th:if="${ mc.couponCondition == 'download'}">다운로드</p>
+            <p th:if="${ mc.couponCondition == 'login'}">로그인</p>
+            <p th:if="${ mc.couponCondition == 'birthday'}">생일</p>
+            <p th:if="${ mc.couponCondition == 'review'}">리뷰</p>
+            <p th:if="${ mc.couponCondition == 'survey'}">설문조사</p>
+        </div>
+        <div class="d-flex justify-content-between">
+            <p>할인금액</p>
+            <p th:text="${ #numbers.formatInteger(mc.couponDiscountRate, 3, 'COMMA') + ' 원' }"></p>
+        </div>
+        <div class="d-flex justify-content-between">
+            <p>최소 주문금액</p>
+            <p th:text="${ #numbers.formatInteger(mc.couponUseCondition, 3, 'COMMA') + ' 원' }"></p>
+        </div>
+        <div class="d-flex justify-content-between">
+            <p>발급일</p>
+            <p th:text="${ mc.couponStartDate }"></p>
+        </div>
+        <div class="d-flex justify-content-between">
+            <p>마감일</p>
+            <p th:text="${ mc.couponEndDate }"></p>
+        </div>
+        <div class="d-flex justify-content-between">
+            <p>사용일</p>
+            <p th:if="${ #strings.isEmpty(mc.couponUseDate) }">미사용</p>
+            <p th:unless="${ #strings.isEmpty(mc.couponUseDate) }" th:text="${ mc.couponUseDate }"></p>
+        </div>
+    </div>
+</div>

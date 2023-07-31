@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+</head>
+
+<body>
+    <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+    <div th:replace="~{ views/member/common/myPageNavbar :: myPageNavbar }"></div>
+
+    <div class="container-fluid bg-secondary mb-5">
+        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
+            <h1 class="font-weight-semi-bold text-uppercase mb-3">문의 내역</h1>
+            <div th:replace="~{ views/member/common/myPageInfo :: myPageInfo }"></div>
+        </div>
+    </div>
+
+    <div class="container pt-5">
+        <div class="row px-xl-5 mb-5">
+            <h4 class="font-weight-semi-bold mb-3 pl-4">상품 문의</h4>
+            <div class="col-lg-12 table-responsive mb-5">
+                <table class="table table-bordered text-center mb-0">
+                    <thead class="bg-teamcolor3 text-white">
+                        <tr>
+                            <th style="width: 100px;">상품사진</th>
+                            <th style="width: 300px;">상품명</th>
+                            <th style="width: 400px;">제목</th>
+                            <th style="width: 120px;">등록일</th>
+                            <th style="width: 100px;">상태</th>
+                            <th style="width: 70px;">삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle" name="list"></tbody>
+                </table>
+            </div>
+
+            <div class="col-12 pb-1" name="paging"></div>
+
+            <h4 class="font-weight-semi-bold mb-3 pl-4">최근 답변</h4>
+            <div class="col-lg-12 table-responsive mb-5">
+                <table class="table table-bordered text-center mb-0">
+                    <thead class="bg-teamcolor3 text-white">
+                        <tr>
+                            <th style="width: 120px;">상품명</th>
+                            <th style="width: 300px;">제목</th>
+                            <th style="width: 300px;">답변</th>
+                            <th style="width: 120px;">등록일</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle" name="list"></tbody>
+                </table>
+            </div>
+            <div class="col-12 pb-1" name="paging"></div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-0" id="contactDetailModal"></div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+    <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+    <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+    <script>
+        const list = document.getElementsByName("list");
+        const paging = document.getElementsByName("paging");
+        const contactDetailModal = document.getElementById('contactDetailModal');
+
+        const memberContactList = (page) => {
+            $.ajax({
+                url: "memberContactList.me",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    list[0].innerHTML = html;
+                    memberPaging(page, "memberContactList", "contact", 5, 0);
+                }
+            });            
+        }
+
+        const memberAnswerList = (page) => {
+            $.ajax({
+                url: "memberAnswerList.me",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page
+                },
+                success: (html) => {
+                    list[1].innerHTML = html;
+                    memberPaging(page, "memberAnswerList", "answer", 5, 1);
+                }
+            });
+        }
+
+        const deleteProductContact = (questionNo, currentPage) => {
+            Swal.fire({
+                icon: 'info',
+                title: '상품문의 삭제',
+                text: '정말 삭제하시겠습니까?',
+                showDenyButton: true,
+                confirmButtonText: '예',
+                denyButtonText: '아니오'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    $.ajax({
+                        method: "POST",
+                        url: 'deleteContact.me',
+                        data: { "questionNo": questionNo },
+                        success: result => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '상품문의 삭제',
+                                text: '상품문의 삭제가 완료되었습니다.'
+                            }).then(() => {
+                                memberContactList(currentPage);
+                            });
+                        },
+                        error: result => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '상품문의 삭제',
+                                text: '상품문의 삭제를 실패했습니다.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        const memberPaging = (page, func, type, boardLimit, num) => {
+            $.ajax({
+                url: "memberPaging.me",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "page": page,
+                    "func": func,
+                    "type": type,
+                    "boardLimit": boardLimit
+                },
+                success: (html) => {
+                    paging[num].innerHTML = html;
+                }
+            });
+        }
+
+        const contactDetail = (questionNo) => {
+            $.ajax({
+                url: "contactDetail.me",
+                type: "POST",
+                dataType: "html",
+                data: {
+                    "questionNo": questionNo
+                },
+                success: (html) => {
+                    contactDetailModal.innerHTML = html;
+                }
+            })
+        }
+
+        window.onload = () => {
+            memberContactList(1);
+            memberAnswerList(1);
+        }
+    </script>
+</body>
+
+</html>

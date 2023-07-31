@@ -1,0 +1,39 @@
+<tr th:unless="${ #lists.isEmpty(list) }" th:each="o : ${ list }">
+    <td><img class="ml-4 mr-4" th:src="${ o.productImage }" alt="" style="width: 50px; height: 50px;"></td>
+    <td class="align-middle justify-content-left">
+        <a class="align-middle text-truncate list-inline-item cursor" style="width: 200px;" th:href="@{ productDetail(productNo=${ o.productNo }, orderNo=${ o.orderNo }) }" th:text="${ o.productName }"></a>
+    </td>
+    <td class="align-middle">
+        <th:block th:unless="${ o.eventCode lt 100 }">
+            <th:block th:unless="${ (o.productPrice * o.orderAmount - o.eventCode) lt 100 }">
+                <p class="align-middle text-truncate list-inline-item m-0" style="width: 100px;" th:text="${ #numbers.formatDecimal(o.productPrice * o.orderAmount - o.eventCode, 0, 'COMMA', 0, 'DEFAULT') + '원' }"></p>
+            </th:block>
+            <th:block th:if="${ (o.productPrice * o.orderAmount - o.eventCode) lt 100 }">
+                <p class="align-middle text-truncate list-inline-item m-0" style="width: 100px;">0 원</p>
+            </th:block>
+        </th:block>
+        <th:block th:if="${ o.eventCode lt 100 }">
+            <th:block th:unless="${ (o.productPrice - ((o.productPrice * o.eventCode) / 100)) lt 100 }">
+                <p class="align-middle text-truncate list-inline-item m-0" style="width: 100px;" th:text="${ #numbers.formatInteger(o.productPrice - ((o.productPrice * o.eventCode) / 100), 3, 'COMMA') + ' 원' }"></p>
+            </th:block>
+            <th:block th:if="${ (o.productPrice - ((o.productPrice * o.eventCode) / 100)) lt 100 }">
+                <p class="align-middle text-truncate list-inline-item m-0" style="width: 100px;">0 원</p>
+            </th:block>
+        </th:block>
+    </td>
+    <td class="align-middle">
+        <p class="align-middle text-truncate list-inline-item m-0" style="width: 50px;" th:text="${ o.orderAmount }"></p>
+    </td>
+    <td class="align-middle" th:text="${ o.orderDate }"></td>
+    <td class="align-middle" th:if="${ #strings.isEmpty(o.orderDeliveryNo) }">상품 준비 중</td>
+    <td class="align-middle" th:unless="${ #strings.isEmpty(o.orderDeliveryNo) }">
+        <p class="align-middle text-truncate list-inline-item m-0 cursor" style="width: 120px;" th:text="${ o.orderDeliveryNo }" th:onclick="deliveryDetail([[${ o.orderDeliveryNo }]], [[${ o.orderDeliveryCourier }]])"></p>
+    </td>
+    <input type="hidden" th:value="${ o.orderDeliveryCourier }">
+    <input type="hidden" th:value="${ o.cartNo }">
+    <input type="hidden" th:value="${ o.orderNo }">
+    <td class="align-middle"><button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal" th:onclick="orderDetail([[${ o.cartNo }]], [[${ o.orderNo }]])"><i class="fa fa-caret-up"></i></button></td>
+</tr>
+<tr th:if="${ #lists.isEmpty(list) }">
+    <td class="align-middle" colspan="7" >주문한 상품이 없습니다.</td>
+</tr>

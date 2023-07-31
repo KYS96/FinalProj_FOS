@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <!--common mainHead-->
+  <div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+
+  <!--sweet alert-->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    td:hover {
+      cursor: pointer;
+    }
+
+    .disable {
+      cursor: no-drop;
+      opacity: .3;
+      user-select: none;
+    }
+
+    .active {
+      background-color: #D4ADFC;
+    }
+  </style>
+</head>
+
+<body style="background-color: #eeeeee;">
+
+  <div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+  <!-- ====== 공지사항 start ====== -->
+  <div class="row mt-5 mb-5">
+    <div class="col-2"></div>
+    <div class="col-8">
+      <div class="p-3"
+        style="height: auto; margin: 0; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+        <h1>공지사항</h1>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th style="width: 60px;">번호</th>
+              <th>제목</th>
+              <th style="width: 110px; text-align: center;">작성일</th>
+              <th style="width: 90px; text-align: center;">조회수</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="n : ${nList}" class="noticeDetail" th:onclick="detailPage([[${n.employeeBoardNo}]])"
+              th:if="${nList}">
+              <td th:text="${n.employeeBoardNo}"></td>
+              <td th:text="${#strings.abbreviate(n.employeeBoardTitle, 100)}"></td>
+              <td th:text="${#dates.format(n.employeeBoardUpdate, 'yyyy-MM-dd')}"></td>
+              <td th:text="${n.employeeBoardViews}" class="text-center"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <!--주소 변수 설정-->
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center mt-5" th:with="loc=${#ctx.springRequestContext.requestUri}">
+
+            <th:block th:if="${pi}">
+              <!--맨 처음으로 이동-->
+              <li class="page-item">
+                <a class="page-link" th:classappend="${pi.currentPage &lt;= 1} ? disable : ''"
+                  th:href="${pi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(category=${category},search=${search},page=1)}">
+                  처음으로</a>
+              </li>
+              &nbsp;&nbsp;&nbsp;&nbsp;
+              <!--이전으로-->
+              <li class="page-item">
+                <a class="page-link"
+                  th:href="${pi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(category=${category},search=${search},page=${pi.currentPage - 1})}"
+                  th:classappend="${pi.currentPage &lt;= 1} ? disable : ''" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <!--숫자 버튼-->
+              <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}"
+                th:classappend="${pi.currentPage == p} ? active : ''">
+                <a class="page-link " th:href="@{${loc}(category=${category}, search=${search}, page=${p})}"
+                  th:text=" ${p}"></a>
+              </li>
+              <!--다음으로-->
+              <li class="page-item">
+                <a class="page-link"
+                  th:href="${pi.currentPage == pi.maxPage} ? 'javascript:void()' : @{${loc}(category=${category},search=${search},page=${pi.currentPage + 1})}"
+                  th:classappend="${pi.currentPage == pi.maxPage} ? 'disable' : ''">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+              &nbsp;&nbsp;&nbsp;&nbsp;
+              <!--맨 끝으로 이동-->
+              <li class="page-item">
+                <a class="page-link" th:classappend="${pi.currentPage == pi.maxPage} ? disable : ''"
+                  th:href="${pi.currentPage == pi.maxPage} ? 'javascript:void()' : @{${loc}(category=${category}, search=${search}, page=${pi.maxPage})}">끝으로
+                </a>
+              </li>
+            </th:block>
+
+            <!--검색 결과 리스트가 없을 때-->
+            <div class="mb-5" th:if="${#lists.size(nList) == 0}">
+              <img class="w-100" src="/market_assets/img/검색결과없음.png" />
+              <div class="mt-5 text-center">
+                <button class="mx-1 btn-teamcolor" onclick="location.href='notice.no'"><i
+                    class="bi bi-arrow-repeat mx-1 align-middle">초기화</i></button>
+              </div>
+            </div>
+          </ul>
+        </nav>
+
+        <!-- Pagination 여기까지 -->
+
+        <div class="container row g-2 mt-5">
+          <!--홈으로 및 공지사항 작성-->
+          <div class="col-5 g-2">
+            <div class="mt-4">
+              <a href="home.do"><button type="button" class="btn-teamcolor p-1">홈으로</button></a>
+              <a href="noticeWrite.no"><button type="button" class="btn-teamcolor p-1"
+                  th:if="${ session.loginUser != null && session.loginUser.memberNickname == '관리자' }">공지사항
+                  작성</button></a>
+            </div>
+          </div>
+
+          <!-- 검색창 -->
+          <div class="col-7">
+            <form action="notice.no">
+              <div class="input-group mb-3 mt-3">
+                <select class="bg-teamcolor1" style="color:white; text-align: center;" name="category" id="category">
+                  <option value="all">전체</option>
+                  <option value="EMPLOYEE_BOARD_TITLE">제목</option>
+                  <option value="EMPLOYEE_BOARD_CONTENT">내용</option>
+                </select>
+                <input type="text" name="search" class="form-control" placeholder="검색어를 입력해 주세요" id="search"
+                  style="border: 1px solid black;">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-2"></div>
+
+  <script th:inline="javascript">
+
+    //공지사항 상세보기로 넘어가기
+    /*<![CDATA[*/
+    const detailPage = (empBoardNo) => {
+      location.href = "noticeDetail.no?" + "empBoardNo=" + empBoardNo + "&page=" + /*[[${page}]]*/1
+
+    }
+
+    //입력 갑 유지시키기
+    const search = document.querySelector('#search')
+    search.value = /*[[${search}]]*/''
+
+    const category = document.querySelector('#category')
+    category.value = /*[[${category}]]*/''
+
+
+    //검색란에 ' 가 들어올 때 막아주기
+    search.addEventListener('keydown', (e) => {
+      if (search.value.includes("'")) {
+        alert('입력 불가능한 문자가 포함되어 있습니다.');
+        const originalValue = search.value.split("'")[0]
+        search.value = originalValue;
+        e.preventDefault();
+      }
+    })
+
+
+
+
+
+
+
+
+    /*]]>*/
+
+  </script>
+
+  <div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+  <div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+  <div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+</body>
+
+</html>

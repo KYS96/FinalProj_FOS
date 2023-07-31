@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!--common mainHead-->
+	<div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+
+	<!--sweet alert-->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<!--페이징 버튼 못누르게 하는 style-->
+	<style>
+		.disable {
+			cursor: no-drop;
+			opacity: .3;
+			user-select: none;
+		}
+
+		.active {
+			background-color: #D4ADFC;
+		}
+	</style>
+</head>
+
+<body style="background-color: #eeeeee;">
+
+	<div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+
+	<div class="row">
+		<div class="col-3"></div>
+		<div class="col-6 mb-5">
+			<div class="mb-3" style="display: flex; justify-content: space-between; margin-top: 4rem;">
+				<div class="mt-2" style="font-size: 24px; font-weight: bolder; color: black;">자주묻는 질문</div>
+
+				<div class="col-lg-6 col-6 text-left">
+					<form action="FAQ.faq">
+						<div class="input-group border-1">
+							<input type="text" class="form-control" placeholder="원하는 FAQ를 검색해 주세요" id="faqSearchBar"
+								name="faqSearchBar">
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<div class="row p-4 justify-content-center text-center"
+				style="word-break: keep-all; height: auto; margin: 0; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+				<!-- ====== 자주묻는 질문 ====== -->
+				<div class="col-8">
+					<!-- 아코디언 start -->
+					<th:block th:if="!${#lists.size(list) == 0}">
+						<div class="accordion" id="accordionExample">
+							<div class="card" th:each="f, fIndex : ${list}">
+								<div class="card-header" th:id="${f.faqNo}">
+									<h2 class="mb-0 d-flex">
+										<button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse"
+											th:data-target="|#${alphabetList[fIndex.index]}|" aria-expanded="false"
+											aria-controls="collapseThree" th:utext="${f.faqTitle}">
+										</button>
+										<input type="checkbox" name="faqNo" th:value="${f.faqNo}"
+											th:if="${session.loginUser != null && session.loginUser.memberNickname == '관리자'}">
+									</h2>
+								</div>
+								<div th:id="|${alphabetList[fIndex.index]}|" class="collapse" th:aria-labelledby="${f.faqNo}"
+									data-parent="#accordionExample">
+									<div class="card-body" th:utext="${f.faqContent}"></div>
+								</div>
+							</div>
+						</div>
+					</th:block>
+					<!-- 아코디언 end -->
+
+					<!--list 배열 길이가 0일 때-->
+					<div class="mb-5" th:if="${#lists.size(list) == 0}">
+						<img class="w-100" src="/market_assets/img/검색결과없음.png" />
+					</div>
+
+					<th:block th:if="${session.loginUser != null && session.loginUser.memberNickname == '관리자'}">
+						<button id="faqWrite" class="badge-dark mt-5" onclick="faqWrite()">신규 FAQ 등록</button>
+						<button id="faqUpdate" class="badge-dark mt-5">FAQ 수정</button>
+						<button id="faqDelete" class="badge-dark mt-5">FAQ 삭제</button>
+					</th:block>
+
+				</div>
+				<!-- ====== 자주묻는 질문 END ====== -->
+
+				<!-- Pagination -->
+				<div class="col-12">
+					<div class="mx-auto bg-white mt-5 text-center">
+						<ul class="pagination justify-content-center mt-5" th:with="loc=${#ctx.springRequestContext.requestUri}">
+							<th:block th:if="${pi}">
+								<!--맨 처음으로 이동-->
+								<li class="page-item">
+									<a class="page-link" th:classappend="${pi.currentPage &lt;= 1} ? disable : ''"
+										th:href="${pi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(faqSearchBar=${searchContent}, page=1)}">
+										처음으로</a>
+								</li>
+								&nbsp;&nbsp;&nbsp;&nbsp;
+								<!--이전으로-->
+								<li class="page-item">
+									<a class="page-link"
+										th:href="${pi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(faqSearchBar=${searchContent}, page=${pi.currentPage - 1})}"
+										th:classappend="${pi.currentPage &lt;= 1} ? disable : ''" aria-label="Previous">
+										<span aria-hidden="true">&laquo;</span>
+									</a>
+								</li>
+								<!--숫자 버튼-->
+								<li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}"
+									th:classappend="${pi.currentPage == p} ? active : ''">
+									<a class="page-link " th:href="@{${loc}(faqSearchBar=${searchContent}, page=${p})}"
+										th:text=" ${p}"></a>
+								</li>
+								<!--다음으로-->
+								<li class="page-item">
+									<a class="page-link"
+										th:href="${pi.currentPage == pi.maxPage} ? 'javascript:void()' : @{${loc}(faqSearchBar=${searchContent}, page=${pi.currentPage + 1})}"
+										th:classappend="${pi.currentPage == pi.maxPage} ? 'disable' : ''">
+										<span aria-hidden="true">&raquo;</span>
+									</a>
+								</li>
+								&nbsp;&nbsp;&nbsp;&nbsp;
+								<!--맨 끝으로 이동-->
+								<li class="page-item">
+									<a class="page-link" th:classappend="${pi.currentPage == pi.maxPage} ? disable : ''"
+										th:href="${pi.currentPage == pi.maxPage} ? 'javascript:void()' : @{${loc}(faqSearchBar=${searchContent}, page=${pi.maxPage})}">끝으로
+									</a>
+								</li>
+							</th:block>
+						</ul>
+
+						<!--검색 결과 없을 때도 페이징 no-->
+						<th:block th:if="!${pi}"><a href="FAQ.faq">FAQ목록으로 돌아가기</a></th:block>
+
+					</div>
+				</div>
+				<!-- 여기까지 Pagination -->
+			</div>
+		</div>
+	</div>
+	<div class="col-3"></div>
+
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+
+		const faqWrite = () => {
+			location.href = "faqWrite.faq";
+		}
+
+		//검색란에 ' 가 들어올 때 막아주기
+		const faqSearchBar = document.getElementById('faqSearchBar')
+		let search = faqSearchBar.value;
+		faqSearchBar.addEventListener('keypress', (e) => {
+			if (faqSearchBar.value.includes("'")) {
+				alert('입력 불가능한 문자가 포함되어 있습니다.');
+				search = faqSearchBar.value.split("'")[0]
+				faqSearchBar.value = search;
+				e.preventDefault();
+			}
+		})
+		//검색란에 이전 검색어 그대로 유지하기
+		faqSearchBar.value = /*[[${searchContent}]]*/'';
+		let query = 'input[name="faqNo"]:checked'
+
+		//FAQ 체크박스 눌러서 수정으로 넘어가기 //체크 박스만 보내기
+		//FAQ 수정 클릭 시
+		document.getElementById('faqUpdate').addEventListener('click', () => {
+			const selectedFaqsUpdate = document.querySelectorAll(query); //value값 가짐
+			if (selectedFaqsUpdate.length > 1) {
+				Swal.fire({
+					title: '다수의 글이 선택 되었습니다.',
+					text: "수정 시에는 하나의 글만 선택하세요.",
+					icon: 'warning',
+					showCancelButton: false,
+					confirmButtonColor: '#3085d6',
+				})
+			} else {
+				//글 번호 넘기기
+				const selectedFaqUpdate = document.querySelector(query).value;
+				location.href = "faqUpdate.faq?" + "faqNo=" + selectedFaqUpdate;
+			}
+		})
+
+
+		//FAQ 체크박스 눌러서 삭제하기 //체크 된 박스만 보내기
+		//삭제버튼 클릭 시
+		document.querySelector('#faqDelete').addEventListener('click', () => {
+			const selectedFaqsDelete = document.querySelectorAll(query); //value값 가짐
+			const faqNoArr = [];
+
+			for (const f of selectedFaqsDelete) {
+				faqNoArr.push(f.value);
+			}
+
+			//다시 확인 alert
+			if (faqNoArr.length > 0) {
+				Swal.fire({
+					title: '삭제하시겠습니까?',
+					text: "삭제 후 복구 불가능합니다.",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#3085d6',
+					cancelButtonColor: '#d33',
+					cancelButtonText: '취소',
+					confirmButtonText: '네'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						Swal.fire(
+							'삭제 완료!'
+						).then(() => {
+							deleteFaqs(faqNoArr);
+						});
+					}
+				});
+			}
+
+			//ajax를 deleteFaqs 함수로 감쌌음.
+			const currentPageAjax = document.getElementById('currentPageAjax').value;
+
+			function deleteFaqs(faqNoArr, currentPageAjax) {
+				$.ajax({
+					url: 'faqDelete.faq',
+					traditional: true,
+					async: true,
+					data: {
+						"faqNoArr": faqNoArr
+					},
+					success: data => {
+						const accordion = document.getElementById('accordionExample');
+						accordion.innerHTML = "";
+
+						for (let i = 0; i < data.length; i++) {
+							const f = data[i];
+
+							const cardDiv = document.createElement("div");
+							cardDiv.classList.add("card");
+
+							const cardHeader = document.createElement('div');
+							cardHeader.classList.add("card-header");
+							cardHeader.setAttribute("th:id", f.faqNo);
+
+							const newH2 = document.createElement('h2');
+							newH2.classList.add("mb-0");
+							newH2.classList.add("d-flex");
+
+							const newButton = document.createElement('button');
+							newButton.classList.add("btn");
+							newButton.classList.add("btn-link");
+							newButton.classList.add("btn-block");
+							newButton.classList.add("text-left");
+							newButton.classList.add("collapsed");
+							newButton.setAttribute("type", "button");
+							newButton.setAttribute("data-toggle", "collapse");
+							newButton.setAttribute("th:data-target", "#" + f.alphabet);
+							newButton.setAttribute("aria-expanded", "false");
+							newButton.setAttribute("aria-controls", "collapseThree");
+							newButton.innerText = f.faqTitle;
+
+							const newInput = document.createElement("input");
+							newInput.setAttribute("type", "checkbox");
+							newInput.setAttribute("name", "faqNo");
+							newInput.setAttribute("value", f.faqNo);
+
+							const newDiv = document.createElement("div");
+							newDiv.classList.add("collapse");
+							newDiv.setAttribute("th:id", f.alphabet);
+							newDiv.setAttribute("th:aria-labelledby", f.faqNo);
+							newDiv.setAttribute("data-parent", "#accordionExample");
+
+							const newDiv2 = document.createElement("div");
+							newDiv2.classList.add("card-body");
+							newDiv2.innerText = f.faqContent;
+
+							cardDiv.appendChild(cardHeader);
+							cardHeader.appendChild(newH2);
+							newH2.appendChild(newButton);
+							newH2.appendChild(newInput);
+							cardHeader.appendChild(newDiv);
+							newDiv.appendChild(newDiv2);
+
+							accordion.appendChild(cardDiv);
+						}
+						location.reload();
+					},
+					error: data => {
+						console.log(data);
+					}
+				})
+			}
+		});
+		/*]]>*/
+	</script>
+
+
+	<div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+	<div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+	<div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+
+</body>
+
+</html>

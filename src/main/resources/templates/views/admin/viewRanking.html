@@ -1,0 +1,9 @@
+<tr>
+  <td style="text-align: center;" th:text="${boardNo}"></td>
+  <td style="text-align: center;" th:text="${sortion}"></td>
+  <td style="text-align: center;" th:text="${boardType}"></td>
+  <td style="text-align: center;"><a href="javascript:void(0)" th:onclick="goToBoard([[${boardNo}]], [[${sortion}]])"
+      th:text="${#strings.abbreviate(boardTitle, 10)}"></a></td>
+  <td style="text-align: center;" th:text="${memberId}"></td>
+  <td style="text-align: center;" th:text="${views}"></td>
+</tr>

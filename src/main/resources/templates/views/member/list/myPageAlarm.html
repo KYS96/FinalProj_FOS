@@ -1,0 +1,59 @@
+<th:block th:unless="${ #strings.isEmpty(memberNo) }">
+    <a class="text-teamcolor" data-toggle="dropdown">
+        <th:block th:if="${ num == 0 }">
+            <i class="fas fa-bell"></i>
+        </th:block>
+        <th:block th:unless="${ num == 0 }">
+            <i class="fas fa-bell vibration"></i>
+        </th:block>
+        <span class="badge text-teamcolor-nh" style="transform: translateY(-2px)" th:text="${ num }"></span>
+    </a>
+    <div class="dropdown-menu">
+        <div class="dropdown-item mt-1" onmouseover="this.style.backgroundColor='white'">
+            <a class="cursor" href="myCoupon.me">
+                <i class="fas fa-tag mr-2"></i>
+                <span>쿠폰 알람</span>
+            </a>
+            <hr/>
+            <th:block th:unless="${ #lists.isEmpty(coupon) }" th:each="c : ${ coupon }">
+                <div>
+                    <p th:text="${ c.couponName }"></p>
+                </div>
+            </th:block>
+            <th:block th:if="${ #lists.isEmpty(coupon) }">
+                <div>
+                    <p>쿠폰 알람이 없습니다.</p>
+                </div>
+            </th:block>
+        </div>
+        <hr class="mt-0 mb-2"/>
+        <div class="dropdown-item" onmouseover="this.style.backgroundColor='white'">
+            <a class="cursor" href="myBoard.me">
+                <i class="fas fa-comment mr-2"></i>
+                <span>댓글 알람</span>
+            </a>
+            <hr/>
+            <th:block th:unless="${ #lists.isEmpty(reply) }" th:each="r : ${ reply }">
+                <div class="comment-preview" th:if="${ rStat.index lt 10 }">
+                    <p class="cursor align-middle text-truncate list-inline-item" style="width: 250px;"th:onclick="checkAlarm([[${ r.replyNo }]], [[${ r.boardNo }]])" th:text="${ r.replyContent }"></p>
+                </div>
+            </th:block>
+            <th:block th:if="${ #lists.isEmpty(reply) }">
+                <div class="comment-preview">
+                    <p>댓글 알람이 없습니다.</p>
+                </div>
+            </th:block>
+        </div>
+        <th:block th:unless="${ #lists.isEmpty(coupon) and #lists.isEmpty(reply) }">
+            <hr class="mt-0"/>
+            <div class="dropdown-item mb-3" onmouseover="this.style.backgroundColor='white'">
+                <a class="cursor">
+                    <i class="fas fa-check mr-2"></i>
+                    <span th:onclick="deleteAlarm([[${ memberNo }]])">모든 알람 삭제</span>
+                </a>
+            </div>
+        </th:block>
+    </div>
+</th:block>
+<th:block th:if="${ #strings.isEmpty(memberNo) }">
+</th:block>

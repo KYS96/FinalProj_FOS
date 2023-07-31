@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>글쓰기</title>
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1407.0.min.js"></script>
+</head>
+
+<body>
+  <!-- header thymeleaf 삽입-->
+  <header th:replace="~{views/community/header :: header}"></header>
+  <!-- banner 삽입 -->
+  <div th:replace="~{views/community/banner :: banner}"></div>
+
+  <!-- ====== 글 작성 Start ====== -->
+  <section class="container ud-features">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <h1 class="ud-widget-title mb-5">글쓰기</h1>
+        </div>
+      </div>
+    </div>
+    <ul class="ms-4 mb-3" style="list-style-type: circle">
+      <li>음란물, 차별, 비하, 혐오 및 초상권, 저작권 침해 게시물은 민, 형사상의 책임을 질 수 있습니다.</li>
+    </ul>
+    <form method="post">
+      <div style="display: flex;">
+        <select id="category" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
+          style="width: fit-content; font-size: 1rem;">
+          <option selected>게시판 선택(필수)</option>
+          <option value="tips_and_info">꿀팁, 정보</option>
+          <option value="free_and_humor">자유, 유머</option>
+        </select>
+        <div class="input-group flex-nowrap mb-3 flex-grow-1" style="margin-left: 10px;">
+          <span class="input-group-text" id="addon-wrapping">제목</span>
+          <input type="text" class="form-control" placeholder="제목을 입력하세요." aria-label="Username"
+            aria-describedby="addon-wrapping" id="title">
+        </div>
+      </div>
+
+      <!--summernote-->
+      <div id="summernote" name="editordata"></div>
+
+      <!--목록보기 및 제출-->
+      <div class="container mt-4 mb-2">
+        <div class="row-cols-sm-12">
+          <button type="button" class="btn btn-dark" style="background-color: gray; border: none;"
+            onclick="resetPost('네')">취소</button>
+          <button type="button" class="btn btn-primary" style="background-color: #5c8984; border: none"
+            onclick="submitPost()">등록</button>
+          <button type="button" class="btn btn-secondary"
+            th:onclick="saveTempPost([[${session.loginUser?.memberId}]])">임시 저장</button>
+          <button type="button" class="btn btn-secondary"
+            th:onclick="loadTempPost([[${session.loginUser?.memberId}]])">임시 저장 불러오기</button>
+          <button type="button" class="btn btn-secondary" th:onclick="deleteAllIndexedDB()">인덱스 db 전체 청소</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <div th:replace="~{views/community/footer :: footer}"></div>
+
+  <!-- summernote script-->
+  <script th:inline="javascript">
+    $('#summernote').summernote({
+      toolbar: [
+        ['fontname', ['fontname']],
+        ['fontsize', ['fontsize']],
+        ['style', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+        ['color', ['forecolor', 'color']],
+        ['table', ['table']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['height', ['height']],
+        ['insert', ['picture', 'link']],
+        ['view', ['help']]
+      ],
+      fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', '맑은 고딕', '궁서', '굴림체', '굴림', '돋움체', '바탕체'],
+      fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '20', '22', '24', '28', '30', '36', '50', '72'],
+      placeholder: '게시글을 입력해주세요.',
+      tabsize: 4,
+      height: 600,
+      focus: true,
+      lang: 'ko-KR',
+      callbacks: {
+        //로컬에 저장하고, 제출할 때 아마존에 업로드하는 방식 : 
+        onImageUpload: function (files) {
+          //1. 이미지를 올릴 때 마다, indexDB에 저장하는 방식
+          // for (var i = 0; i < files.length; i++) {
+          //   var file = files[i];
+          //   var reader = new FileReader();                                  //FileReader 객체는 웹 애플리케이션에서 파일을 비동기적으로 읽을 수 있도록 해주는 JavaScript API입니다
+
+          //   reader.onload = function (e) {                                  //onload : 파일 읽기가 성공적으로 완료되었을 때 발생하는 이벤트
+          //     var imageArrayBuffer = e.target.result;                       //e.target.result : 파일의 내용을 ArrayBuffer 형태로 반환합니다.
+          //     var key = file.name + "-" + Date.now().toString();            //파일 이름 + 현재 시간을 바탕으로 key를 생성합니다.
+          //     var openRequestImageDB = indexedDB.open(imageDatabaseName, 1);         //indexedDB.open() : 데이터베이스를 열거나 새로 만듭니다.
+
+          //     openRequestImageDB.onupgradeneeded = function (event) {              //indexedDB 데이터베이스가 업그레이드되어야 할 경우, onupgradeneeded 이벤트 핸들러가 호출됩니다.
+          //       var db = event.target.result;
+          //       if (!db.objectStoreNames.contains(imageStoreName)) {
+          //         db.createObjectStore(imageStoreName);                           //images라는 이름의 객체 스토어를 생성합니다.
+          //       }
+          //     };
+
+          //     openRequestImageDB.onsuccess = function (event) {                    //indexedDB 데이터베이스가 열린 후, onsuccess 이벤트 핸들러가 호출됩니다.
+          //       var db = event.target.result;
+          //       var transaction = db.transaction([imageStoreName], 'readwrite');  //트랜잭션을 생성합니다. 트랜잭션은 데이터베이스에서 데이터를 읽거나 쓸 때 사용됩니다.
+          //       var store = transaction.objectStore(imageStoreName);              //트랜잭션을 통해 데이터베이스에 접근할 객체 스토어를 지정합니다.
+          //       var putRequest = store.put(imageArrayBuffer, key);          //imageArrayBuffer를 images 객체 스토어에 put 메서드를 사용하여 저장합니다.
+
+          //       putRequest.onsuccess = function (event) {                   //put 메서드가 성공적으로 실행되면, get 메서드를 사용하여 image 키에 해당하는 데이터를 읽어옵니다.
+          //         var getRequest = store.get(key);                          //이미지를 읽어오기 위해 get 메서드를 사용합니다. 매개변수로는 이미지의 키를 전달합니다.
+          //         console.log("이미지 저장 성공, key는 " + key + "입니다.");
+
+          //         getRequest.onsuccess = function (event) {
+          //           var imageArrayBuffer = event.target.result;           //store에 arrayBuffer로 저장된 이미지를 가져옵니다.
+          //           console.log("🚀 ~ file: comm_write.html:127 ~ imageArrayBuffer:", imageArrayBuffer);
+          //           var blob = new Blob([imageArrayBuffer]);                //Blob 객체를 생성합니다. Blob 객체는 바이너리 데이터를 나타내는 객체로, 이진 데이터를 다룰 때 사용됩니다.
+          //           console.log("🚀 ~ file: comm_write.html:129 ~ blob:", blob);
+          //           var url = URL.createObjectURL(blob);
+          //           console.log("🚀 ~ file: comm_write.html:131 ~ url:", url);
+          //           /*imageArrayBuffer를 Blob 객체로 변환하는 과정입니다. Blob 객체는 바이너리 데이터를 나타내는 객체로, 이진 데이터를 다룰 때 사용됩니다
+          //           URL.createObjectURL(blob) 메서드는 Blob 객체를 URL 형태로 변환합니다. 
+          //           이 URL은 img 요소의 src 속성에 할당됩니다. 따라서 Blob 객체를 생성하는 과정은 이미지를 img 요소의 src 속성에 할당하기 위한 중간 과정입니다.
+
+          //           여기서 아마존aws의주소로 할당하면 안되겠냐고 물으면 다음과 같이 답하겠습니다.
+          //           만들어 놓은 blob 주소는 indexedDB의 주소입니다.?? 맞나요????
+          //           */
+
+          //           //다 끝났으니 태그를 만들어서 summernote에 넣어줍니다.
+          //           var imgNode = document.createElement('img');            //imgNode라는 이름의 img 요소를 생성하고, src 속성에 blob URL을 할당합니다.
+          //           imgNode.src = url;
+          //           $('#summernote').summernote('insertNode', imgNode);     //imgNode를 summernote 에디터에 삽입합니다
+          //         };
+          //       };
+          //     };
+          //   };
+          //   reader.readAsArrayBuffer(files[0]);                              //FileReader 객체의 readAsArrayBuffer 메서드를 호출하여 이미지 파일을 읽어들입니다.
+          // }
+
+          // 그냥 바로 아마존에 올립니다
+          var file = files[0];
+          var fileName = file.name;
+          console.log("🚀 ~ file: comm_write.html:156 ~ fileName:", fileName)
+          var reader = new FileReader();
+          reader.onload = function () {
+            var fileContent = new Uint8Array(reader.result);
+            var params = {
+              Bucket: bucketName,
+              Key: fileName,
+              Body: fileContent,
+              ContentType: file.type
+            };
+            s3.upload(params, function (err, data) {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log('File uploaded successfully. File location:', data.Location);
+                var imgNode = document.createElement('img');
+                imgNode.src = data.Location;
+                $('#summernote').summernote('insertNode', imgNode);
+              }
+            });
+          };
+          reader.readAsArrayBuffer(file);
+
+        }
+      }
+    });
+
+    //AWS
+    // Initialize the Amazon Cognito credentials provider
+    AWS.config.region = 'ap-northeast-2'; // Region
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+      IdentityPoolId: 'ap-northeast-2:d70b0ade-b06e-49bc-b9cd-9f0eb59df8c7',
+    });
+
+    var bucketName = 'finalsof';
+
+    var s3 = new AWS.S3({
+      apiVersion: "2006-03-01",
+      params: { Bucket: bucketName }
+    });
+
+    //위의 과정은 아래 과정과 동일한 것이다. 아래는 다만 예전 버전인 듯 하다. 아니면 다른 방식이던가.
+    // var albumBucketName = "finalsof";
+    // var bucketRegion = "ap-northeast-2";
+    // var IdentityPoolId = "IDENTITY_POOL_ID";
+
+    // AWS.config.update({
+    //   region: bucketRegion,
+    //   credentials: new AWS.CognitoIdentityCredentials({
+    //     IdentityPoolId: IdentityPoolId
+    //   })
+    // });
+
+    //1. PostDatabase 생성하기 : 유저별 고유 스토리지 위해 유저의 아이디 DB명에 사용.
+    /* 게시글을 임시 저장하기 위해 만들어 놓은 IndexedDB입니다. 이 DB는 전체 게시글 저장에 사용됩니다.
+    위의 summernote의 onImageUpload는 그와는 달리 오직 이미지 저장만을 위해 존재합니다.*/
+    var db;                                                                   //db변수 선언
+    var memberId = /*[[${session.loginUser?.memberId}]]*/0;                    //유저의 아이디
+    var memberNo = /*[[${session.loginUser?.memberNo}]]*/0;                    //유저의 번호
+
+    var imageDatabaseName = "ImageDatabase";                                  //이미지 db이름
+    var postDatabaseName = "PostDatabase";                                    //게시글 db이름
+    var imageStoreName = "image store for " + memberId;                       //이미지 DB 내 테이블(스토어) 이름
+    var postStoreName = "post store for " + memberId;                         //게시글 DB 내 테이블(스토어) 이름
+
+    var request = window.indexedDB.open(postDatabaseName, 1);
+
+    request.onerror = function (event) {
+      console.log("Post indexedDB database load error: " + event.target.errorCode);
+    };
+
+    request.onsuccess = function (event) {
+      db = request.result;                                                    //성공한다면, db변수에 db저장
+      console.log("Post indexedDB database load success");
+    };
+
+    //2. indexedDB 객체 스토어 생성 : DB의 내부에 객체 스토어(테이블)을 생성해야함.
+    request.onupgradeneeded = function (event) {
+      db = event.target.result;                                               //indexedDB에서 사용되는 이벤트 객체의 속성 중 하나, indexedDb 트랜젝션에서 실행된 요청의 결과를 반환
+      var objectStore = db.createObjectStore(postStoreName, { keyPath: 'id' });
+      console.log('Post store created successfully');
+    };
+
+    //3. indexedDB에 임시저장하기 : db.transaction()메서드로 트랜잭션 생성, objectStore.add()(or put)메서드로 데이터 추가
+    /* 참고!! : objectStore.add()와 objectStore.put()이 있는데,두 메서드는 데이터가 이미 존재하는 경우 다르게 동작합니다.
+    
+    objectStore.add()는 객체 스토어에 데이터를 추가하기 전에, 해당 키가 이미 존재하는지 확인합니다. 
+    만약 이미 존재한다면, 추가하지 않고 error 이벤트를 발생시킵니다. 
+    따라서 add() 메서드는 중복된 데이터를 추가하지 않도록 보장합니다
+
+    반면에, objectStore.put()은 객체 스토어에 데이터를 추가하기 전에, 해당 키가 이미 존재하는지 확인합니다. 
+    만약 이미 존재한다면, 기존 데이터를 덮어씌웁니다. 
+    따라서 put() 메서드는 중복된 데이터를 덮어씌우는 것을 허용합니다.
+
+    따라서, add() 메서드는 새로운 데이터를 추가할 때 사용하고, 
+    put() 메서드는 이미 존재하는 데이터를 업데이트할 때 사용합니다.
+
+        //요약!!
+    put은 그 키를 가진 데이터가 없으면 새로 만들고, 있으면 업데이트 합니다.
+    현재 목적에는 계속 임시저장하는데 사용하는 key를 유저의 id를 활용해서 상수로 만들 것이므로
+    put이 적합해 보입니다.
+    */
+    function saveTempPost(id) {
+      //put의 특성 상 이 저장은 계속 갱신하는 저장입니다. (이전 버전 볼 수 없음.)
+      var content = $('#summernote').summernote('code');
+      var transaction = db.transaction([postStoreName], 'readwrite');  //스토어 postStoreName 트랜젝션 수행하고, 모드는 readWrite(읽기쓰기). 트랜젝션 종료시 자동으로 커밋됨.
+      var objectStore = transaction.objectStore(postStoreName);
+      var request = objectStore.put({ id: id, content: content });     //변수로 받은 id와 현재 서머노트의 content로 스토어에 저장함(key - value로) put을 사용해 중복 시 덮어씌움.
+
+      //콘솔
+      console.log("id : " + id);
+      console.log("content : " + content);
+      console.log("transaction : " + transaction);
+      console.log("objectStore : " + objectStore);
+      console.log("request : " + request);
+
+      request.onerror = function (event) {
+        console.log('Error adding post to object store');
+      };
+      request.onsuccess = function (event) {
+        console.log('Post added to object store');
+      };
+    }
+
+    //4. indexedDB에 임시저장된 데이터 가져오기 : objectStore.get으로 가져옴.
+    function loadTempPost(id) {
+      var transaction = db.transaction([postStoreName], 'readonly');
+      var objectStore = transaction.objectStore(postStoreName);
+      var request = objectStore.get(id);
+
+      request.onerror = function (event) {
+        console.log('Error getting post from object store');
+      };
+
+      request.onsuccess = function (event) {
+        var post = request.result;
+        console.log('Post retrieved from object store');
+        if (post) {
+          $('#summernote').summernote('code', post.content);                    //post가 존재한다면, 에디터에 post.content를 넣어줌.
+        }
+      };
+    }
+
+    //모든 indexedDB날리기(실험용으로 만들었습니다)
+    function deleteAllIndexedDB() {
+      indexedDB.databases().then(function (databases) {
+        for (var i = 0; i < databases.length; i++) {
+          var database = databases[i];
+          var deleteRequest = indexedDB.deleteDatabase(database.name);
+
+          deleteRequest.onsuccess = function (event) {
+            console.log(database.name + ' has been deleted from indexedDB.');
+          };
+        }
+      });
+    }
+
+    //서머노트 초기화 함수. 
+    function resetPost(answer) {
+      if (answer == "네") {
+        $('#summernote').summernote('reset');
+      } else {
+        return;
+      }
+    }
+
+    
+
+    //제출하기
+    function submitPost() {
+      var content = $('#summernote').summernote('code');                                          //서머노트의 내용 저장
+
+      if (content.trim() === '') {                                                                //내용이 없으면 경고창 띄우고 함수 종료
+        alert('내용을 입력해주세요.');
+        return;
+      }
+
+      //content를 서버로 보냄. endpoint는 /commPostSubmit
+      $.ajax({
+        type: 'POST',
+        url: '/commPostSubmit',
+        data: {
+          content: content,
+          title: $('#title').val(),
+          category: $('#category option:selected').val(),
+          memberNo: memberNo
+        },
+        success: function (response) {
+          if (response['result'] == 'success') {
+            alert('게시글이 성공적으로 등록되었습니다.');
+            window.history.back();
+          } else {
+            alert('게시글 등록에 실패하였습니다.');
+          }
+        }
+      });
+
+
+
+
+      //아래는 옛날 코드라서 쓸모없음.
+      // var openRequest = indexedDB.open(postDatabaseName, 1);                                      //indexedDB에 전역변수인 dbId로 이름지은 데이터베이스를 열고
+
+      // openRequest.onupgradeneeded = function (event) {                                            //데이터베이스가 업그레이드 되면
+      //   var db = event.target.result;                                                             //db에 데이터베이스를 저장
+      //   var objectStore = db.createObjectStore(postStoreName, { keyPath: 'id'});                  //objectStore에 데이터베이스에 저장할 객체를 저장
+      //   objectStore.createIndex('content', 'content', { unique: false });                         //objectStore에 content라는 인덱스를 만들고
+      //   objectStore.createIndex('image', 'image', { unique: false });                             //objectStore에 image라는 인덱스를 만든다.
+      // };
+
+      // openRequest.onsuccess = function (event) {                                                  //데이터베이스가 열리면 
+      //   var db = event.target.result;                                                             //db에 데이터베이스를 저장
+      //   var transaction = db.transaction([tempId], 'readwrite');                                  //transaction에 데이터베이스의 tempId라는 이름의 objectStore를 저장
+      //   var store = transaction.objectStore(tempId);                                              //store에 transaction에 저장된 objectStore를 저장
+
+      //   var post = { content: content, image: null };                                             //post에 content와 image를 저장
+      //   var files = $('#summernote').summernote('getImages');                                     //files에 이미지 파일들을 저장
+      //   console.log("🚀 ~ file: s3_photoExample.js:52 ~ submitPost ~ files:", files)
+
+      //   if (files.length > 0) {                                                                   //만약 파일이 있다면
+      //     var uploadedCount = 0;                                                                  //업로드된 파일의 수를 저장하는 변수
+      //     var totalFiles = files.length;                                                          //전체 파일의 수를 저장하는 변수
+
+      //     // Loop through all the selected files
+      //     for (var i = 0; i < files.length; i++) {
+      //       var file = files[i];
+      //       var formData = new FormData();
+      //       formData.append('file', file);
+
+      //       $.ajax({                                                                              //ajax를 이용해
+      //         url: 'https://finalsof.s3.ap-northeast-2.amazonaws.com/',
+      //         type: 'POST',
+      //         data: formData,
+      //         processData: false,
+      //         contentType: false,
+      //         success: function (data) {
+      //           var imageUrl = 'https://finalsof.s3.ap-northeast-2.amazonaws.com/' + file.name;   // 성공하면 imageUrl에 aws주소를 저장
+      //           post.image = post.image ? post.image + ',' + imageUrl : imageUrl;                 // Append the uploaded image URL to the post object
+
+      //           uploadedCount++;                                                                  // Increment the uploaded count
+
+      //           if (uploadedCount === totalFiles) {                                               // Check if all files have been uploaded
+      //             var addRequest = store.add(post);
+
+      //             addRequest.onsuccess = function (event) {
+      //               console.log('Post has been added to indexedDB.');
+      //               var html = content.replace(/<img[^>]*src="[^"]*"/gi, function (match) {
+      //                 var src = match.match(/src="([^"]*)"/i)[1];
+      //                 return 'src="' + imageUrl + '"';
+      //               });
+      //               console.log("html : " + html);
+      //               // Send the HTML data to the server using AJAX or fetch API
+      //               $.ajax({
+      //                 url: '/post',
+      //                 type: 'POST',
+      //                 data: { html: html },
+      //                 success: function (data) {
+      //                   console.log('HTML data has been sent to the server.');
+      //                   resetPost('네');
+      //                 },
+      //                 error: function (xhr, status, error) {
+      //                   console.log('Error sending HTML data to the server: ' + error);
+      //                 }
+      //               });                                                            //서머노트 초기화
+      //             };
+      //           }
+      //         },
+      //         error: function (xhr, status, error) {
+      //           console.log('Error uploading image to S3: ' + error);
+      //         }
+      //       });
+      //     }
+      //   } else {
+      //     var addRequest = store.add(post);
+
+      //     addRequest.onsuccess = function (event) {
+      //       console.log('Post has been added to indexedDB.');
+
+      //       // Send the HTML data to the server using AJAX or fetch API
+      //       $.ajax({
+      //         url: '/post',
+      //         type: 'POST',
+      //         data: { html: content },
+      //         success: function (data) {
+      //           console.log('HTML data has been sent to the server.');
+      //           resetPost('네');
+      //         },
+      //         error: function (xhr, status, error) {
+      //           console.log('Error sending HTML data to the server: ' + error);
+      //         }
+      //       });
+      //     };
+      //   }
+      // };
+
+      // openRequest.onerror = function (event) {
+      //   alert('indexedDB database error: ' + event.target.errorCode);
+      // };
+    }
+  </script>
+</body>
+
+</html>

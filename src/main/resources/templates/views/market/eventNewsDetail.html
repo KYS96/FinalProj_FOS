@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!--common mainHead-->
+	<div th:replace="~{ views/common/mainHead :: mainHead }"></div>
+
+	<!--sweet alert-->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<!--페이징 버튼 못누르게 하는 style-->
+	<style>
+		img {
+			user-select: none;
+		}
+
+		.disable {
+			cursor: no-drop;
+			opacity: .3;
+			user-select: none;
+		}
+
+		.disable2 {
+			cursor: text;
+		}
+
+		.custom-h3 {
+			text-decoration: line-through;
+			color: darkgrey;
+			opacity: .6;
+			font-weight: lighter;
+		}
+	</style>
+</head>
+
+<body style="background-color: #eeeeee;">
+
+	<!-- Header Start -->
+	<div th:replace="~{ views/common/mainTop :: mainTop }"></div>
+	<!-- Header End -->
+
+	<div class="row">
+		<div class="col-3"></div>
+		<div class="col-6">
+
+			<div class="mt-4" style="font-size: 24px; font-weight: bolder; color: black;">이벤트 조회</div>
+			<div class="p-1  mt-5 mb-2"
+				style="height: auto; margin: 0; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+				<table class="table">
+					<thead>
+						<tr class="text-center">
+							<th>이벤트 제목</th>
+							<th>이벤트 기간</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="text-center" th:text="${eventTitle == null ? '정보 없음' : eventTitle}"></td>
+							<td class="text-center" th:if="${eventStartDate != null}" th:text="|${eventStartDate} ~ ${eventEndDate}|">
+							<td class="text-center" th:if="${eventStartDate == null}" th:text="'정보 없음'"></td> <!-- 크기 제한 ㄱ? -->
+							</td>
+						</tr>
+						<tr class="text-center">
+							<td colspan="2" rowspan="2" id="eventContent" th:utext="${eventContent == null ? '정보 없음' : eventContent}">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<input type="hidden" th:value="${eList}" id="eList" />
+
+			<div class="mb-3" style="display: flex; justify-content: space-between; margin-top: 4rem;">
+				<div class="mt-2" style="font-size: 24px; font-weight: bolder; color: black;">이벤트 내 상품 조회</div>
+				<span class="fs-3 text-end">※상품을 클릭하면<br>상세페이지로 이동합니다.</span>
+				<!-- 검색조건 -->
+				<div class="col-lg-6 col-6">
+					<div class="row p-2 justify-content-end">
+						<div class="col-2">
+							<p class="fs-3 text-end">검색조건 :</p>
+						</div>
+						<div class="col-10" th:if="${#lists.size(eList) != 0}">
+							<a class="p-1 text-center bg-teamcolor1 mx-2 text-white" href="javascript:void()"
+								id="eventNewsDetail">전체</a>
+							<button class="bg-teamcolor1 text-white mx-2" type="button" onclick="eventListCondition(1)">낮은가격순</button>
+							<button class="bg-teamcolor1 text-white mx-2" type="button" onclick="eventListCondition(2)">높은가격순</button>
+							<button class="bg-teamcolor1 text-white mx-2" type="button" onclick="eventListCondition(3)">최신순</button>
+						</div>
+						<div class="col-10" th:if="${#lists.size(eList) == 0}">
+							<a class="text-center p-1 btn-teamcolor" th:href="@{eventNewsDetail.ens(eventNo=${eventNo})}"
+								th:if="${eventNo}"><i class="bi bi-arrow-repeat mx-1 align-middle">초기화</i></a>
+							<a class="text-center p-1 btn-teamcolor" th:href="@{eventNewsDetail.ens(eventNo=0)}"
+								th:unless="${eventNo}"><i class="bi bi-arrow-repeat mx-1 align-middle">초기화</i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!--이벤트 상품 검색-->
+			<div class="mb-2 col-6 text-left">
+				<form action="productSearch.ens">
+					<div class="input-group border-1">
+						<!--이전 주소 유지하기 위해 값 hidden으로 받아놓음-->
+						<input type="hidden" name="search" th:value="${search}">
+						<input type="hidden" name="page" th:value="${page}">
+						<input type="hidden" name="eventNo" th:value="${eventNo}">
+						<input type="text" class="form-control" placeholder="원하는 상품명을 입력해 주세요" name="productNameSearch"
+							id="productNameSearch" />
+					</div>
+				</form>
+			</div>
+			<!--이벤트 상품 검색-->
+
+			<div class="row p-2 justify-content-center text-center" id="eventListsArea"
+				style="height: auto; margin: 0; background-color: white; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+				<!-- ====== 새소식/이벤트 상품들 start (반복되는 부분) ====== -->
+				<div class="col-6 mt-5 mb-5" th:each="e : ${eList}" name="eventLists" th:if="${eList}">
+					<a th:href="@{productDetail(productNo=${e.productNo})}">
+						<img th:src="${e.productImage}" alt="이미지를 불러올 수 없습니다." class="w-50" />
+					</a>
+					<div class="mt-2">
+						<h3 class="ud-blog-title">
+							<div class="text-teamcolor mt-2">
+								<h3 class="custom-h3">[[${e.productPrice}]]</h3>
+								<h1 class="text-teamcolor" th:text="${e.discountedPrice}"></h1> <!--할인 된 가격 나타내기-->
+							</div>
+						</h3>
+						<p class="ud-blog-desc">
+						<h4>[[${e.productName}]]</h4>
+						<span th:text="|행사기간 : ${#dates.format(e.eventStartDate, 'yyyy-MM-dd')}|"></span>
+						<span> ~ </span>
+						<span th:text="${#dates.format(e.eventEndDate, 'yyyy-MM-dd')}"></span>
+						</p>
+					</div>
+				</div>
+				<!--eList 배열 길이가 0일 때-->
+				<div class="col-6 mb-5" th:if="${#lists.size(eList) == 0}">
+					<img class="w-100" src="/market_assets/img/검색결과없음.png" />
+				</div>
+				<!-- ====== 새소식/이벤트 상품들 END ====== -->
+			</div>
+
+
+			<!-- Pagination -->
+			<div class="col-12" id="paging">
+				<!--주소 변수 설정-->
+				<th:block th:if="${productPi}">
+					<div class="m-3">
+						<ul class="pagination justify-content-center" th:with="loc=${#ctx.springRequestContext.requestUri}">
+
+							<th:block th:if="${productPi}">
+								<!--이전으로 가기-->
+								<li class="page-item">
+									<a class="page-link" th:if="!${productNameSearch}"
+										th:classappend="${productPi.currentPage &lt;= 1} ? disable : ''"
+										th:href="${productPi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(search=${search}, page=${page}, eventNo=${eventNo} ,productSearchPage=${productPi.currentPage - 1})}"
+										aria-label="Previous">
+										<span aria-hidden="true">&laquo;</span>
+									</a>
+									<a class="page-link" th:if="${productNameSearch}"
+										th:classappend="${productPi.currentPage &lt;= 1} ? disable : ''"
+										th:href="${productPi.currentPage &lt;= 1} ? 'javascript:void()' : @{${loc}(search=${search}, page=${page}, eventNo=${eventNo}, productNameSearch=${productNameSearch} ,productSearchPage=${productPi.currentPage - 1})}"
+										aria-label="Previous">
+										<span aria-hidden="true">&laquo;</span>
+									</a>
+								</li>
+
+								<!--숫자 버튼-->
+								<li class="page-item" th:each="p : ${#numbers.sequence(productPi.startPage, productPi.endPage)}">
+									<a class="page-link"
+										th:href="@{${loc}(search=${search}, page=${page}, eventNo=${eventNo}, productSearchPage=${p})}"
+										th:text="${p}" th:if="!${productNameSearch}"></a>
+									<a class="page-link"
+										th:href="@{${loc}(search=${search}, page=${page}, eventNo=${eventNo}, productNameSearch=${productNameSearch}, productSearchPage=${p})}"
+										th:text="${p}" th:if="${productNameSearch}"></a>
+								</li>
+
+								<!--다음으로 가기-->
+								<li class="page-item">
+									<a class="page-link" th:if="!${productNameSearch}"
+										th:classappend="${productPi.currentPage &gt;= productPi.endPage} ? disable : ''"
+										th:href="${productPi.currentPage &gt;= productPi.endPage} ? 'javascript:void()' : @{${loc}(search=${search}, page=${page}, eventNo=${eventNo}, productSearchPage=${productPi.currentPage + 1})}"
+										aria-label="Next">
+										<span aria-hidden="true">&raquo;</span>
+									</a>
+									<a class="page-link" th:if="${productNameSearch}"
+										th:classappend="${productPi.currentPage &gt;= productPi.endPage} ? disable : ''"
+										th:href="${productPi.currentPage &gt;= productPi.endPage} ? 'javascript:void()' : @{${loc}(search=${search}, page=${page}, eventNo=${eventNo}, productNameSearch=${productNameSearch}, productSearchPage=${productPi.currentPage + 1})}"
+										aria-label="Next">
+										<span aria-hidden="true">&raquo;</span>
+									</a>
+								</li>
+							</th:block>
+						</ul>
+
+					</div>
+				</th:block>
+			</div>
+			<!-- 여기까지 Pagination -->
+		</div>
+		<div class="col-3"></div>
+
+		<script th:inline="javascript">
+
+
+
+			const eList = /*[[${eList}]]*/''
+
+			//낮은 가격순 제품 조회(1)
+			//높은 가격순 제품 조회(2)
+			//최신순 제품 조회(3)
+			/*<![CDATA[*/
+			const eventNewsDetail = document.getElementById('eventNewsDetail');
+			eventNewsDetail.addEventListener('click', () => {
+				let link = document.location.href;
+				location.href = link;
+			})
+
+			const eventListsArea = document.getElementById('eventListsArea');
+			const pagingArea = document.getElementById('paging');
+			const eventNo = /*[[${eventNo}]]*/''
+			const eventListCondition = (num) => {
+				$.ajax({
+					url: 'eventListCondition.ens',
+					type: "POST",
+					async: true,
+					traditional: true,
+					data: {
+						"num": num,
+						"eventNo": eventNo
+					},
+					success: function (data) {
+						eventListsArea.innerHTML = '';
+						pagingArea.innerHTML = '';
+						for (let i = 0; i < data.length; i++) {
+							console.log(data)
+							const e = data[i];
+
+							const newDiv = document.createElement('div');
+							newDiv.classList.add('col-6', 'mt-5', 'mb-5');
+							newDiv.setAttribute("name", "eventLists");
+
+							const newAtag = document.createElement('a');
+							const url = 'productDetail?productNo=' + e.productNo;
+							newAtag.setAttribute("href", url);
+
+							const newImg = document.createElement('img');
+							newImg.setAttribute("src", e.productImage);
+							newImg.setAttribute("alt", "이미지를 불러올 수 없습니다.");
+							newImg.classList.add('w-50');
+
+							const newDiv2 = document.createElement('div');
+							newDiv2.classList.add('mt-2');
+
+							const newH3 = document.createElement('h3');
+							newH3.classList.add('ud-blog-title');
+							const newDiv3 = document.createElement('div');
+							newDiv3.classList.add('text-teamcolor', 'mt-2');
+							const newH32 = document.createElement('h3');
+							newH32.classList.add('custom-h3');
+							newH32.innerText = priceToString(e.productPrice) + "원";
+							const newH1 = document.createElement('h1');
+							newH1.classList.add('text-teamcolor');
+							newH1.innerText = priceToString(e.discountedPrice) + '원';
+
+							const newPtag = document.createElement('p');
+							newPtag.classList.add('ud-blog-desc');
+							const newH4 = document.createElement('h4');
+							newH4.innerText = e.productName;
+							const newSpan3 = document.createElement('span');
+							newSpan3.innerText = '행사기간 : ' + e.eventStartDate;
+							const spanText = document.createElement('span');
+							spanText.textContent = ' ~ ';
+							const newSpan4 = document.createElement('span');
+							newSpan4.innerText = e.eventEndDate;
+
+							//합치기
+							newDiv.appendChild(newAtag);
+							newAtag.appendChild(newImg);
+							newDiv.appendChild(newDiv2);
+							newDiv2.appendChild(newH3);
+							newH3.appendChild(newDiv3);
+							newDiv3.appendChild(newH32);
+							newDiv3.appendChild(newH1);
+							newDiv2.appendChild(newPtag);
+							newPtag.appendChild(newH4);
+							newPtag.appendChild(newSpan3);
+							newPtag.appendChild(spanText);
+							newPtag.appendChild(newSpan4);
+
+							eventListsArea.appendChild(newDiv);
+
+							pagingArea.innerHTML = '제품 전체 조회 중 입니다.'
+						}
+					},
+					error: (data) => {
+						console.log("실패");
+					}
+				});
+			};
+
+			//검색란에 ' 가 들어올 때 막아주기
+			const productNameSearch = document.getElementById('productNameSearch')
+			productNameSearch.addEventListener("keydown", (e) => {
+				if (productNameSearch.value.includes("'")) {
+					e.preventDefault();
+					alert('입력 불가능한 문자가 포함되어 있습니다.');
+					const search = productNameSearch.value.split("'")[0]
+					productNameSearch.value = search;
+				}
+			})
+			//검색란에 이전 검색어 그대로 유지하기
+			productNameSearch.value = /*[[${productNameSearch}]]*/'';
+
+			const eventLists = document.getElementsByName('eventLists')
+			//숫자에 쉼표 넣기
+			for (let i = 0; i < eList.length; i++) {
+				let originalPriceArea = eventLists[i].children[1].children[0].children[0].children[0] //원래 가격 있는 공간
+				let discountedPriceArea = originalPriceArea.nextElementSibling; //할인 된 가격이 있는 공간
+
+				let originalPrice = originalPriceArea.innerText.split('원')[0]
+				let discountedPrice = discountedPriceArea.innerText.split('원')[0]
+
+				let changedOriginalPrice = priceToString(originalPrice) + '원';
+				let changedDiscountedPrice = priceToString(discountedPrice) + '원';
+
+				originalPriceArea.innerHTML = changedOriginalPrice;
+				discountedPriceArea.innerHTML = changedDiscountedPrice;
+			}
+
+
+			//가져온 사진들 크기 조절하기
+			let eventContentImages = document.querySelectorAll('#eventContent img');
+			for (let i = 0; i < eventContentImages.length; i++) {
+				eventContentImages[i].setAttribute('width', '700px');
+			}
+
+
+
+
+			//숫자에 쉼표 넣어주는 함수
+			function priceToString(price) {
+				return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+			};
+
+
+
+			/*]]>*/
+		</script>
+
+		<div th:replace="~{ views/common/mainFooter :: mainFooter }"></div>
+
+		<div th:replace="~{ views/common/mainAnker :: mainAnker }"></div>
+
+		<div th:replace="~{ views/common/mainScript :: mainScript }"></div>
+
+
+
+
+</body>
+
+</html>

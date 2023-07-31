@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="kor" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>수면의숲 관리자</title>
+
+    <div th:replace="~{views/admin/common/cssAdmin :: cssAdmin}"></div>
+
+    <!-- Jquery JS-->
+    <script src="admin_assets/vendor/jquery-3.2.1.min.js"></script>
+
+    <style>
+        td {text-align: center;}
+    </style>
+</head>
+
+<body>
+    <div class="page-wrapper">
+        
+        <div th:replace="~{views/admin/common/headerAdmin :: headerAdmin}"></div>
+
+        <div th:replace="~{views/admin/common/sideAdmin :: sideAdmin}"></div>
+
+        <div class="page-container">
+
+            <div th:replace="~{views/admin/common/loginHeaderAdmin :: loginHeaderAdmin}"></div>
+
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid" id="mainContentAdmin">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="au-card au-card--no-shadow au-card--no-pad m-b-40">
+                                    <div class="au-card-title">
+                                        <div class="bg-overlay bg-overlay--blue"></div>
+                                        <h3><i class="bi bi-card-text"></i>상품문의 관리</h3>
+                                    </div>
+                                    <div class="au-task js-list-load cardInnerText">
+                                        <div style="min-width: 600px;">
+                                            <span>
+                                                <select id="questionBoardCategory">
+                                                    <option value="all">전체</option>
+                                                    <option value="question_title">제목</option>
+                                                    <option value="question_content">내용</option>
+                                                    <option value="question_answer">답변</option>
+                                                    <option value="product_name">상품명</option>
+                                                    <option value="member_name">이름</option>
+                                                </select>
+                                            </span>
+                                            <select id="questionBoardOrder"> 
+                                                <option value="question_updatedate desc">최근작성순</option> 
+                                                <option value="question_updatedate asc">이전작성순</option> 
+                                            </select>
+                                            <select id="questionBoardStatus"> 
+                                                <option value="all">전체</option> 
+                                                <option value="Y">답변완료</option> 
+                                                <option value="N">답변대기</option> 
+                                            </select>
+                                            <span>
+                                                <input type="text" id="questionBoardQuery">
+                                            </span>    
+                                            <button class="btn btn-primary btn-sm" onclick="getSearchQuestionBoardList();"><i class="bi bi-search"></i>검색</button> 
+                                        </div>
+                                        <br><br>
+                                        <div style="text-align: center;" id="searchedQuestionBoardList">
+                                            <h3>검색 결과가 없습니다.</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+
+        var page = 1;
+        const getSearchQuestionBoardList = () =>{
+            var searchedQuestionBoardList = document.getElementById("searchedQuestionBoardList");
+            var questionBoardCategory = document.getElementById("questionBoardCategory").value;
+            var questionBoardQuery = document.getElementById("questionBoardQuery").value
+            var questionBoardStatus = document.getElementById("questionBoardStatus").value
+            var questionBoardOrder = document.getElementById("questionBoardOrder").value
+            $.ajax({
+                type: 'get',
+                url: 'getSearchQuestionBoardList.admin',
+                dataType: 'html',
+                data: {
+                    "page" : page,
+                    "category" : questionBoardCategory,
+                    "query" : questionBoardQuery,
+                    "status" : questionBoardStatus,
+                    "order" : questionBoardOrder
+                },
+                success: data =>{
+                    searchedQuestionBoardList.innerHTML = data;
+                }
+            });
+        }
+        $(document).on('click', '.page-link', function () {
+            page = $(this).attr('data-page');
+            getSearchQuestionBoardList(); 
+        });
+
+        const questionBoardDetail = (element) =>{
+            var questionNo = element.children[0].value;
+            window.open('questionBoardPopup.admin?questionNo=' + questionNo, "questionBoardPopup", "width=600, height=805px");
+        }
+
+    </script>
+
+    <div th:replace="~{views/admin/common/scriptAdmin :: scriptAdmin}"></div>
+
+    
+</body>
+
+</html>
